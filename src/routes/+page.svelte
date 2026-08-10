@@ -1,10 +1,8 @@
-<script lang="ts">
-	let title = $state('Practice Insight');
-</script>
-
-<main class="flex flex-col items-center justify-center min-h-screen p-6 text-center">
-	<h1 class="text-4xl font-bold tracking-tight text-emerald-400 mb-2">{title}</h1>
-	<p class="text-slate-400 max-w-md">
-		Client-side meditation analytics engine for Insight Timer CSV exports. Phase 1 Project Setup complete.
-	</p>
-</main>
+<!--
+	The layout renders the tab-driven analytics views (Timeline, Comparison,
+	Distribution) plus this page's content below them. Keep this minimal so the
+	charts remain the primary focus.
+-->
+<div class="p-4 text-center text-sm text-[#6E6E6E]">
+	Practice Insight — meditation analytics for Insight Timer CSV exports.
+</div>
