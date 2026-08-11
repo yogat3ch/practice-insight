@@ -14,18 +14,18 @@ We follow a **light‑mode** base (as per the Insight Timer UI) with occasional 
 
 ### 2.1 Base Colors
 
-| Role                          | HEX                    | Usage                                          |
-| ----------------------------- | ---------------------- | ---------------------------------------------- |
-| **Primary Background**        | `#FFFFFF`              | Page, containers, cards                        |
-| **Secondary Background**      | `#F9FAFB`              | Sidebar, control panel background              |
-| **Card Overlay / Dark Areas** | `#121212` – `#1A1A1A`  | Dark chart backgrounds (when using dark theme) |
-| **Divider / Border**          | `#E5E5E5`              | Section dividers, input borders                |
-| **Primary Text**              | `#1C1C1C`              | Headings, body copy                            |
-| **Secondary Text**            | `#6E6E6E`              | Sub‑headings, helper text                      |
-| **Interactive Accent**        | `#10B981` (emerald)    | CTAs, apply buttons, checked radio/checkbox, focus rings, Select All / Deselect All |
+| Role                          | HEX                    | Usage                                                                                     |
+| ----------------------------- | ---------------------- | ----------------------------------------------------------------------------------------- |
+| **Primary Background**        | `#FFFFFF`              | Page, containers, cards                                                                   |
+| **Secondary Background**      | `#F9FAFB`              | Sidebar, control panel background                                                         |
+| **Card Overlay / Dark Areas** | `#121212` – `#1A1A1A`  | Dark chart backgrounds (when using dark theme)                                            |
+| **Divider / Border**          | `#E5E5E5`              | Section dividers, input borders                                                           |
+| **Primary Text**              | `#1C1C1C`              | Headings, body copy                                                                       |
+| **Secondary Text**            | `#6E6E6E`              | Sub‑headings, helper text                                                                 |
+| **Interactive Accent**        | `#10B981` (emerald)    | CTAs, apply buttons, checked radio/checkbox, focus rings, Select All / Deselect All       |
 | **Selection / Status Accent** | `#EAA845` (warm amber) | Removable pills, selected-row highlight, count badges, active tab indicator, alerts/notes |
-| **Success / Highlight**       | `#10B981` (emerald)    | Success messages, positive data points         |
-| **Error**                     | `#EF4444` (red)        | Error states                                   |
+| **Success / Highlight**       | `#10B981` (emerald)    | Success messages, positive data points                                                    |
+| **Error**                     | `#EF4444` (red)        | Error states                                                                              |
 
 > **Accent rule (recent change):** Interactive controls use **emerald** (`#10B981`)
 > — checked radio/checkbox color, focus rings/borders, range slider accent, and the
@@ -76,7 +76,7 @@ We follow a **light‑mode** base (as per the Insight Timer UI) with occasional 
 ### 5.2 Tabs (Timeline / Comparison / Distribution)
 
 - Horizontal tab bar with clear active indicator:
-  - Active tab: underline `2px` solid `#EAA845` (amber — a *status* accent, kept intentionally), text `#1C1C1C`.
+  - Active tab: underline `2px` solid `#EAA845` (amber — a _status_ accent, kept intentionally), text `#1C1C1C`.
   - Inactive tabs: text `#6E6E6E`, hover `#1C1C1C`.
 - Tabs should be keyboard‑focusable and have appropriate `role="tablist"` semantics.
 
