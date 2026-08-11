@@ -7,24 +7,24 @@
  */
 
 import {
-	parse,
-	startOfWeek,
-	startOfDay,
-	isValid,
-	getMonth,
-	getDate,
-	getYear,
-	addYears,
-	subYears,
 	addMonths,
-	setMonth,
+	addYears,
+	getDate,
+	getMonth,
+	getYear,
+	isValid,
+	parse,
 	setDate,
-	startOfYear
+	setMonth,
+	startOfDay,
+	startOfWeek,
+	startOfYear,
+	subYears
 } from 'date-fns';
-import type { Season, Unit } from '../types/filters.js';
 import type { TimeWindowPreset } from '../types/engine.js';
-import type { SeasonalYear } from '../types/temporal.js';
+import type { Season, Unit } from '../types/filters.js';
 import type { SessionEntry } from '../types/session.js';
+import type { SeasonalYear } from '../types/temporal.js';
 
 // ---------------------------------------------------------------------------
 // Date parsing
@@ -163,6 +163,67 @@ export function getSeasonalYear(date: Date): SeasonalYear {
  */
 export function getWeekStart(date: Date): Date {
 	return startOfWeek(date, { weekStartsOn: 1 });
+}
+
+// ---------------------------------------------------------------------------
+// Solar season ranges (§3.3)
+// ---------------------------------------------------------------------------
+
+/**
+ * Returns the calendar bounds of the fixed solar season containing `date`.
+ *
+ * Per §3.3 the four fixed solar milestones are:
+ *   Winter: Dec 22 – Mar 19
+ *   Spring: Mar 20 – Jun 20
+ *   Summer: Jun 21 – Sep 21
+ *   Autumn: Sep 22 – Dec 21
+ *
+ * Unlike the seasonal-year helper (which spans a full Dec 22 → Dec 21 cycle),
+ * this returns just the single season's start and end dates.
+ *
+ * @param date - Any date within the target season.
+ * @returns { startDate, endDate, label } for that season.
+ */
+export function getSeasonRange(date: Date): {
+	startDate: Date;
+	endDate: Date;
+	label: string;
+} {
+	const season = getSeasonForDate(date);
+	const year = getYear(date);
+
+	switch (season) {
+		case 'spring':
+			return {
+				startDate: new Date(year, 2, 20),
+				endDate: new Date(year, 5, 20),
+				label: `Spring ${year}`
+			};
+		case 'summer':
+			return {
+				startDate: new Date(year, 5, 21),
+				endDate: new Date(year, 8, 21),
+				label: `Summer ${year}`
+			};
+		case 'autumn':
+			return {
+				startDate: new Date(year, 8, 22),
+				endDate: new Date(year, 11, 21),
+				label: `Autumn ${year}`
+			};
+		case 'winter': {
+			// Winter spans two calendar years (Dec 22 → Mar 19).
+			// Dec dates belong to the year of their calendar month.
+			const isDec = getMonth(date) === 11;
+			const startYear = isDec ? year : year - 1;
+			const endYear = startYear + 1;
+			return {
+				startDate: new Date(startYear, 11, 22),
+				endDate: new Date(endYear, 2, 19),
+				label: `Winter ${startYear}–${endYear}`
+			};
+		}
+	}
 }
 
 // ---------------------------------------------------------------------------

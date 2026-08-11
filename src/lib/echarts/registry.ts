@@ -8,6 +8,7 @@ import {
 	LegendComponent,
 	MarkAreaComponent,
 	MarkLineComponent,
+	PolarComponent,
 	TitleComponent,
 	TooltipComponent,
 	VisualMapComponent
@@ -28,6 +29,7 @@ echarts.use([
 	LegendComponent,
 	MarkLineComponent,
 	MarkAreaComponent,
+	PolarComponent, // polar + angleAxis + radiusAxis for the Time-of-Day clock
 	VisualMapComponent,
 	CanvasRenderer
 ]);

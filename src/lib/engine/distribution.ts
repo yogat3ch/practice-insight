@@ -2,12 +2,18 @@
  * @fileoverview Distribution & Breakdown calculators for Tab 3.
  *
  * Computes Day-of-Week distributions (Mon–Sun 7-bin), Time-of-Day practice
- * windows (00:00 to 23:00 24-bin), and Activity/Preset proportional shares.
+ * windows (00:00 to 23:00 24-bin), Activity/Preset proportional shares, and
+ * per-temporal-period variants for the grouped heatmap matrix and stacked-bar
+ * breakdown (§5.3).
  */
 
-import type { Unit } from '../types/filters.js';
+import type { DistributionMetric } from '../types/engine.js';
+import type { Granularity, Unit } from '../types/filters.js';
 import type { SessionEntry } from '../types/session.js';
-import { convertValue } from './aggregators.js';
+import { convertValue, getPeriodForDate } from './aggregators.js';
+
+/** Grouping mode for the Activity & Preset breakdown charts. */
+export type BreakdownMode = 'activity' | 'preset';
 
 /** Single day of week bin (Mon=0 to Sun=6). */
 export interface DayOfWeekBin {
@@ -24,6 +30,7 @@ export interface TimeOfDayBin {
 	readonly hourLabel: string; // '00:00', '01:00', etc.
 	readonly sessionCount: number;
 	readonly totalValue: number;
+	readonly averageValue: number;
 }
 
 /** Single item in Activity or Preset proportional breakdown. */
@@ -31,7 +38,27 @@ export interface CategoryBreakdownItem {
 	readonly name: string;
 	readonly sessionCount: number;
 	readonly totalValue: number;
+	readonly averageValue: number;
 	readonly percentage: number; // 0 to 100
+}
+
+/**
+ * A single temporal period (week/month/quarter/season/year) in a grouped
+ * Day-of-Week distribution. Each period contributes one row of the heatmap
+ * matrix or one group of the stacked bar.
+ */
+export interface DayOfWeekPeriodBin {
+	readonly period: string; // e.g. "Jul 2026" or "Winter 2025–26"
+	readonly bins: DayOfWeekBin[];
+}
+
+/**
+ * A single temporal period in a grouped Activity/Preset breakdown. Each
+ * period contributes one stacked segment/bar across the breakdown categories.
+ */
+export interface CategoryPeriodItem {
+	readonly period: string; // e.g. "Jul 2026"
+	readonly items: CategoryBreakdownItem[];
 }
 
 const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const;
@@ -111,7 +138,8 @@ export function computeTimeOfDayDistribution(
 		hour,
 		hourLabel: `${hour.toString().padStart(2, '0')}:00`,
 		sessionCount: counts[hour],
-		totalValue: totals[hour]
+		totalValue: totals[hour],
+		averageValue: counts[hour] > 0 ? totals[hour] / counts[hour] : 0
 	}));
 }
 
@@ -160,9 +188,107 @@ export function computeCategoryBreakdown(
 			name,
 			sessionCount: data.count,
 			totalValue: data.totalVal,
+			averageValue: data.count > 0 ? data.totalVal / data.count : 0,
 			percentage
 		});
 	}
 
 	return items.sort((a, b) => b.totalValue - a.totalValue);
+}
+
+/**
+ * Selects the scalar value to chart for a given distribution metric (§5.3):
+ * total practice duration, session count, or average session length.
+ *
+ * @param totalValue - Aggregated duration value in the display unit.
+ * @param sessionCount - Number of sessions contributing to the bin.
+ * @param averageValue - Average session length (totalValue / sessionCount).
+ * @param metric - Metric calculation mode.
+ * @returns The metric value to plot.
+ */
+export function metricValueOf(
+	totalValue: number,
+	sessionCount: number,
+	averageValue: number,
+	metric: DistributionMetric
+): number {
+	switch (metric) {
+		case 'sessionCount':
+			return sessionCount;
+		case 'averageDuration':
+			return averageValue;
+		case 'totalDuration':
+		default:
+			return totalValue;
+	}
+}
+
+/**
+ * Groups filtered sessions by temporal period (Week/Month/Quarter/Season/Year)
+ * and computes the Mon–Sun day-of-week distribution for each period (§5.3).
+ *
+ * @param sessions - Filtered session entries.
+ * @param unit - Display unit.
+ * @param thresholdMinutes - Exclude sessions shorter than this value.
+ * @param grouping - Temporal grouping granularity.
+ * @returns Chronologically ordered per-period day-of-week bins.
+ */
+export function computeDayOfWeekPeriodDistribution(
+	sessions: SessionEntry[],
+	unit: Unit,
+	thresholdMinutes: number,
+	grouping: Granularity
+): DayOfWeekPeriodBin[] {
+	const periods = new Map<string, { label: string; sessions: SessionEntry[] }>();
+
+	for (const session of sessions) {
+		const { label, key } = getPeriodForDate(session.startedAt, grouping);
+		const existing = periods.get(key);
+		if (existing) {
+			existing.sessions.push(session);
+		} else {
+			periods.set(key, { label, sessions: [session] });
+		}
+	}
+
+	return Array.from(periods.entries()).map(([, period]) => ({
+		period: period.label,
+		bins: computeDayOfWeekDistribution(period.sessions, unit, thresholdMinutes)
+	}));
+}
+
+/**
+ * Groups filtered sessions by temporal period and computes the Activity or
+ * Preset breakdown share for each period (§5.3).
+ *
+ * @param sessions - Filtered session entries.
+ * @param unit - Display unit.
+ * @param mode - Group by 'activity' or 'preset'.
+ * @param thresholdMinutes - Exclude sessions shorter than this value.
+ * @param grouping - Temporal grouping granularity.
+ * @returns Chronologically ordered per-period category breakdown items.
+ */
+export function computeCategoryPeriodBreakdown(
+	sessions: SessionEntry[],
+	unit: Unit,
+	mode: BreakdownMode,
+	thresholdMinutes: number,
+	grouping: Granularity
+): CategoryPeriodItem[] {
+	const periods = new Map<string, { label: string; sessions: SessionEntry[] }>();
+
+	for (const session of sessions) {
+		const { label, key } = getPeriodForDate(session.startedAt, grouping);
+		const existing = periods.get(key);
+		if (existing) {
+			existing.sessions.push(session);
+		} else {
+			periods.set(key, { label, sessions: [session] });
+		}
+	}
+
+	return Array.from(periods.entries()).map(([, period]) => ({
+		period: period.label,
+		items: computeCategoryBreakdown(period.sessions, unit, mode, thresholdMinutes)
+	}));
 }

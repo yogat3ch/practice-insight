@@ -18,12 +18,14 @@ import {
 	DEFAULT_COMPARISON_CONFIG,
 	DEFAULT_DISTRIBUTION_CONFIG,
 	DEFAULT_TIMELINE_CONFIG,
+	type BreakdownMode,
 	type ComparisonConfig,
 	type ComparisonPeriod,
 	type DistributionCategory,
 	type DistributionChartStyle,
 	type DistributionConfig,
 	type DistributionMetric,
+	type DistributionTemporalGrouping,
 	type SplitBy,
 	type TabId,
 	type TimelineConfig,
@@ -45,8 +47,11 @@ import {
 } from './compilers/comparison-compiler.js';
 import {
 	compileCategoryBreakdownOption,
+	compileCategoryStackedBar,
+	compileDayOfWeekHeatmapMatrix,
 	compileDayOfWeekOption,
-	compileTimeOfDayOption
+	compileTimeOfDayOption,
+	emptyDistributionOption
 } from './compilers/distribution-compiler.js';
 import {
 	compileSplitTimelineOption,
@@ -54,10 +59,14 @@ import {
 } from './compilers/timeline-compiler.js';
 import {
 	computeCategoryBreakdown,
+	computeCategoryPeriodBreakdown,
 	computeDayOfWeekDistribution,
+	computeDayOfWeekPeriodDistribution,
 	computeTimeOfDayDistribution,
 	type CategoryBreakdownItem,
+	type CategoryPeriodItem,
 	type DayOfWeekBin,
+	type DayOfWeekPeriodBin,
 	type TimeOfDayBin
 } from './distribution.js';
 import {
@@ -296,6 +305,19 @@ export class PracticeDataEngine {
 		);
 	}
 
+	/**
+	 * Per-temporal-period Day-of-Week distributions for the heatmap matrix.
+	 * Each entry is one row (week/month/quarter/season/year).
+	 */
+	get dayOfWeekPeriodBins(): DayOfWeekPeriodBin[] {
+		return computeDayOfWeekPeriodDistribution(
+			this.filteredSessions,
+			this.#filters.unit,
+			this.#distributionConfig.thresholdMinutes,
+			this.#distributionConfig.temporalGrouping
+		);
+	}
+
 	/** 24-bin Time-of-Day hourly start-time density calculation. */
 	get timeOfDayBins(): TimeOfDayBin[] {
 		return computeTimeOfDayDistribution(
@@ -310,24 +332,79 @@ export class PracticeDataEngine {
 		return computeCategoryBreakdown(
 			this.filteredSessions,
 			this.#filters.unit,
-			this.#distributionConfig.category === 'breakdown' ? 'activity' : 'preset',
+			this.#distributionConfig.breakdownMode,
 			this.#distributionConfig.thresholdMinutes
 		);
 	}
 
-	/** Declarative ECharts option JSON payload for Tab 3. */
+	/**
+	 * Per-temporal-period category breakdowns for the grouped stacked bar.
+	 * Each entry is one horizontal bar (week/month/quarter/season/year).
+	 */
+	get categoryPeriodItems(): CategoryPeriodItem[] {
+		return computeCategoryPeriodBreakdown(
+			this.filteredSessions,
+			this.#filters.unit,
+			this.#distributionConfig.breakdownMode,
+			this.#distributionConfig.thresholdMinutes,
+			this.#distributionConfig.temporalGrouping
+		);
+	}
+
+	/**
+	 * Declarative ECharts option JSON payload for Tab 3.
+	 *
+	 * Wires the full distribution control surface (§5.3):
+	 *   - category → the correct compiler family
+	 *   - chartStyle → the correct chart shape (bar/heatmap matrix, polar/
+	 *     histogram, donut/stacked bar)
+	 *   - metric → flows through every calculator via metricValueOf
+	 *   - temporalGrouping → groups heatmap rows and stacked-bar segments
+	 *   - thresholdMinutes → filters bins upstream in the calculators
+	 */
 	get distributionOption(): EChartsOption {
-		const { category, chartStyle } = this.#distributionConfig;
+		const { category, chartStyle, metric, temporalGrouping } = this.#distributionConfig;
+		const unit = this.#filters.unit;
+
 		if (category === 'dayOfWeek') {
-			const style = chartStyle === 'heatmap' ? 'heatmap' : 'bar';
-			return compileDayOfWeekOption(this.dayOfWeekBins, this.#filters.unit, style);
+			// Heatmap style uses the multi-period matrix when grouping is active;
+			// otherwise it degrades to the single "Volume" row heatmap.
+			if (chartStyle === 'heatmap') {
+				const periods = this.dayOfWeekPeriodBins;
+				if (periods.length > 0) {
+					return compileDayOfWeekHeatmapMatrix(periods, unit, metric, temporalGrouping);
+				}
+				return compileDayOfWeekOption(this.dayOfWeekBins, unit, 'heatmap', metric);
+			}
+			return compileDayOfWeekOption(this.dayOfWeekBins, unit, 'bar', metric);
 		}
+
 		if (category === 'timeOfDay') {
 			const style = chartStyle === 'polar' ? 'polar' : 'histogram';
-			return compileTimeOfDayOption(this.timeOfDayBins, this.#filters.unit, style);
+			return compileTimeOfDayOption(this.timeOfDayBins, unit, style, metric);
 		}
-		const style = chartStyle === 'stackedBar' ? 'stackedBar' : 'donut';
-		return compileCategoryBreakdownOption(this.categoryBreakdownItems, this.#filters.unit, style);
+
+		// Activity & Preset breakdown.
+		if (chartStyle === 'stackedBar') {
+			const periods = this.categoryPeriodItems;
+			if (periods.length > 0) {
+				return compileCategoryStackedBar(periods, unit, metric, temporalGrouping);
+			}
+			return compileCategoryBreakdownOption(
+				this.categoryBreakdownItems,
+				unit,
+				'stackedBar',
+				metric
+			);
+		}
+		return compileCategoryBreakdownOption(this.categoryBreakdownItems, unit, 'donut', metric);
+	}
+
+	/**
+	 * Empty-state ECharts option for Tab 3, shown when no data is loaded.
+	 */
+	get emptyDistributionOption(): EChartsOption {
+		return emptyDistributionOption();
 	}
 
 	// -------------------------------------------------------------------------
@@ -523,6 +600,26 @@ export class PracticeDataEngine {
 
 	setDistributionMetric(metric: DistributionMetric): void {
 		this.#distributionConfig = { ...this.#distributionConfig, metric };
+	}
+
+	/**
+	 * Sets the temporal grouping granularity for the Day-of-Week heatmap
+	 * matrix rows and the stacked-bar breakdown segments (§5.3).
+	 *
+	 * @param temporalGrouping - Week/Month/Quarter/Season/Year.
+	 */
+	setTemporalGrouping(temporalGrouping: DistributionTemporalGrouping): void {
+		this.#distributionConfig = { ...this.#distributionConfig, temporalGrouping };
+	}
+
+	/**
+	 * Sets whether the Activity & Preset breakdown groups by activity or
+	 * preset (§5.3).
+	 *
+	 * @param breakdownMode - 'activity' | 'preset'.
+	 */
+	setBreakdownMode(breakdownMode: BreakdownMode): void {
+		this.#distributionConfig = { ...this.#distributionConfig, breakdownMode };
 	}
 
 	setThresholdMinutes(thresholdMinutes: number): void {

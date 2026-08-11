@@ -2,7 +2,7 @@
  * @fileoverview View control and configuration types for PracticeDataEngine.
  */
 
-import type { Granularity, Season } from './filters.js';
+import type { Granularity } from './filters.js';
 
 /** Active top-level visualization tab. */
 export type TabId = 'timeline' | 'comparison' | 'distribution';
@@ -82,15 +82,19 @@ export type DistributionCategory = 'dayOfWeek' | 'timeOfDay' | 'breakdown';
 
 /** Available chart rendering styles per distribution category. */
 export type DistributionChartStyle =
-	| 'heatmap'
-	| 'bar'
-	| 'polar'
-	| 'histogram'
-	| 'donut'
-	| 'stackedBar';
+	'heatmap' | 'bar' | 'polar' | 'histogram' | 'donut' | 'stackedBar';
 
 /** Metric calculation mode for distribution breakdowns. */
 export type DistributionMetric = 'totalDuration' | 'sessionCount' | 'averageDuration';
+
+/**
+ * Temporal grouping for the multi-period heatmap matrix (Day-of-Week) and
+ * the stacked-bar breakdown. Each period becomes a row/segment in the chart.
+ */
+export type DistributionTemporalGrouping = 'week' | 'month' | 'quarter' | 'season' | 'year';
+
+/** Category group mode for the Activity & Preset Breakdown charts. */
+export type BreakdownMode = 'activity' | 'preset';
 
 /** Configuration state for Tab 3: Distribution & Breakdown Mode. */
 export interface DistributionConfig {
@@ -99,6 +103,14 @@ export interface DistributionConfig {
 	readonly metric: DistributionMetric;
 	/** Threshold in minutes — sessions shorter than this value are excluded from calculation. */
 	readonly thresholdMinutes: number;
+	/**
+	 * Temporal grouping applied to the Day-of-Week heatmap matrix rows and the
+	 * Activity/Preset stacked-bar segments. Ignored by single-period charts
+	 * (Day-of-Week bar, Time-of-Day polar/histogram, donut).
+	 */
+	readonly temporalGrouping: DistributionTemporalGrouping;
+	/** Whether the Activity & Preset breakdown groups by activity or preset. */
+	readonly breakdownMode: BreakdownMode;
 }
 
 /** Default configuration for Distribution mode. */
@@ -106,5 +118,7 @@ export const DEFAULT_DISTRIBUTION_CONFIG: DistributionConfig = {
 	category: 'dayOfWeek',
 	chartStyle: 'heatmap',
 	metric: 'totalDuration',
-	thresholdMinutes: 0
+	thresholdMinutes: 0,
+	temporalGrouping: 'month',
+	breakdownMode: 'activity'
 };

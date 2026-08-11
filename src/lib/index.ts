@@ -25,6 +25,7 @@ export type {
 	DistributionChartStyle,
 	DistributionConfig,
 	DistributionMetric,
+	DistributionTemporalGrouping,
 	SplitBy,
 	TabId,
 	TimelineConfig,
@@ -41,14 +42,25 @@ export type { SeasonalYear, TimeBucket } from './types/temporal.js';
 export {
 	aggregateTimelineBuckets,
 	convertValue,
+	getPeriodForDate,
 	groupBucketsBySegment
 } from './engine/aggregators.js';
 export {
 	computeCategoryBreakdown,
+	computeCategoryPeriodBreakdown,
 	computeDayOfWeekDistribution,
-	computeTimeOfDayDistribution
+	computeDayOfWeekPeriodDistribution,
+	computeTimeOfDayDistribution,
+	metricValueOf
 } from './engine/distribution.js';
-export type { CategoryBreakdownItem, DayOfWeekBin, TimeOfDayBin } from './engine/distribution.js';
+export type {
+	BreakdownMode,
+	CategoryBreakdownItem,
+	CategoryPeriodItem,
+	DayOfWeekBin,
+	DayOfWeekPeriodBin,
+	TimeOfDayBin
+} from './engine/distribution.js';
 export {
 	computeLinearRegression,
 	computeMean,
@@ -65,8 +77,11 @@ export {
 export type { ComparisonSeriesData } from './engine/compilers/comparison-compiler.js';
 export {
 	compileCategoryBreakdownOption,
+	compileCategoryStackedBar,
+	compileDayOfWeekHeatmapMatrix,
 	compileDayOfWeekOption,
-	compileTimeOfDayOption
+	compileTimeOfDayOption,
+	emptyDistributionOption
 } from './engine/compilers/distribution-compiler.js';
 export {
 	compileSplitTimelineOption,
@@ -85,6 +100,7 @@ export {
 	formatDuration,
 	getSeasonalYear,
 	getSeasonForDate,
+	getSeasonRange,
 	getWeekStart,
 	parseDurationToSeconds,
 	parseInsightTimerDate

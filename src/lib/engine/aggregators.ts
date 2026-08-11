@@ -7,32 +7,32 @@
  */
 
 import {
-	format,
-	startOfDay,
-	endOfDay,
-	startOfWeek,
-	endOfWeek,
-	startOfMonth,
-	endOfMonth,
-	startOfQuarter,
-	endOfQuarter,
-	startOfYear,
-	endOfYear,
 	addDays,
-	addWeeks,
 	addMonths,
 	addQuarters,
+	addWeeks,
 	addYears,
+	endOfDay,
+	endOfMonth,
+	endOfQuarter,
+	endOfWeek,
+	endOfYear,
+	format,
 	isAfter,
 	isBefore,
+	max,
 	min,
-	max
+	startOfDay,
+	startOfMonth,
+	startOfQuarter,
+	startOfWeek,
+	startOfYear
 } from 'date-fns';
-import type { Granularity, Unit } from '../types/filters.js';
 import type { SplitBy } from '../types/engine.js';
+import type { Granularity, Unit } from '../types/filters.js';
 import type { SessionEntry } from '../types/session.js';
 import type { TimeBucket } from '../types/temporal.js';
-import { getSeasonForDate, getSeasonalYear } from '../utils/date-utils.js';
+import { getSeasonForDate, getSeasonRange, getSeasonalYear } from '../utils/date-utils.js';
 
 /**
  * Converts duration seconds or session count to a numeric scalar for the given unit.
@@ -46,6 +46,32 @@ export function convertValue(seconds: number, unit: Unit): number {
 	if (unit === 'sessions') return 1.0;
 	if (unit === 'hours') return seconds / 3600;
 	return seconds / 60; // minutes
+}
+
+/**
+ * Returns the temporal interval metadata (label, calendar bounds, stable key)
+ * that contains `date` for a given granularity. Public wrapper around the
+ * internal interval helper so distribution calculators can bucket sessions
+ * into temporal periods (Week/Month/Quarter/Season/Year) without duplicating
+ * the calendar math used by the aggregation pipeline (§5.3).
+ *
+ * For 'season' this returns the fixed solar season bounds (e.g. Spring =
+ * Mar 20 – Jun 20) rather than the full Dec 22 → Dec 21 seasonal-year cycle,
+ * so each season renders as its own row in the grouped charts.
+ *
+ * @param date - Target date.
+ * @param granularity - Period granularity.
+ * @returns Interval metadata (label, startDate, endDate, key).
+ */
+export function getPeriodForDate(
+	date: Date,
+	granularity: Granularity
+): { label: string; startDate: Date; endDate: Date; key: string } {
+	if (granularity === 'season') {
+		const range = getSeasonRange(date);
+		return { ...range, key: range.label };
+	}
+	return getIntervalRange(date, granularity);
 }
 
 /** Internal helper computing interval start, end, and label for a target date. */
