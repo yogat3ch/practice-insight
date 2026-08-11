@@ -92,7 +92,7 @@
 			id="timeWindowSelect"
 			bind:value={timePreset}
 			onchange={() => selectPreset(timePreset)}
-			class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1.5 text-sm focus:border-[#EAA845] focus:ring-2 focus:ring-[#EAA845]/40 focus:outline-none"
+			class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1.5 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 focus:outline-none"
 		>
 			{#each TIME_WINDOW_OPTIONS as opt}
 				<option value={opt.value}>{opt.label}</option>
@@ -110,14 +110,14 @@
 					From
 					<Tooltip for="timelineFrom" />
 				</label>
-				<input id="timelineFrom" type="date" bind:value={customFrom} class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1 text-sm focus:border-[#EAA845] focus:ring-2 focus:ring-[#EAA845]/40 focus:outline-none" />
+				<input id="timelineFrom" type="date" bind:value={customFrom} class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 focus:outline-none" />
 			</div>
 			<div class="flex-1">
 				<label for="timelineTo" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
 					To
 					<Tooltip for="timelineTo" />
 				</label>
-				<input id="timelineTo" type="date" bind:value={customTo} class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1 text-sm focus:border-[#EAA845] focus:ring-2 focus:ring-[#EAA845]/40 focus:outline-none" />
+				<input id="timelineTo" type="date" bind:value={customTo} class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 focus:outline-none" />
 			</div>
 		</div>
 	{/if}
@@ -131,7 +131,7 @@
 		<select
 			id="granularitySelect"
 			bind:value={granularity}
-			class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1.5 text-sm focus:border-[#EAA845] focus:ring-2 focus:ring-[#EAA845]/40 focus:outline-none"
+			class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1.5 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 focus:outline-none"
 		>
 			{#each GRANULARITY_OPTIONS as opt}
 				<option value={opt.value}>{opt.label}</option>
@@ -148,7 +148,7 @@
 		<select
 			id="splitBySelect"
 			bind:value={splitBy}
-			class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1.5 text-sm focus:border-[#EAA845] focus:ring-2 focus:ring-[#EAA845]/40 focus:outline-none"
+			class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1.5 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 focus:outline-none"
 		>
 			{#each SPLIT_OPTIONS as opt}
 				<option value={opt.value}>{opt.label}</option>
@@ -159,7 +159,7 @@
 				<input
 					type="checkbox"
 					bind:checked={useChartGrid}
-					class="w-4 h-4 rounded border-[#9CA3AF] text-[#EAA845] focus:ring-[#EAA845]/40"
+					class="w-4 h-4 rounded border-[#9CA3AF] text-emerald-500 focus:ring-emerald-500/40"
 				/>
 				Show as separate chart cards
 			</label>
@@ -182,7 +182,7 @@
 			max="30"
 			step="1"
 			bind:value={movingAverageDays}
-			class="w-full accent-[#EAA845]"
+			class="w-full accent-emerald-500"
 		/>
 	</div>
 
@@ -193,15 +193,15 @@
 			<Tooltip for="statisticalOverlays" />
 		</legend>
 		<label class="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer">
-			<input type="checkbox" bind:checked={showMean} class="w-4 h-4 rounded border-[#9CA3AF] text-[#EAA845] focus:ring-[#EAA845]/40" />
+			<input type="checkbox" bind:checked={showMean} class="w-4 h-4 rounded border-[#9CA3AF] text-emerald-500 focus:ring-emerald-500/40" />
 			Mean (μ)
 		</label>
 		<label class="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer">
-			<input type="checkbox" bind:checked={showStdDev} class="w-4 h-4 rounded border-[#9CA3AF] text-[#EAA845] focus:ring-[#EAA845]/40" />
+			<input type="checkbox" bind:checked={showStdDev} class="w-4 h-4 rounded border-[#9CA3AF] text-emerald-500 focus:ring-emerald-500/40" />
 			±1 Std Dev (σ)
 		</label>
 		<label class="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer">
-			<input type="checkbox" bind:checked={showLinearTrend} class="w-4 h-4 rounded border-[#9CA3AF] text-[#EAA845] focus:ring-[#EAA845]/40" />
+			<input type="checkbox" bind:checked={showLinearTrend} class="w-4 h-4 rounded border-[#9CA3AF] text-emerald-500 focus:ring-emerald-500/40" />
 			Linear Trendline
 		</label>
 	</fieldset>

@@ -76,7 +76,7 @@
 						value={opt.value}
 						checked={strategy === opt.value}
 						onchange={() => (strategy = opt.value)}
-						class="w-4 h-4 text-[#EAA845] focus:ring-[#EAA845]/40 focus:outline-none"
+						class="w-4 h-4 text-emerald-500 focus:ring-emerald-500/40 focus:outline-none"
 					/>
 					{opt.label}
 				</label>
@@ -94,7 +94,7 @@
 			<input
 				type="checkbox"
 				bind:checked={lockYAxis}
-				class="w-4 h-4 rounded border-[#9CA3AF] text-[#EAA845] focus:ring-[#EAA845]/40 focus:outline-none"
+				class="w-4 h-4 rounded border-[#9CA3AF] text-emerald-500 focus:ring-emerald-500/40 focus:outline-none"
 			/>
 		</span>
 	</label>
@@ -114,7 +114,7 @@
 						value={opt.value}
 						checked={xAxisAlignment === opt.value}
 						onchange={() => (xAxisAlignment = opt.value)}
-						class="w-4 h-4 text-[#EAA845] focus:ring-[#EAA845]/40 focus:outline-none"
+						class="w-4 h-4 text-emerald-500 focus:ring-emerald-500/40 focus:outline-none"
 					/>
 					{opt.label}
 				</label>
@@ -140,7 +140,7 @@
 							value={period.color || '#10b981'}
 							onchange={(e) => updatePeriodColor(period.id, (e.currentTarget as HTMLInputElement).value)}
 							aria-label={`Color for ${period.label}`}
-							class="w-7 h-7 shrink-0 cursor-pointer border border-[#E5E7EB] rounded bg-white p-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EAA845]"
+							class="w-7 h-7 shrink-0 cursor-pointer border border-[#E5E7EB] rounded bg-white p-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
 						/>
 						<div class="min-w-0 flex-1">
 							<p class="text-sm font-medium text-[#1C1C1C] truncate">{period.label}</p>
@@ -173,7 +173,7 @@
 						id="comparisonFrom"
 						type="date"
 						bind:value={newFrom}
-						class="w-7/8 min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-0.5 text-sm focus:border-[#EAA845] focus:ring-2 focus:ring-[#EAA845]/40 focus:outline-none"
+						class="w-7/8 min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-0.5 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 focus:outline-none"
 					/>
 				</div>
 				<div class="flex-1">
@@ -185,7 +185,7 @@
 						id="comparisonTo"
 						type="date"
 						bind:value={newTo}
-						class="w-7/8 min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-0.5 text-sm focus:border-[#EAA845] focus:ring-2 focus:ring-[#EAA845]/40 focus:outline-none"
+						class="w-7/8 min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-0.5 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 focus:outline-none"
 					/>
 				</div>
 			</div>
@@ -198,14 +198,14 @@
 					id="comparisonColor"
 					type="color"
 					bind:value={newColor}
-					class="w-12 h-9 cursor-pointer border border-[#E5E7EB] rounded bg-white p-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EAA845]"
+					class="w-12 h-9 cursor-pointer border border-[#E5E7EB] rounded bg-white p-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
 				/>
 			</div>
 			<button
 				type="button"
 				onclick={addPeriod}
 				disabled={!newFrom || !newTo}
-				class="w-full px-3 py-1.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-md text-sm font-medium text-[#1C1C1C] hover:bg-[#F3F4F6] disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EAA845]"
+				class="w-full px-3 py-1.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-md text-sm font-medium text-[#1C1C1C] hover:bg-[#F3F4F6] disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
 			>
 				+ Add Period
 			</button>

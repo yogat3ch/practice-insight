@@ -84,7 +84,7 @@
 	onmouseleave={hide}
 	onfocus={show}
 	onblur={hide}
-	class="inline-flex align-super text-[#B45309] hover:text-[#92400E] rounded-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EAA845]"
+	class="inline-flex align-super text-[#1C1C1C] hover:text-[#9e9e9e] rounded-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
 >
 	<CircleQuestionMark class="w-3.5 h-3.5" aria-hidden="true" />
 </button>

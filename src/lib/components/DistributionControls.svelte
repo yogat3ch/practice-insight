@@ -103,7 +103,7 @@
 			id="categorySelect"
 			value={category}
 			onchange={(e) => selectCategory((e.currentTarget as HTMLSelectElement).value as DistributionCategory)}
-			class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1.5 text-sm focus:border-[#EAA845] focus:ring-2 focus:ring-[#EAA845]/40 focus:outline-none"
+			class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1.5 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 focus:outline-none"
 		>
 			{#each CATEGORY_OPTIONS as opt}
 				<option value={opt.value}>{opt.label}</option>
@@ -126,7 +126,7 @@
 						value={opt.value}
 						checked={chartStyle === opt.value}
 						onchange={() => (chartStyle = opt.value)}
-						class="w-4 h-4 text-[#EAA845] focus:ring-[#EAA845]/40 focus:outline-none"
+						class="w-4 h-4 text-emerald-500 focus:ring-emerald-500/40 focus:outline-none"
 					/>
 					{opt.label}
 				</label>
@@ -150,7 +150,7 @@
 							value={opt.value}
 							checked={breakdownMode === opt.value}
 							onchange={() => (breakdownMode = opt.value)}
-							class="w-4 h-4 text-[#EAA845] focus:ring-[#EAA845]/40 focus:outline-none"
+							class="w-4 h-4 text-emerald-500 focus:ring-emerald-500/40 focus:outline-none"
 						/>
 						{opt.label}
 					</label>
@@ -168,7 +168,7 @@
 		<select
 			id="temporalGroupingSelect"
 			bind:value={temporalGrouping}
-			class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1.5 text-sm focus:border-[#EAA845] focus:ring-2 focus:ring-[#EAA845]/40 focus:outline-none"
+			class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1.5 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 focus:outline-none"
 		>
 			{#each GROUPING_OPTIONS as opt}
 				<option value={opt.value}>{opt.label}</option>
@@ -196,7 +196,7 @@
 						value={opt.value}
 						checked={metric === opt.value}
 						onchange={() => (metric = opt.value)}
-						class="w-4 h-4 text-[#EAA845] focus:ring-[#EAA845]/40 focus:outline-none"
+						class="w-4 h-4 text-emerald-500 focus:ring-emerald-500/40 focus:outline-none"
 					/>
 					{opt.label}
 				</label>
@@ -216,7 +216,7 @@
 			min="0"
 			step="1"
 			bind:value={thresholdMinutes}
-			class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1.5 text-sm focus:border-[#EAA845] focus:ring-2 focus:ring-[#EAA845]/40 focus:outline-none"
+			class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1.5 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 focus:outline-none"
 			placeholder="0"
 		/>
 		<p class="mt-1 text-xs text-[#6E6E6E]">Ignore sessions shorter than this many minutes.</p>

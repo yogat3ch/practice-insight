@@ -115,7 +115,7 @@
             role="listbox"
             aria-multiselectable="true"
             aria-labelledby="activitySelectLabel"
-            class="w-full max-h-40 overflow-y-auto bg-white border border-[#E5E7EB] rounded text-sm focus-within:border-[#EAA845] focus-within:ring-2 focus-within:ring-[#EAA845]/40"
+            class="w-full max-h-40 overflow-y-auto bg-white border border-[#E5E7EB] rounded text-sm focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/40"
         >
             {#if activities.length === 0}
                 <p class="px-2 py-1.5 text-xs text-[#6E6E6E]">No activities available</p>
@@ -130,7 +130,7 @@
                         class="block w-full text-left px-2 text-sm transition-colors focus:outline-none focus-visible:bg-[#EAA845]/20 {isSelected ? 'bg-[#EAA845]/15 text-[#1C1C1C]' : 'text-[#1C1C1C] hover:bg-[#F9FAFB]'}"
                     >
                         <span class="inline-flex items-center gap-2">
-                            <span class="inline-block w-3 h-3 rounded border {isSelected ? 'bg-[#EAA845] border-[#EAA845]' : 'border-[#9CA3AF]'}"></span>
+                            <span class="inline-block w-3 h-3 rounded border {isSelected ? 'bg-emerald-500 border-emerald-500' : 'border-[#9CA3AF]'}"></span>
                             {act}
                         </span>
                     </button>
@@ -138,10 +138,10 @@
             {/if}
         </div>
         <div class="mt-1.5 flex items-center gap-3 text-xs">
-            <button type="button" onclick={selectAllActivities} class="font-semibold text-[#B45309] hover:text-[#92400E] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EAA845] rounded transition-colors">
+            <button type="button" onclick={selectAllActivities} class="font-semibold text-emerald-600 hover:text-emerald-500 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded transition-colors">
                 Select All
             </button>
-            <button type="button" onclick={deselectAllActivities} class="font-semibold text-[#B45309] hover:text-[#92400E] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EAA845] rounded transition-colors">
+            <button type="button" onclick={deselectAllActivities} class="font-semibold text-emerald-600 hover:text-emerald-500 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded transition-colors">
                 Deselect All
             </button>
         </div>
@@ -173,7 +173,7 @@
             role="listbox"
             aria-multiselectable="true"
             aria-labelledby="presetSelectLabel"
-            class="w-full max-h-40 overflow-y-auto bg-white border border-[#E5E7EB] rounded text-sm focus-within:border-[#EAA845] focus-within:ring-2 focus-within:ring-[#EAA845]/40"
+            class="w-full max-h-40 overflow-y-auto bg-white border border-[#E5E7EB] rounded text-sm focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/40"
         >
             {#if presets.length === 0}
                 <p class="px-2 py-1.5 text-xs text-[#6E6E6E]">No presets available</p>
@@ -188,7 +188,7 @@
                         class="block w-full text-left px-2 text-sm transition-colors focus:outline-none focus-visible:bg-[#EAA845]/20 {isSelected ? 'bg-[#EAA845]/15 text-[#1C1C1C]' : 'text-[#1C1C1C] hover:bg-[#F9FAFB]'}"
                     >
                         <span class="inline-flex items-center gap-2">
-                            <span class="inline-block w-3 h-3 rounded border {isSelected ? 'bg-[#EAA845] border-[#EAA845]' : 'border-[#9CA3AF]'}"></span>
+                            <span class="inline-block w-3 h-3 rounded border {isSelected ? 'bg-emerald-500 border-emerald-500' : 'border-[#9CA3AF]'}"></span>
                             {pre}
                         </span>
                     </button>
@@ -196,10 +196,10 @@
             {/if}
         </div>
         <div class="mt-1.5 flex items-center gap-3 text-xs">
-            <button type="button" onclick={selectAllPresets} class="font-semibold text-[#B45309] hover:text-[#92400E] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EAA845] rounded transition-colors">
+            <button type="button" onclick={selectAllPresets} class="font-semibold text-emerald-600 hover:text-emerald-500 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded transition-colors">
                 Select All
             </button>
-            <button type="button" onclick={deselectAllPresets} class="font-semibold text-[#B45309] hover:text-[#92400E] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EAA845] rounded transition-colors">
+            <button type="button" onclick={deselectAllPresets} class="font-semibold text-emerald-600 hover:text-emerald-500 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded transition-colors">
                 Deselect All
             </button>
         </div>
@@ -226,7 +226,7 @@
             Unit
             <Tooltip for="unit" />
         </label>
-        <select id="unitSelect" bind:value={unit} class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1.5 text-sm focus:border-[#EAA845] focus:ring-2 focus:ring-[#EAA845]/40 focus:outline-none">
+        <select id="unitSelect" bind:value={unit} class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1.5 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 focus:outline-none">
             <option value="minutes">Minutes</option>
             <option value="hours">Hours</option>
             <option value="sessions">Sessions</option>
@@ -240,14 +240,14 @@
                     From
                     <Tooltip for="dateFrom" />
                 </label>
-                <input id="dateFrom" type="date" bind:value={dateFrom} class="w-7/8 min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1 text-sm focus:border-[#EAA845] focus:ring-2 focus:ring-[#EAA845]/40 focus:outline-none" />
+                <input id="dateFrom" type="date" bind:value={dateFrom} class="w-7/8 min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 focus:outline-none" />
             </div>
             <div class="flex-1">
                 <label for="dateTo" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
                     To
                     <Tooltip for="dateTo" />
                 </label>
-                <input id="dateTo" type="date" bind:value={dateTo} class="w-7/8 min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1 text-sm focus:border-[#EAA845] focus:ring-2 focus:ring-[#EAA845]/40 focus:outline-none" />
+                <input id="dateTo" type="date" bind:value={dateTo} class="w-7/8 min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 focus:outline-none" />
             </div>
         </div>
     </div>
