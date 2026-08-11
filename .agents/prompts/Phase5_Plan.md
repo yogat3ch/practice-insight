@@ -140,13 +140,20 @@ Complete the remaining App Specification features in three prioritized tiers:
 
 **4.1 — Preset Filter Listbox** _(modify `src/lib/components/ControlPanel.svelte` or new `PresetFilter.svelte`)_
 
-- Convert native `<select multiple>` to visible listbox (copy Activity filter pattern from Phase 4)
-- Accessible markup, clickable options, removable pills, Select All / Deselect All
+- Convert native `<select multiple>` to visible listbox (copy Activity filter pattern from Phase 4) with clickable options, removable pills, Select All / Deselect All
 
 **4.2 — Seasonal Time Rule Note** _(modify `src/lib/components/ControlPanel.svelte`)_
 
 - Add info text in Global Filters: _"Seasonal years run Dec 22 – Dec 21. Sessions attributed to Start Time."_
 - Lucide `Info` icon (amber color)
+
+**4.3 — Help Icons & Tooltips** _(create `src/lib/i18n/Tooltips.ts` and `src/lib/i18n/en.json`; modify `src/lib/components/ControlPanel.svelte`)_
+
+- Create a `Tooltip` component that renders a superscript `circle-question-mark` icon next to each input's title
+- Look up tooltip text in `en.json` using the input component's title as the key
+- Make tooltips mobile-friendly. Use a popular library or suggest a library for this purpose and await input if `npm i` doesn't work.
+- Add a helpful description entry to `en.json` for every input component
+- Apply the tooltip to each input title
 
 ---
 
