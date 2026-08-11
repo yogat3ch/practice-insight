@@ -1,7 +1,10 @@
 <script lang="ts">
     import { engine } from '$lib';
+    import { format } from 'date-fns';
+    import Accordion from './Accordion.svelte';
     import CSVIngestionCard from './CSVIngestionCard.svelte';
     import ComparisonControls from './ComparisonControls.svelte';
+    import DistributionControls from './DistributionControls.svelte';
     import TimelineControls from './TimelineControls.svelte';
 
     // Populate activity and preset options from engine reactively ($derived re-runs
@@ -13,14 +16,42 @@
     let selectedActivities = $state<string[]>([]);
     let selectedPresets = $state<string[]>([]);
     let unit = $state<'minutes' | 'hours' | 'sessions'>(engine.filters.unit);
+    // Global date range picker, initialized from the engine's current filter bounds.
+    let dateFrom = $state<string>(
+        engine.filters.dateFrom ? format(engine.filters.dateFrom, 'yyyy-MM-dd') : ''
+    );
+    let dateTo = $state<string>(
+        engine.filters.dateTo ? format(engine.filters.dateTo, 'yyyy-MM-dd') : ''
+    );
 
     // Active tab drives which tab-specific control panel is rendered.
     const activeTab = $derived(engine.activeTab);
+
+    // Header label for the tab-specific accordion (e.g. "Timeline Controls").
+    const tabControlsTitle = $derived(
+        activeTab === 'timeline'
+            ? 'Timeline Controls'
+            : activeTab === 'comparison'
+                ? 'Comparison Controls'
+                : 'Distribution Controls'
+    );
+
+    // Context-aware subtitle for the tab-specific accordion.
+    const tabControlsHint = $derived(
+        activeTab === 'timeline'
+            ? 'Time window, aggregation, smoothing & overlays'
+            : activeTab === 'comparison'
+                ? 'Strategy, axis alignment & period constructor'
+                : 'Category, chart style, grouping & metric'
+    );
 
     function applyFilters() {
         engine.setActivityFilter(selectedActivities);
         engine.setPresetFilter(selectedPresets);
         engine.setUnit(unit);
+        const from = dateFrom ? new Date(dateFrom) : null;
+        const to = dateTo ? new Date(dateTo) : null;
+        engine.setDateRange(from, to);
     }
 
     // Remove a selected activity (deselects it in both the select and the pills)
@@ -65,10 +96,13 @@
 </script>
 
 <div class="p-4 space-y-4">
-    <!-- CSV Ingestion Card (§4.2.1) -->
-    <CSVIngestionCard />
+    <!-- CSV Data (§4.2.1) -->
+    <Accordion id="csvSection" title="CSV Data" defaultOpen={true}>
+        <CSVIngestionCard />
+    </Accordion>
 
-    <h2 class="text-lg font-semibold text-[#1C1C1C]">Global Filters</h2>
+    <!-- Global Filters -->
+    <Accordion id="filtersSection" title="Global Filters" defaultOpen={true} count={selectedActivities.length + selectedPresets.length}>
     <div>
         <span id="activitySelectLabel" class="block text-sm font-medium text-[#1C1C1C] mb-1">Activities</span>
         <div
@@ -187,14 +221,33 @@
             <option value="sessions">Sessions</option>
         </select>
     </div>
+    <div>
+        <span class="block text-sm font-medium text-[#1C1C1C] mb-1">Date Range</span>
+        <div class="flex space-x-px">
+            <div class="flex-1">
+                <label for="dateFrom" class="block text-sm font-medium text-[#1C1C1C] mb-1">From</label>
+                <input id="dateFrom" type="date" bind:value={dateFrom} class="w-7/8 min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1 text-sm focus:border-[#EAA845] focus:ring-2 focus:ring-[#EAA845]/40 focus:outline-none" />
+            </div>
+            <div class="flex-1">
+                <label for="dateTo" class="block text-sm font-medium text-[#1C1C1C] mb-1">To</label>
+                <input id="dateTo" type="date" bind:value={dateTo} class="w-7/8 min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1 text-sm focus:border-[#EAA845] focus:ring-2 focus:ring-[#EAA845]/40 focus:outline-none" />
+            </div>
+        </div>
+    </div>
     <button onclick={applyFilters} class="mt-2 w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2">
         Apply Filters
     </button>
+    </Accordion>
 
     <!-- Tab-Specific Controls (§4.1) -->
-    {#if activeTab === 'timeline'}
-        <TimelineControls />
-    {:else if activeTab === 'comparison'}
-        <ComparisonControls />
-    {/if}
+    <Accordion id="tabControlsSection" title={tabControlsTitle} defaultOpen={true}>
+        <p class="mb-3 text-xs text-[#6E6E6E]">{tabControlsHint}</p>
+        {#if activeTab === 'timeline'}
+            <TimelineControls />
+        {:else if activeTab === 'comparison'}
+            <ComparisonControls />
+        {:else if activeTab === 'distribution'}
+            <DistributionControls />
+        {/if}
+    </Accordion>
 </div>
