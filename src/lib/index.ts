@@ -93,6 +93,10 @@ export type { TimelineSegment } from './engine/compilers/timeline-compiler.js';
 export { echartAction, exportPNG, exportSVG } from './echarts/echartAction.js';
 export { default as echarts } from './echarts/registry.js';
 
+// i18n tooltips
+export { labelFor, tooltipFor } from './i18n/Tooltips.js';
+export type { TooltipKey } from './i18n/Tooltips.js';
+
 // Utilities
 export { extractFilters, validateRow } from './utils/csv-parser.js';
 export {
