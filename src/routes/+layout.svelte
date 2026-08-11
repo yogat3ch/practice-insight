@@ -1,6 +1,8 @@
 <script lang="ts">
 	import '../app.css';
 	import { onMount } from 'svelte';
+	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
+	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import ControlPanel from '$lib/components/ControlPanel.svelte';
 	import TabBar from '$lib/components/TabBar.svelte';
 	import TimelineView from '$lib/components/TimelineView.svelte';
@@ -19,6 +21,13 @@
 	const MAX_SIDEBAR_WIDTH = 480;
 	let sidebarWidth = $state(270);
 
+	// Sidebar collapsed state. When collapsed, only the toggle button remains
+	// visible (a narrow strip), and the arrow faces right to re-expand.
+	let sidebarCollapsed = $state(false);
+
+	// Collapsed strip width — just wide enough to hold the toggle button.
+	const COLLAPSED_SIDEBAR_WIDTH = 40;
+
 	let { children } = $props();
 
 	// Load sample dataset on boot so charts have data to render.
@@ -35,6 +44,10 @@
 
 	function toggleDrawer() {
 		drawerOpen = !drawerOpen;
+	}
+
+	function toggleSidebar() {
+		sidebarCollapsed = !sidebarCollapsed;
 	}
 
 	// Horizontal resize of the sidebar via pointer drags on the divider handle.
@@ -65,27 +78,51 @@
 <div class="flex h-screen overflow-hidden bg-white text-[#1C1C1C]">
 	<!-- Body: sidebar + main content -->
 	<div class="flex flex-1 overflow-hidden">
-		<!-- Drawer (hidden on mobile when closed) -->
+		<!-- Sidebar (hidden on mobile when closed) -->
 		<aside
-			class="hidden lg:block bg-[#F9FAFB] border-r border-[#E5E5E5] overflow-y-auto shrink-0"
-			class:!block={drawerOpen}
-			style:width={sidebarWidth + 'px'}
+			class="hidden lg:flex flex-col bg-[#F9FAFB] border-r border-[#E5E5E5] overflow-hidden shrink-0 transition-[width] duration-200"
+			class:!flex={drawerOpen}
+			style:width={sidebarCollapsed ? COLLAPSED_SIDEBAR_WIDTH + 'px' : sidebarWidth + 'px'}
 		>
-			<!-- Brand header at top of the sidebar pane -->
-			<header class="flex items-center gap-2 border-b border-[#E5E5E5] bg-white px-3 py-2">
-				<span class="text-lg font-bold tracking-tight text-[#1C1C1C]">Practice Insight</span>
+			<!-- Brand header at top of the sidebar pane (pinned, never scrolls) -->
+			<header class="flex items-center justify-between gap-2 border-b border-[#E5E5E5] bg-white px-3 py-2 shrink-0">
+				{#if !sidebarCollapsed}
+					<span class="text-lg font-bold tracking-tight text-[#1C1C1C] whitespace-nowrap">Practice Insight</span>
+				{/if}
+				<button
+					type="button"
+					onclick={toggleSidebar}
+					aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+					aria-expanded={!sidebarCollapsed}
+					title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+					class="shrink-0 rounded-md p-1.5 text-[#6E6E6E] hover:bg-[#F9FAFB] hover:text-[#1C1C1C] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EAA845] {sidebarCollapsed ? 'mx-auto' : ''}"
+				>
+					{#if sidebarCollapsed}
+						<ChevronRight class="w-5 h-5" aria-hidden="true" />
+					{:else}
+						<ChevronLeft class="w-5 h-5" aria-hidden="true" />
+					{/if}
+				</button>
 			</header>
-			<ControlPanel />
+
+			<!-- Scrollable control panel area -->
+			{#if !sidebarCollapsed}
+				<div class="flex-1 overflow-y-auto">
+					<ControlPanel />
+				</div>
+			{/if}
 		</aside>
 
-		<!-- Resize handle: horizontal resize cursor on hover -->
-		<div
-			class="hidden lg:block w-1.5 shrink-0 cursor-col-resize bg-transparent hover:bg-[#EAA845]/60 transition-colors"
-			role="separator"
-			aria-orientation="vertical"
-			aria-label="Resize sidebar"
-			onpointerdown={startSidebarResize}
-		></div>
+		<!-- Resize handle: horizontal resize cursor on hover (only when expanded) -->
+		{#if !sidebarCollapsed}
+			<div
+				class="hidden lg:block w-1.5 shrink-0 cursor-col-resize bg-transparent hover:bg-[#EAA845]/60 transition-colors"
+				role="separator"
+				aria-orientation="vertical"
+				aria-label="Resize sidebar"
+				onpointerdown={startSidebarResize}
+			></div>
+		{/if}
 
 		<main class="flex-1 flex flex-col overflow-y-auto">
 			<!-- Mobile drawer trigger (visible only on mobile) -->
