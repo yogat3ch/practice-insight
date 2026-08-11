@@ -1,7 +1,6 @@
 <script lang="ts">
     import { engine } from '$lib';
     import { format } from 'date-fns';
-    import Info from '@lucide/svelte/icons/info';
     import Accordion from './Accordion.svelte';
     import CSVIngestionCard from './CSVIngestionCard.svelte';
     import ComparisonControls from './ComparisonControls.svelte';
@@ -251,10 +250,6 @@
             </div>
         </div>
     </div>
-    <p class="mt-2 flex items-start gap-1.5 rounded-md bg-amber-100 px-2.5 py-2 text-xs text-[#B45309]">
-        <Info class="w-4 h-4 shrink-0 text-[#B45309]" aria-hidden="true" />
-        <span>Seasonal years run Dec 22 – Dec 21. Sessions attributed to Start Time.</span>
-    </p>
     <button onclick={applyFilters} class="mt-2 w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2">
         Apply Filters
     </button>
