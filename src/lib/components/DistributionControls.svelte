@@ -7,6 +7,7 @@
 		DistributionMetric,
 		DistributionTemporalGrouping
 	} from '$lib';
+	import Tooltip from './Tooltip.svelte';
 
 	/** Category selector options per §5.3. */
 	const CATEGORY_OPTIONS: { value: DistributionCategory; label: string }[] = [
@@ -94,7 +95,10 @@
 
 	<!-- Category Selector -->
 	<div>
-		<label for="categorySelect" class="block text-sm font-medium text-[#1C1C1C] mb-1">Category</label>
+		<label for="categorySelect" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+			Category
+			<Tooltip for="category" />
+		</label>
 		<select
 			id="categorySelect"
 			value={category}
@@ -109,7 +113,10 @@
 
 	<!-- Chart Style (context-dependent) -->
 	<fieldset>
-		<legend class="text-sm font-medium text-[#1C1C1C] mb-1">Chart Style</legend>
+		<legend class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+			Chart Style
+			<Tooltip for="chartStyle" />
+		</legend>
 		<div class="space-y-1.5">
 			{#each currentStyles as opt}
 				<label class="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer">
@@ -130,7 +137,10 @@
 	<!-- Breakdown Mode (only for Activity & Preset Breakdown category) -->
 	{#if category === 'breakdown'}
 		<fieldset>
-			<legend class="text-sm font-medium text-[#1C1C1C] mb-1">Breakdown By</legend>
+			<legend class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+				Breakdown By
+				<Tooltip for="breakdownMode" />
+			</legend>
 			<div class="space-y-1.5">
 				{#each BREAKDOWN_MODE_OPTIONS as opt}
 					<label class="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer">
@@ -151,7 +161,10 @@
 
 	<!-- Temporal Grouping -->
 	<div>
-		<label for="temporalGroupingSelect" class="block text-sm font-medium text-[#1C1C1C] mb-1">Temporal Grouping</label>
+		<label for="temporalGroupingSelect" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+			Temporal Grouping
+			<Tooltip for="temporalGrouping" />
+		</label>
 		<select
 			id="temporalGroupingSelect"
 			bind:value={temporalGrouping}
@@ -170,7 +183,10 @@
 
 	<!-- Metric Calculation -->
 	<fieldset>
-		<legend class="text-sm font-medium text-[#1C1C1C] mb-1">Metric</legend>
+		<legend class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+			Metric
+			<Tooltip for="metric" />
+		</legend>
 		<div class="space-y-1.5">
 			{#each METRIC_OPTIONS as opt}
 				<label class="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer">
@@ -190,7 +206,10 @@
 
 	<!-- Threshold Filter -->
 	<div>
-		<label for="thresholdInput" class="block text-sm font-medium text-[#1C1C1C] mb-1">Threshold Filter</label>
+		<label for="thresholdInput" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+			Threshold Filter
+			<Tooltip for="threshold" />
+		</label>
 		<input
 			id="thresholdInput"
 			type="number"

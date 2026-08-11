@@ -2,6 +2,7 @@
 	import { engine } from '$lib';
 	import type { ComparisonPeriod, ComparisonStrategy, XAxisAlignment } from '$lib';
 	import { format } from 'date-fns';
+	import Tooltip from './Tooltip.svelte';
 
 	/** Comparison strategy options per §5.2. */
 	const STRATEGY_OPTIONS: { value: ComparisonStrategy; label: string }[] = [
@@ -62,7 +63,10 @@
 
 	<!-- Comparison Strategy -->
 	<fieldset>
-		<legend class="text-sm font-medium text-[#1C1C1C] mb-1">Comparison Strategy</legend>
+		<legend class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+			Comparison Strategy
+			<Tooltip for="comparisonStrategy" />
+		</legend>
 		<div class="space-y-1.5">
 			{#each STRATEGY_OPTIONS as opt}
 				<label class="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer">
@@ -82,7 +86,10 @@
 
 	<!-- Y-Axis Lock -->
 	<label class="flex items-center justify-between gap-2 text-sm text-[#1C1C1C] cursor-pointer">
-		<span>Lock Y-Axis Scale</span>
+		<span class="inline-flex items-center gap-1.5">
+			Lock Y-Axis Scale
+			<Tooltip for="lockYAxis" />
+		</span>
 		<span class="inline-flex items-center">
 			<input
 				type="checkbox"
@@ -94,7 +101,10 @@
 
 	<!-- X-Axis Alignment -->
 	<fieldset>
-		<legend class="text-sm font-medium text-[#1C1C1C] mb-1">X-Axis Alignment</legend>
+		<legend class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+			X-Axis Alignment
+			<Tooltip for="xAxisAlignment" />
+		</legend>
 		<div class="space-y-1.5">
 			{#each ALIGNMENT_OPTIONS as opt}
 				<label class="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer">
@@ -155,7 +165,10 @@
 		<div class="mt-2 border-t border-[#E5E5E5] pt-2 space-y-2">
 			<div class="flex space-x-px">
 				<div class="flex-1">
-					<label for="comparisonFrom" class="block text-sm font-medium text-[#1C1C1C] mb-1">From</label>
+					<label for="comparisonFrom" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+						From
+						<Tooltip for="comparisonFrom" />
+					</label>
 					<input
 						id="comparisonFrom"
 						type="date"
@@ -164,7 +177,10 @@
 					/>
 				</div>
 				<div class="flex-1">
-					<label for="comparisonTo" class="block text-sm font-medium text-[#1C1C1C] mb-1">To</label>
+					<label for="comparisonTo" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+						To
+						<Tooltip for="comparisonTo" />
+					</label>
 					<input
 						id="comparisonTo"
 						type="date"
@@ -174,7 +190,10 @@
 				</div>
 			</div>
 			<div>
-				<label for="comparisonColor" class="block text-sm font-medium text-[#1C1C1C] mb-1">Color</label>
+				<label for="comparisonColor" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+					Color
+					<Tooltip for="comparisonColor" />
+				</label>
 				<input
 					id="comparisonColor"
 					type="color"

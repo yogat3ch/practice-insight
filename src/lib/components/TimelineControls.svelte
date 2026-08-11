@@ -2,6 +2,7 @@
 	import { engine, computeTimeWindowDateRange } from '$lib';
 	import type { Granularity, SplitBy, TimeWindowPreset } from '$lib';
 	import { format } from 'date-fns';
+	import Tooltip from './Tooltip.svelte';
 
 	const TIME_WINDOW_OPTIONS: { value: TimeWindowPreset; label: string }[] = [
 		{ value: '3M', label: 'Last 3 Months' },
@@ -83,7 +84,10 @@
 
 	<!-- Time Window -->
 	<div>
-		<label for="timeWindowSelect" class="block text-sm font-medium text-[#1C1C1C] mb-1">Time Window</label>
+		<label for="timeWindowSelect" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+			Time Window
+			<Tooltip for="timeWindow" />
+		</label>
 		<select
 			id="timeWindowSelect"
 			bind:value={timePreset}
@@ -102,11 +106,17 @@
 	{#if isCustom}
 		<div class="flex space-x-px">
 			<div class="flex-1">
-				<label for="timelineFrom" class="block text-sm font-medium text-[#1C1C1C] mb-1">From</label>
+				<label for="timelineFrom" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+					From
+					<Tooltip for="timelineFrom" />
+				</label>
 				<input id="timelineFrom" type="date" bind:value={customFrom} class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1 text-sm focus:border-[#EAA845] focus:ring-2 focus:ring-[#EAA845]/40 focus:outline-none" />
 			</div>
 			<div class="flex-1">
-				<label for="timelineTo" class="block text-sm font-medium text-[#1C1C1C] mb-1">To</label>
+				<label for="timelineTo" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+					To
+					<Tooltip for="timelineTo" />
+				</label>
 				<input id="timelineTo" type="date" bind:value={customTo} class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1 text-sm focus:border-[#EAA845] focus:ring-2 focus:ring-[#EAA845]/40 focus:outline-none" />
 			</div>
 		</div>
@@ -114,7 +124,10 @@
 
 	<!-- Time Aggregation -->
 	<div>
-		<label for="granularitySelect" class="block text-sm font-medium text-[#1C1C1C] mb-1">Aggregate By</label>
+		<label for="granularitySelect" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+			Aggregate By
+			<Tooltip for="granularity" />
+		</label>
 		<select
 			id="granularitySelect"
 			bind:value={granularity}
@@ -128,7 +141,10 @@
 
 	<!-- Time Split -->
 	<div>
-		<label for="splitBySelect" class="block text-sm font-medium text-[#1C1C1C] mb-1">Time Split</label>
+		<label for="splitBySelect" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+			Time Split
+			<Tooltip for="splitBy" />
+		</label>
 		<select
 			id="splitBySelect"
 			bind:value={splitBy}
@@ -153,7 +169,10 @@
 	<!-- Smoothing -->
 	<div>
 		<div class="flex items-center justify-between mb-1">
-			<label for="movingAvgSlider" class="text-sm font-medium text-[#1C1C1C]">Moving Average</label>
+			<label for="movingAvgSlider" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C]">
+				Moving Average
+				<Tooltip for="movingAverage" />
+			</label>
 			<span class="text-xs text-[#6E6E6E]">{movingAverageDays} days</span>
 		</div>
 		<input
@@ -169,7 +188,10 @@
 
 	<!-- Statistical Overlays -->
 	<fieldset class="space-y-1.5">
-		<legend class="text-sm font-medium text-[#1C1C1C] mb-1">Statistical Overlays</legend>
+		<legend class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+			Statistical Overlays
+			<Tooltip for="statisticalOverlays" />
+		</legend>
 		<label class="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer">
 			<input type="checkbox" bind:checked={showMean} class="w-4 h-4 rounded border-[#9CA3AF] text-[#EAA845] focus:ring-[#EAA845]/40" />
 			Mean (μ)

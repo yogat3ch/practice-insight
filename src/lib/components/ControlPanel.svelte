@@ -7,6 +7,7 @@
     import ComparisonControls from './ComparisonControls.svelte';
     import DistributionControls from './DistributionControls.svelte';
     import TimelineControls from './TimelineControls.svelte';
+    import Tooltip from './Tooltip.svelte';
 
     // Populate activity and preset options from engine reactively ($derived re-runs
     // whenever the engine's underlying $state changes, e.g. after the CSV loads).
@@ -105,7 +106,10 @@
     <!-- Global Filters -->
     <Accordion id="filtersSection" title="Global Filters" defaultOpen={true} count={selectedActivities.length + selectedPresets.length}>
     <div>
-        <span id="activitySelectLabel" class="block text-sm font-medium text-[#1C1C1C] mb-1">Activities</span>
+        <span id="activitySelectLabel" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+            Activities
+            <Tooltip for="activities" />
+        </span>
         <div
             id="activitySelect"
             role="listbox"
@@ -160,7 +164,10 @@
         {/if}
     </div>
     <div>
-        <span id="presetSelectLabel" class="block text-sm font-medium text-[#1C1C1C] mb-1">Presets</span>
+        <span id="presetSelectLabel" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+            Presets
+            <Tooltip for="presets" />
+        </span>
         <div
             id="presetSelect"
             role="listbox"
@@ -215,7 +222,10 @@
         {/if}
     </div>
     <div>
-        <label for="unitSelect" class="block text-sm font-medium text-[#1C1C1C] mb-1">Unit</label>
+        <label for="unitSelect" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+            Unit
+            <Tooltip for="unit" />
+        </label>
         <select id="unitSelect" bind:value={unit} class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1.5 text-sm focus:border-[#EAA845] focus:ring-2 focus:ring-[#EAA845]/40 focus:outline-none">
             <option value="minutes">Minutes</option>
             <option value="hours">Hours</option>
@@ -226,11 +236,17 @@
         <span class="block text-sm font-medium text-[#1C1C1C] mb-1">Date Range</span>
         <div class="flex space-x-px">
             <div class="flex-1">
-                <label for="dateFrom" class="block text-sm font-medium text-[#1C1C1C] mb-1">From</label>
+                <label for="dateFrom" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+                    From
+                    <Tooltip for="dateFrom" />
+                </label>
                 <input id="dateFrom" type="date" bind:value={dateFrom} class="w-7/8 min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1 text-sm focus:border-[#EAA845] focus:ring-2 focus:ring-[#EAA845]/40 focus:outline-none" />
             </div>
             <div class="flex-1">
-                <label for="dateTo" class="block text-sm font-medium text-[#1C1C1C] mb-1">To</label>
+                <label for="dateTo" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+                    To
+                    <Tooltip for="dateTo" />
+                </label>
                 <input id="dateTo" type="date" bind:value={dateTo} class="w-7/8 min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1 text-sm focus:border-[#EAA845] focus:ring-2 focus:ring-[#EAA845]/40 focus:outline-none" />
             </div>
         </div>
