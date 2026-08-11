@@ -24,6 +24,24 @@ export interface TimelineCompilerInput {
 	readonly movingAverageDays: number;
 }
 
+/** A split segment (e.g. a single month or season) of timeline buckets. */
+export interface TimelineSegment {
+	readonly segment: string;
+	readonly buckets: readonly TimeBucket[];
+}
+
+/** Distinct segment palette for multi-series split overlays. */
+const SEGMENT_PALETTE: readonly string[] = [
+	'#10b981', // Emerald 500
+	'#f59e0b', // Amber 500
+	'#3b82f6', // Blue 500
+	'#ec4899', // Pink 500
+	'#8b5cf6', // Violet 500
+	'#14b8a6', // Teal 500
+	'#f97316', // Orange 500
+	'#6366f1' // Indigo 500
+];
+
 /**
  * Compiles Tab 1 Timeline parameters into a declarative ECharts option payload.
  *
@@ -228,5 +246,135 @@ export function compileTimelineOption(input: TimelineCompilerInput): EChartsOpti
 			}
 		],
 		series: primarySeries
+	};
+}
+
+/**
+ * Compiles a multi-series overlay ECharts option for a Time Split.
+ *
+ * Each split segment (e.g. a month, season, or year) is rendered as one
+ * colored line/bar series aligned along the full timeline x-axis. Segments
+ * with no data still appear in the legend (their series is empty), keeping
+ * the split legend stable.
+ *
+ * @param segments - Split segments produced by `groupBucketsBySegment`.
+ * @param unit - Display unit.
+ * @returns EChartsOption with one series per segment.
+ */
+export function compileSplitTimelineOption(
+	segments: readonly TimelineSegment[],
+	unit: Unit
+): EChartsOption {
+	// Build the union of all x labels in chronological order.
+	const labelOrder = new Map<string, number>();
+	for (const seg of segments) {
+		for (const bucket of seg.buckets) {
+			if (!labelOrder.has(bucket.label)) labelOrder.set(bucket.label, labelOrder.size);
+		}
+	}
+	const xLabels = Array.from(labelOrder.keys());
+
+	const series = segments.map((seg, index) => {
+		// Bucket values aligned to the union x-axis (zero for missing buckets).
+		const data: (number | null)[] = new Array(xLabels.length).fill(null);
+		for (const bucket of seg.buckets) {
+			const idx = labelOrder.get(bucket.label);
+			if (idx === undefined) continue;
+			data[idx] =
+				unit === 'sessions'
+					? bucket.sessionCount
+					: unit === 'hours'
+						? bucket.totalSeconds / 3600
+						: bucket.totalSeconds / 60;
+		}
+
+		const color = SEGMENT_PALETTE[index % SEGMENT_PALETTE.length];
+		return {
+			name: seg.segment,
+			type: 'line' as const,
+			data,
+			smooth: true,
+			symbol: 'none',
+			lineStyle: { color, width: 2.5 },
+			connectNulls: false,
+			emphasis: { focus: 'series' as const }
+		};
+	});
+
+	const unitSuffix = unit === 'sessions' ? ' sessions' : unit === 'hours' ? 'h' : 'm';
+
+	return {
+		backgroundColor: 'transparent',
+		textStyle: {
+			fontFamily: 'system-ui, -apple-system, sans-serif',
+			color: '#1C1C1C'
+		},
+		legend: {
+			type: 'scroll',
+			bottom: 0,
+			textStyle: { color: '#1C1C1C' }
+		},
+		tooltip: {
+			trigger: 'axis',
+			backgroundColor: '#1F2937',
+			borderColor: '#334155',
+			borderWidth: 1,
+			textStyle: { color: '#f8fafc' },
+			axisPointer: { type: 'cross', crossStyle: { color: '#9CA3AF' } },
+			formatter: (params: any) => {
+				if (!Array.isArray(params) || params.length === 0) return '';
+				const dataIndex = params[0].dataIndex;
+				const label = xLabels[dataIndex];
+				if (!label) return '';
+
+				let html = `<div style="font-weight:600;margin-bottom:6px;color:#cbd5e1;">${label}</div>`;
+				const present = params.filter((p) => p.value !== null && p.value !== undefined);
+				for (const p of present) {
+					const val = typeof p.value === 'number' ? p.value.toFixed(1) : p.value;
+					html += `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;">`;
+					html += `<span>${p.marker} ${p.seriesName}</span>`;
+					html += `<strong style="color:#f8fafc;">${val}${unitSuffix}</strong></div>`;
+				}
+				return html;
+			}
+		},
+		grid: {
+			left: '3%',
+			right: '4%',
+			bottom: '18%',
+			top: '10%',
+			containLabel: true
+		},
+		xAxis: {
+			type: 'category',
+			data: xLabels,
+			axisLine: { lineStyle: { color: '#E5E7EB' } },
+			axisLabel: { color: '#1C1C1C', rotate: xLabels.length > 20 ? 45 : 0 }
+		},
+		yAxis: {
+			type: 'value',
+			name: unit.charAt(0).toUpperCase() + unit.slice(1),
+			nameTextStyle: { color: '#1C1C1C', padding: [0, 0, 0, 10] },
+			axisLine: { lineStyle: { color: '#E5E7EB' } },
+			splitLine: { lineStyle: { color: '#E5E7EB' } },
+			axisLabel: { color: '#1C1C1C' }
+		},
+		dataZoom: [
+			{
+				type: 'slider',
+				show: true,
+				bottom: '6%',
+				height: 20,
+				borderColor: '#E5E7EB',
+				backgroundColor: '#F9FAFB',
+				fillerColor: 'rgba(16, 185, 129, 0.25)',
+				handleStyle: { color: '#10b981' },
+				textStyle: { color: '#6E6E6E' }
+			},
+			{
+				type: 'inside'
+			}
+		],
+		series
 	};
 }

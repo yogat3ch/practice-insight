@@ -12,6 +12,7 @@
  *   - Declarative ECharts option compilers for Timeline, Comparison, and Distribution views
  */
 
+import { format } from 'date-fns';
 import type { EChartsOption } from 'echarts';
 import {
 	DEFAULT_COMPARISON_CONFIG,
@@ -23,6 +24,7 @@ import {
 	type DistributionChartStyle,
 	type DistributionConfig,
 	type DistributionMetric,
+	type SplitBy,
 	type TabId,
 	type TimelineConfig,
 	type TimeWindowPreset
@@ -35,8 +37,9 @@ import {
 } from '../types/filters.js';
 import type { SessionEntry, WorkerResult } from '../types/session.js';
 import type { TimeBucket } from '../types/temporal.js';
-import { aggregateTimelineBuckets, convertValue } from './aggregators.js';
+import { aggregateTimelineBuckets, convertValue, groupBucketsBySegment } from './aggregators.js';
 import {
+	compileComparisonGridOptions,
 	compileComparisonOption,
 	type ComparisonSeriesData
 } from './compilers/comparison-compiler.js';
@@ -45,7 +48,10 @@ import {
 	compileDayOfWeekOption,
 	compileTimeOfDayOption
 } from './compilers/distribution-compiler.js';
-import { compileTimelineOption } from './compilers/timeline-compiler.js';
+import {
+	compileSplitTimelineOption,
+	compileTimelineOption
+} from './compilers/timeline-compiler.js';
 import {
 	computeCategoryBreakdown,
 	computeDayOfWeekDistribution,
@@ -178,6 +184,61 @@ export class PracticeDataEngine {
 		});
 	}
 
+	/**
+	 * Array of per-segment timeline options when Time Split is active.
+	 *
+	 * - splitBy === 'none'             → single chart (existing timelineOption).
+	 * - splitBy active, !useChartGrid  → single multi-series overlay chart, one
+	 *                                    colored series per split segment.
+	 * - splitBy active, useChartGrid   → one chart card per split segment.
+	 */
+	get timelineOptionsBySegment(): { segment: string; option: EChartsOption }[] {
+		const { splitBy, useChartGrid } = this.#timelineConfig;
+
+		// No split requested — single overlay chart.
+		if (splitBy === 'none') {
+			return [{ segment: 'All', option: this.timelineOption }];
+		}
+
+		const segments = groupBucketsBySegment(this.timelineBuckets, splitBy);
+
+		// Multi-series overlay of all segments on a single chart.
+		if (!useChartGrid) {
+			return [
+				{
+					segment: 'All',
+					option: compileSplitTimelineOption(segments, this.#filters.unit)
+				}
+			];
+		}
+
+		// Card grid — one chart per split segment.
+		return segments.map(({ segment, buckets }) => {
+			const values = buckets.map((b) => convertValue(b.totalSeconds, this.#filters.unit));
+			const mean = computeMean(values);
+			const stdDev = computeStandardDeviation(values);
+			const linearTrend = computeLinearRegression(values);
+			// Recompute moving average on the segment-local values.
+			const ma = computeSymmetricMovingAverage(values, this.#timelineConfig.movingAverageDays);
+
+			return {
+				segment,
+				option: compileTimelineOption({
+					buckets,
+					unit: this.#filters.unit,
+					movingAverageValues: ma,
+					mean,
+					stdDev,
+					linearTrend,
+					showMean: this.#timelineConfig.showMean,
+					showStdDev: this.#timelineConfig.showStdDev,
+					showLinearTrend: this.#timelineConfig.showLinearTrend,
+					movingAverageDays: this.#timelineConfig.movingAverageDays
+				})
+			};
+		});
+	}
+
 	// -------------------------------------------------------------------------
 	// Tab 2: Comparison Derivations ($derived)
 	// -------------------------------------------------------------------------
@@ -202,6 +263,19 @@ export class PracticeDataEngine {
 	/** Declarative ECharts option JSON payload for Tab 2. */
 	get comparisonOption(): EChartsOption {
 		return compileComparisonOption({
+			seriesList: this.comparisonSeriesList,
+			unit: this.#filters.unit,
+			lockYAxis: this.#comparisonConfig.lockYAxis,
+			xAxisAlignment: this.#comparisonConfig.xAxisAlignment
+		});
+	}
+
+	/**
+	 * Per-period standalone chart options for Tab 2's Sequential Side-by-Side
+	 * strategy. Each entry is one chart card with a shared (locked) Y-axis.
+	 */
+	get comparisonGridOptions(): { period: string; option: EChartsOption }[] {
+		return compileComparisonGridOptions({
 			seriesList: this.comparisonSeriesList,
 			unit: this.#filters.unit,
 			lockYAxis: this.#comparisonConfig.lockYAxis,
@@ -342,6 +416,14 @@ export class PracticeDataEngine {
 		this.#timelineConfig = { ...this.#timelineConfig, granularity };
 	}
 
+	setTimeSplit(splitBy: SplitBy): void {
+		this.#timelineConfig = { ...this.#timelineConfig, splitBy };
+	}
+
+	setUseChartGrid(useChartGrid: boolean): void {
+		this.#timelineConfig = { ...this.#timelineConfig, useChartGrid };
+	}
+
 	setMovingAverageDays(days: number): void {
 		const clamped = Math.max(0, Math.min(30, days));
 		this.#timelineConfig = { ...this.#timelineConfig, movingAverageDays: clamped };
@@ -364,6 +446,11 @@ export class PracticeDataEngine {
 		this.#comparisonConfig = { ...this.#comparisonConfig, strategy };
 	}
 
+	/**
+	 * Adds a fully-specified comparison period to the active series constructor.
+	 *
+	 * @param period - Complete period definition (id, label, bounds, color).
+	 */
 	addComparisonPeriod(period: ComparisonPeriod): void {
 		this.#comparisonConfig = {
 			...this.#comparisonConfig,
@@ -371,10 +458,46 @@ export class PracticeDataEngine {
 		};
 	}
 
+	/**
+	 * Convenience helper (§5.2, Phase 5b): adds a comparison period from date
+	 * bounds, auto-generating a stable id, a readable label, and a default
+	 * color. The color is left empty so the compiler assigns from the palette
+	 * when the caller provides none.
+	 *
+	 * @param from - Inclusive start of the comparison period.
+	 * @param to - Inclusive end of the comparison period.
+	 * @param color - Optional explicit series color (hex).
+	 */
+	addComparisonPeriodRange(from: Date, to: Date, color?: string): void {
+		const label = `${format(from, 'MMM d')} – ${format(to, 'MMM d, yyyy')}`;
+		const period: ComparisonPeriod = {
+			id: `period-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+			label,
+			dateFrom: from,
+			dateTo: to,
+			color: color ?? ''
+		};
+		this.addComparisonPeriod(period);
+	}
+
 	removeComparisonPeriod(id: string): void {
 		this.#comparisonConfig = {
 			...this.#comparisonConfig,
 			periods: this.#comparisonConfig.periods.filter((p) => p.id !== id)
+		};
+	}
+
+	/**
+	 * Replaces an existing comparison period in place, preserving its position
+	 * in the series list. Used by the color picker / period editor.
+	 *
+	 * @param id - Id of the period to update.
+	 * @param updates - Partial fields to merge into the period.
+	 */
+	updateComparisonPeriod(id: string, updates: Partial<Omit<ComparisonPeriod, 'id'>>): void {
+		this.#comparisonConfig = {
+			...this.#comparisonConfig,
+			periods: this.#comparisonConfig.periods.map((p) => (p.id === id ? { ...p, ...updates } : p))
 		};
 	}
 

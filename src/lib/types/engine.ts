@@ -18,6 +18,11 @@ export interface TimelineConfig {
 	readonly timePreset: TimeWindowPreset;
 	readonly granularity: Granularity;
 	readonly splitBy: SplitBy;
+	/**
+	 * When true and splitBy is active, render one chart card per split segment
+	 * instead of a multi-series overlay. Ignored when splitBy is 'none'.
+	 */
+	readonly useChartGrid: boolean;
 	/** Sliding window size in days (0 to 30) for moving average smoothing. 0 = disabled. */
 	readonly movingAverageDays: number;
 	/** Whether to overlay mean line (μ). */
@@ -33,6 +38,7 @@ export const DEFAULT_TIMELINE_CONFIG: TimelineConfig = {
 	timePreset: 'All',
 	granularity: 'month',
 	splitBy: 'none',
+	useChartGrid: false,
 	movingAverageDays: 7,
 	showMean: true,
 	showStdDev: true,

@@ -9,17 +9,22 @@
 import {
 	parse,
 	startOfWeek,
+	startOfDay,
 	isValid,
 	getMonth,
 	getDate,
 	getYear,
 	addYears,
 	subYears,
+	addMonths,
 	setMonth,
-	setDate
+	setDate,
+	startOfYear
 } from 'date-fns';
 import type { Season, Unit } from '../types/filters.js';
+import type { TimeWindowPreset } from '../types/engine.js';
 import type { SeasonalYear } from '../types/temporal.js';
+import type { SessionEntry } from '../types/session.js';
 
 // ---------------------------------------------------------------------------
 // Date parsing
@@ -187,5 +192,51 @@ export function formatDuration(seconds: number, unit: Unit): string {
 	return `${totalMin} min`;
 }
 
-// Suppress unused import warning for addYears/subYears (used in tests via re-export)
+// ---------------------------------------------------------------------------
+// Time window presets
+// ---------------------------------------------------------------------------
+
+/**
+ * Computes the [from, to] date range for a Timeline time window preset.
+ *
+ * - '3M' / '6M' / '1Y': trailing calendar months/years from today.
+ * - 'YTD': start of the current calendar year to today.
+ * - 'All': the full span of the loaded session data (min to max start date).
+ * - 'Custom': returns [null, null]; the caller provides explicit bounds.
+ *
+ * @param preset - Time window preset.
+ * @param allSessions - Parsed session entries (used only for 'All').
+ * @param today - Reference "now" date. Defaults to the current date.
+ * @returns Inclusive [from, to] bounds. null means "no bound".
+ */
+export function computeTimeWindowDateRange(
+	preset: TimeWindowPreset,
+	allSessions: readonly SessionEntry[],
+	today: Date = new Date()
+): [Date | null, Date | null] {
+	switch (preset) {
+		case '3M':
+			return [startOfDay(addMonths(today, -3)), today];
+		case '6M':
+			return [startOfDay(addMonths(today, -6)), today];
+		case '1Y':
+			return [startOfDay(addYears(today, -1)), today];
+		case 'YTD':
+			return [startOfYear(today), today];
+		case 'All': {
+			if (allSessions.length === 0) return [null, null];
+			let minDate = allSessions[0].startedAt;
+			let maxDate = allSessions[0].startedAt;
+			for (const s of allSessions) {
+				if (s.startedAt < minDate) minDate = s.startedAt;
+				if (s.startedAt > maxDate) maxDate = s.startedAt;
+			}
+			return [startOfDay(minDate), maxDate];
+		}
+		case 'Custom':
+			return [null, null];
+	}
+}
+
+// Re-export date helpers used by tests.
 export { addYears, subYears };

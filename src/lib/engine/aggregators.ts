@@ -29,6 +29,7 @@ import {
 	max
 } from 'date-fns';
 import type { Granularity, Unit } from '../types/filters.js';
+import type { SplitBy } from '../types/engine.js';
 import type { SessionEntry } from '../types/session.js';
 import type { TimeBucket } from '../types/temporal.js';
 import { getSeasonForDate, getSeasonalYear } from '../utils/date-utils.js';
@@ -201,4 +202,67 @@ export function aggregateTimelineBuckets(
 	}
 
 	return result;
+}
+
+/**
+ * Groups continuous timeline buckets into discrete split segments for a
+ * Time Split granularity (Week, Month, Quarter, Season, Year).
+ *
+ * Each segment is keyed by its first bucket's start date. Empty segments are
+ * skipped (no empty segment cards are emitted).
+ *
+ * @param buckets - Continuous timeline buckets.
+ * @param splitBy - Granularity to segment buckets by.
+ * @returns Array of { segment, buckets } entries, ordered chronologically.
+ */
+export function groupBucketsBySegment(
+	buckets: readonly TimeBucket[],
+	splitBy: Exclude<SplitBy, 'none'>
+): { segment: string; buckets: TimeBucket[] }[] {
+	const groups = new Map<string, TimeBucket[]>();
+
+	for (const bucket of buckets) {
+		const key = getSegmentKey(bucket.startDate, splitBy);
+		const existing = groups.get(key);
+		if (existing) {
+			existing.push(bucket);
+		} else {
+			groups.set(key, [bucket]);
+		}
+	}
+
+	return Array.from(groups.entries()).map(([segment, group]) => ({ segment, buckets: group }));
+}
+
+/**
+ * Computes a stable segment key for a bucket's start date under a split
+ * granularity.
+ *
+ * Uses the same date-fns granularity helpers as the aggregation pipeline so
+ * labels stay consistent with the rest of the engine.
+ *
+ * @param date - Bucket start date.
+ * @param splitBy - Split granularity.
+ * @returns Stable string key, e.g. "2026-07", "2026-Q3", "2025-Summer", "2026".
+ */
+function getSegmentKey(date: Date, splitBy: Exclude<SplitBy, 'none'>): string {
+	switch (splitBy) {
+		case 'week': {
+			const monday = startOfWeek(date, { weekStartsOn: 1 });
+			return `W${format(monday, 'II')} ${monday.getFullYear()}`;
+		}
+		case 'month':
+			return format(date, 'MMM yyyy');
+		case 'quarter': {
+			const q = Math.floor(date.getMonth() / 3) + 1;
+			return `Q${q} ${date.getFullYear()}`;
+		}
+		case 'season': {
+			const season = getSeasonForDate(date);
+			const capitalized = season.charAt(0).toUpperCase() + season.slice(1);
+			return `${capitalized} ${getSeasonalYear(date).label.split(' ')[0]}`;
+		}
+		case 'year':
+			return format(date, 'yyyy');
+	}
 }
