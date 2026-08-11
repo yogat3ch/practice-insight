@@ -16,10 +16,10 @@
 	// Track active tab via engine's getter
 	const activeTab = $derived.by(() => engine.activeTab);
 
-	// Resizable sidebar width in px. Default ~5% wider than the previous fixed 256px.
+	// Resizable sidebar width in px. Default 305px (Phase 6); range 200–480px.
 	const MIN_SIDEBAR_WIDTH = 200;
 	const MAX_SIDEBAR_WIDTH = 480;
-	let sidebarWidth = $state(270);
+	let sidebarWidth = $state(305);
 
 	// Sidebar collapsed state. When collapsed, only the toggle button remains
 	// visible (a narrow strip), and the arrow faces right to re-expand.

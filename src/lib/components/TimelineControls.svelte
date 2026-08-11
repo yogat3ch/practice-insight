@@ -1,18 +1,8 @@
 <script lang="ts">
-	import type { Granularity, SplitBy, TimeWindowPreset } from '$lib';
-	import { computeTimeWindowDateRange, engine } from '$lib';
+	import type {Granularity, SplitBy} from '$lib';
+	import {engine} from '$lib';
 	import Info from '@lucide/svelte/icons/info';
-	import { format } from 'date-fns';
 	import Tooltip from './Tooltip.svelte';
-
-	const TIME_WINDOW_OPTIONS: {value: TimeWindowPreset; label: string}[] = [
-		{value: '3M', label: 'Last 3 Months'},
-		{value: '6M', label: 'Last 6 Months'},
-		{value: '1Y', label: 'Last Year'},
-		{value: 'YTD', label: 'Year to Date'},
-		{value: 'All', label: 'All Time'},
-		{value: 'Custom', label: 'Custom Range'},
-	];
 
 	const GRANULARITY_OPTIONS: {value: Granularity; label: string}[] = [
 		{value: 'day', label: 'Day'},
@@ -33,7 +23,6 @@
 	];
 
 	// Local control state, initialized from the engine's current config.
-	let timePreset = $state<TimeWindowPreset>(engine.timelineConfig.timePreset);
 	let granularity = $state<Granularity>(engine.timelineConfig.granularity);
 	let splitBy = $state<SplitBy>(engine.timelineConfig.splitBy);
 	let useChartGrid = $state<boolean>(engine.timelineConfig.useChartGrid);
@@ -43,49 +32,14 @@
 	let showMean = $state<boolean>(engine.timelineConfig.showMean);
 	let showStdDev = $state<boolean>(engine.timelineConfig.showStdDev);
 	let showLinearTrend = $state<boolean>(engine.timelineConfig.showLinearTrend);
-	let customFrom = $state('');
-	let customTo = $state('');
-
-	const isCustom = $derived(timePreset === 'Custom');
-
-	function selectPreset(value: TimeWindowPreset) {
-		timePreset = value;
-		if (value === 'Custom') return;
-		const [from, to] = computeTimeWindowDateRange(
-			value,
-			engine.filteredSessions,
-		);
-		// Store computed bounds locally so Apply can send them to the engine.
-		engine.setDateRange(from, to);
-	}
 
 	function applyControls() {
-		engine.setTimePreset(timePreset);
 		engine.setGranularity(granularity);
 		engine.setTimeSplit(splitBy);
 		engine.setUseChartGrid(useChartGrid);
 		engine.setMovingAverageDays(movingAverageDays);
 		engine.setStatisticalOverlays(showMean, showStdDev, showLinearTrend);
-
-		if (isCustom) {
-			const from = customFrom ? new Date(customFrom) : null;
-			const to = customTo ? new Date(customTo) : null;
-			engine.setDateRange(from, to);
-		}
 	}
-
-	// Format a preset's resolved range for display in the button area.
-	function formatRangeLabel(preset: TimeWindowPreset): string {
-		if (preset === 'Custom') return '';
-		const [from, to] = computeTimeWindowDateRange(
-			preset,
-			engine.filteredSessions,
-		);
-		if (from === null || to === null) return '';
-		return `${format(from, 'MMM d, yyyy')} – ${format(to, 'MMM d, yyyy')}`;
-	}
-
-	const rangeLabel = $derived(formatRangeLabel(timePreset));
 </script>
 
 <section
@@ -95,65 +49,6 @@
 	<h3 id="timelineControlsTitle" class="text-sm font-semibold text-[#1C1C1C]">
 		Timeline Controls
 	</h3>
-
-	<!-- Time Window -->
-	<div>
-		<label
-			for="timeWindowSelect"
-			class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1"
-		>
-			Time Window
-			<Tooltip for="timeWindow" />
-		</label>
-		<select
-			id="timeWindowSelect"
-			bind:value={timePreset}
-			onchange={() => selectPreset(timePreset)}
-			class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1.5 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 focus:outline-none"
-		>
-			{#each TIME_WINDOW_OPTIONS as opt}
-				<option value={opt.value}>{opt.label}</option>
-			{/each}
-		</select>
-		{#if !isCustom && rangeLabel}
-			<p class="mt-1 text-xs text-[#6E6E6E]">{rangeLabel}</p>
-		{/if}
-	</div>
-
-	{#if isCustom}
-		<div class="flex -space-x-px">
-			<div class="flex-1">
-				<label
-					for="timelineFrom"
-					class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1"
-				>
-					From
-					<Tooltip for="timelineFrom" />
-				</label>
-				<input
-					id="timelineFrom"
-					type="date"
-					bind:value={customFrom}
-					class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 focus:outline-none"
-				/>
-			</div>
-			<div class="flex-1">
-				<label
-					for="timelineTo"
-					class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1"
-				>
-					To
-					<Tooltip for="timelineTo" />
-				</label>
-				<input
-					id="timelineTo"
-					type="date"
-					bind:value={customTo}
-					class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 focus:outline-none"
-				/>
-			</div>
-		</div>
-	{/if}
 
 	<!-- Time Aggregation -->
 	<div>

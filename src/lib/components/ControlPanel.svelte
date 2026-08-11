@@ -1,12 +1,23 @@
 <script lang="ts">
-	import { engine } from '$lib';
-	import { format } from 'date-fns';
+	import {computeTimeWindowDateRange, engine} from '$lib';
+	import type {TimeWindowPreset} from '$lib';
+	import {format} from 'date-fns';
 	import Accordion from './Accordion.svelte';
 	import CSVIngestionCard from './CSVIngestionCard.svelte';
 	import ComparisonControls from './ComparisonControls.svelte';
 	import DistributionControls from './DistributionControls.svelte';
 	import TimelineControls from './TimelineControls.svelte';
 	import Tooltip from './Tooltip.svelte';
+
+	// Time Window presets (moved from TimelineControls to Global Filters).
+	const TIME_WINDOW_OPTIONS: {value: TimeWindowPreset; label: string}[] = [
+		{value: '3M', label: 'Last 3 Months'},
+		{value: '6M', label: 'Last 6 Months'},
+		{value: '1Y', label: 'Last Year'},
+		{value: 'YTD', label: 'Year to Date'},
+		{value: 'All', label: 'All Time'},
+		{value: 'Custom', label: 'Custom Range'},
+	];
 
 	// Populate activity and preset options from engine reactively ($derived re-runs
 	// whenever the engine's underlying $state changes, e.g. after the CSV loads).
@@ -26,6 +37,8 @@
 	let dateTo = $state<string>(
 		engine.filters.dateTo ? format(engine.filters.dateTo, 'yyyy-MM-dd') : '',
 	);
+	// Time Window preset — defaults to All Time; only populates the date range.
+	let timePreset = $state<TimeWindowPreset>('All');
 
 	// Active tab drives which tab-specific control panel is rendered.
 	const activeTab = $derived(engine.activeTab);
@@ -55,6 +68,22 @@
 		const from = dateFrom ? new Date(dateFrom) : null;
 		const to = dateTo ? new Date(dateTo) : null;
 		engine.setDateRange(from, to);
+	}
+
+	/**
+	 * Populate the global Date Range pickers from the selected Time Window
+	 * preset. Does NOT apply — the user clicks Apply Filters to commit.
+	 * Custom leaves the pickers for manual entry.
+	 */
+	function selectPreset(value: TimeWindowPreset) {
+		timePreset = value;
+		if (value === 'Custom') return;
+		const [from, to] = computeTimeWindowDateRange(
+			value,
+			engine.filteredSessions,
+		);
+		dateFrom = from ? format(from, 'yyyy-MM-dd') : '';
+		dateTo = to ? format(to, 'yyyy-MM-dd') : '';
 	}
 
 	// Remove a selected activity (deselects it in both the select and the pills)
@@ -307,11 +336,31 @@
 			</select>
 		</div>
 		<div>
+			<label
+				for="timeWindowSelect"
+				class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1"
+			>
+				Time Window
+				<Tooltip for="timeWindow" />
+			</label>
+			<select
+				id="timeWindowSelect"
+				value={timePreset}
+				onchange={e =>
+					selectPreset((e.currentTarget as HTMLSelectElement).value as TimeWindowPreset)}
+				class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1.5 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 focus:outline-none"
+			>
+				{#each TIME_WINDOW_OPTIONS as opt}
+					<option value={opt.value}>{opt.label}</option>
+				{/each}
+			</select>
+		</div>
+		<div>
 			<span class="block text-sm font-medium text-[#1C1C1C] mb-1"
 				>Date Range</span
 			>
-			<div class="flex -space-x-px">
-				<div class="flex-1">
+			<div class="flex flex-wrap -space-x-px">
+				<div class="flex-1 min-w-40">
 					<label
 						for="dateFrom"
 						class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1"
@@ -326,7 +375,7 @@
 						class="w-7/8 min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 focus:outline-none"
 					/>
 				</div>
-				<div class="flex-1">
+				<div class="flex-1 min-w-40">
 					<label
 						for="dateTo"
 						class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1"

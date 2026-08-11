@@ -29,7 +29,6 @@ import {
 	type SplitBy,
 	type TabId,
 	type TimelineConfig,
-	type TimeWindowPreset,
 } from '../types/engine.js';
 import {
 	DEFAULT_FILTERS,
@@ -521,10 +520,6 @@ export class PracticeDataEngine {
 	// -------------------------------------------------------------------------
 	// Timeline View Setters
 	// -------------------------------------------------------------------------
-
-	setTimePreset(preset: TimeWindowPreset): void {
-		this.#timelineConfig = {...this.#timelineConfig, timePreset: preset};
-	}
 
 	setGranularity(granularity: Granularity): void {
 		this.#timelineConfig = {...this.#timelineConfig, granularity};
