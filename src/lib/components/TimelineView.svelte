@@ -1,6 +1,7 @@
 <script lang="ts">
 	import {engine} from '$lib';
-	import {echartAction, exportPNG, exportSVG} from '$lib/echarts/echartAction';
+	import {echartAction} from '$lib/echarts/echartAction';
+	import ExportControls from './ExportControls.svelte';
 	import TimelineChartCard from './TimelineChartCard.svelte';
 	import type {EChartsOption} from 'echarts';
 
@@ -16,30 +17,11 @@
 	const option: EChartsOption = $derived.by(
 		() => timelineSegments[0]?.option ?? {},
 	);
-
-	function downloadPNG() {
-		if (chartDiv) exportPNG(chartDiv, `timeline-${Date.now()}.png`);
-	}
-
-	function downloadSVG() {
-		if (chartDiv) exportSVG(chartDiv, `timeline-${Date.now()}.svg`);
-	}
 </script>
 
 <div class="flex flex-col h-full p-2 space-y-3 overflow-y-auto">
-	<div class="flex justify-end space-x-2">
-		<button
-			onclick={downloadPNG}
-			title="Export chart as PNG"
-			class="px-2 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
-			>PNG</button
-		>
-		<button
-			onclick={downloadSVG}
-			title="Export chart as SVG"
-			class="px-2 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md text-xs transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
-			>SVG</button
-		>
+	<div class="flex justify-end">
+		<ExportControls chartEl={chartDiv} prefix="timeline" />
 	</div>
 
 	{#if isGridMode && timelineSegments.length > 1}
