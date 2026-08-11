@@ -68,6 +68,7 @@ All parsing/analytics run client-side (privacy-first). Sample CSV auto-loads on 
 2. **`npm test`** → `vitest run`, all suites pass. Tests live beside code in `__tests__/` (e.g. `src/lib/engine/compilers/__tests__/distribution-compiler.test.ts`).
 3. **`npm run build`** → static output succeeds.
 4. **Formatting**: format changed **TS files** with `npx prettier --write <files>`. ⚠️ Repo-wide `npm run lint`/prettier **crashes on `.svelte` files** (`getVisitorKeys is not a function`) — pre-existing plugin incompatibility; don't try to fix it.
+5. **Manual visual check**: DO NOT RUN `npm run dev`, prompt the user with what to review.
 
 ## When to Make Commits (workflow guidance)
 
