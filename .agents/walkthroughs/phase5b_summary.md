@@ -60,7 +60,7 @@ Refactored and extended to support all three §5.2 behaviors:
 - **`npm run check`**: `svelte-check found 0 errors and 0 warnings`
 - **`npm test`**: `Test Files 6 passed (6), Tests 82 passed (82)` — 10 new `comparison-compiler.test.ts` tests (empty state, calendar alignment union/null handling, elapsed Day N alignment, Y-axis lock on/off, session/hour unit conversion, grid mode with shared locked max, missing-color palette fallback).
 - **`npm run build`**: static SPA output succeeds.
-- **Prettier**: all changed TS files clean. The repo-wide `npm run lint` has a pre-existing Prettier/Svelte-plugin `getVisitorKeys` crash on `.svelte` files (`+layout.svelte`, `+page.svelte`, etc.) — unrelated to this phase.
+- **Prettier**: all changed TS files clean. The repo-wide `npm run lint`/`npm run format` works with the Google-style `.prettierrc` (tabs, `singleQuote`, `trailingComma: all`, `printWidth: 80`, `bracketSpacing: false`, `arrowParens: avoid`); do NOT re-add `prettier-plugin-tailwindcss` (it crashes on `.svelte` with `getVisitorKeys is not a function`).
 
 ---
 

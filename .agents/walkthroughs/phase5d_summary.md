@@ -59,13 +59,13 @@ Following the user's preference change on the Select All / Deselect All links, a
 - **`npm run check`**: `svelte-check found 0 errors` (1 pre-existing intentional `Accordion.svelte` `defaultOpen` capture warning).
 - **`npm test`**: `Test Files 8 passed (8), Tests 120 passed (120)` — includes the new `tooltips.test.ts` (+1 test on top of the 119 from Phase 5c).
 - **`npm run build`**: static SPA output succeeds.
-- **Prettier**: changed TS files formatted (repo-wide lint still crashes on `.svelte` files — pre-existing plugin incompatibility; do not try to fix).
+- **Prettier**: changed files formatted. Repo-wide `npm run lint` / `npm run format` works (Google-style `.prettierrc`: tabs, `singleQuote`, `trailingComma: all`, `printWidth: 80`, `bracketSpacing: false`, `arrowParens: avoid`). Do NOT re-add `prettier-plugin-tailwindcss` — it crashes on `.svelte` files (`getVisitorKeys is not a function`).
 
 ---
 
 ## 3. Notes for Future Agents
 
-1. **Indentation convention:** All Svelte/TS source files use **tabs** (`useTabs: true` in `.prettierrc`). All component and engine files were standardized to tabs this phase; keep new code tab-indented.
+1. **Indentation convention:** All Svelte/TS source files use **tabs** (`useTabs: true` in `.prettierrc`). The repo follows Google style (see `.prettierrc`); keep new code tab-indented.
 2. **Accent rule:** Interactive controls are emerald; amber `#EAA845` is reserved for non-interactive selection/status affordances (pills, selected-row highlight, count badge, active tab underline, seasonal note, error/alert callouts). See the style guide.
 3. **Tooltip system:** New inputs should be added to `src/lib/i18n/en.json` with a `tooltip` + `label` entry, and wired with `<Tooltip for="<key>" />` next to the input's title. `TooltipKey` is derived from the JSON, so a missing key fails type-check.
 4. **Seasonal note placement:** The seasonal time-rule note now lives in the tab controls (Timeline + Distribution), gated on the relevant `Season` selection — it is **not** in Global Filters anymore.

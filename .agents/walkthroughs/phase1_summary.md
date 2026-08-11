@@ -9,6 +9,7 @@
 ## 1. Accomplishments
 
 ### Project Architecture & Config
+
 - **SvelteKit 5 SPA Output**: Configured `svelte.config.js` with `@sveltejs/adapter-static` (`fallback: 'index.html'`, `strict: true`) for client-side SPA static deployment on Vercel Edge.
 - **TypeScript Strict Configuration**: Added `tsconfig.json` extending `.svelte-kit/tsconfig.json` with strict mode rules matching Google TypeScript Style Guide:
   - `"strict": true`
@@ -17,9 +18,10 @@
   - `"noImplicitReturns": true`
   - `"noFallthroughCasesInSwitch": true`
 - **Tailwind CSS v4 & Styling**: Configured Vite plugin `@tailwindcss/vite` in `vite.config.ts`, added `@import "tailwindcss";` in `src/app.css`.
-- **Formatting Standards**: Established `.prettierrc` with `prettier-plugin-svelte` and `prettier-plugin-tailwindcss`.
+- **Formatting Standards**: Established `.prettierrc` (Google style, tabs) with `prettier-plugin-svelte`. `prettier-plugin-tailwindcss` was initially added but later removed — it causes a `getVisitorKeys is not a function` crash on `.svelte` files.
 
 ### Core Third-Party Package Suite Installed
+
 - **Visualization**: `echarts` (^5.6.0), `echarts-stat` (^1.2.0)
 - **Data Ingestion & Hygiene**: `papaparse` (^5.5.2), `@types/papaparse` (^5.3.15)
 - **Date & Time Arithmetic**: `date-fns` (^4.1.0)
@@ -27,6 +29,7 @@
 - **UI Components & Utilities**: `lucide-svelte` (^0.475.0), `clsx` (^2.1.1), `tailwind-merge` (^3.0.1)
 
 ### Repository Hygiene
+
 - **`.gitignore`**: Updated to ignore `node_modules/`, `.svelte-kit/`, `build/`, `dist/`, `.env`, OS artifacts (`.DS_Store`), and log files.
 
 ---
@@ -77,4 +80,5 @@ npm run build
 ---
 
 ## Next Phase: Phase 2
+
 - **Objective:** CSV Data Ingestion & Web Worker Pipeline (`PapaParse` worker thread, raw CSV parsing, validation, skipped count tracking, activity/preset extraction).

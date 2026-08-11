@@ -67,7 +67,7 @@ All parsing/analytics run client-side (privacy-first). Sample CSV auto-loads on 
 1. **`npm run check`** → `svelte-check` must be **0 errors AND 0 warnings**.
 2. **`npm test`** → `vitest run`, all suites pass. Tests live beside code in `__tests__/` (e.g. `src/lib/engine/compilers/__tests__/distribution-compiler.test.ts`).
 3. **`npm run build`** → static output succeeds.
-4. **Formatting**: format changed **TS files** with `npx prettier --write <files>`. ⚠️ Repo-wide `npm run lint`/prettier **crashes on `.svelte` files** (`getVisitorKeys is not a function`) — pre-existing plugin incompatibility; don't try to fix it.
+4. **Formatting**: format changed files with `npx prettier --write <files>` (repo-wide `npm run lint` / `npm run format` works). Config: Google-style `.prettierrc` with `useTabs: true`, `singleQuote: true`, `trailingComma: "all"`, `printWidth: 80`, `bracketSpacing: false`, `arrowParens: "avoid"`, plugin `prettier-plugin-svelte`. ⚠️ Keep `prettier-plugin-tailwindcss` OUT of the plugin list — including it triggers a `getVisitorKeys is not a function` crash on `.svelte` files.
 5. **Manual visual check**: DO NOT RUN `npm run dev`, prompt the user with what to review.
 
 ## When to Make Commits (workflow guidance)
