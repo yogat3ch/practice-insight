@@ -78,6 +78,9 @@
 	let breakdownMode = $state<BreakdownMode>(
 		engine.distributionConfig.breakdownMode,
 	);
+	let showDayOfWeekLabels = $state<boolean>(
+		engine.distributionConfig.showDayOfWeekLabels,
+	);
 
 	/** Style options for the currently selected category. */
 	const currentStyles = $derived(STYLE_OPTIONS[category]);
@@ -99,6 +102,7 @@
 		engine.setDistributionMetric(metric);
 		engine.setThresholdMinutes(thresholdMinutes);
 		engine.setBreakdownMode(breakdownMode);
+		engine.setShowDayOfWeekLabels(showDayOfWeekLabels);
 	}
 </script>
 
@@ -163,6 +167,20 @@
 			{/each}
 		</div>
 	</fieldset>
+
+	<!-- Show Labels toggle (only for the Day-of-Week heatmap visualMap labels) -->
+	{#if category === 'dayOfWeek' && chartStyle === 'heatmap'}
+		<label
+			class="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer"
+		>
+			<input
+				type="checkbox"
+				bind:checked={showDayOfWeekLabels}
+				class="w-4 h-4 rounded border-[#9CA3AF] text-emerald-500 focus:ring-emerald-500/40"
+			/>
+			Show value labels
+		</label>
+	{/if}
 
 	<!-- Breakdown Mode (only for Activity & Preset Breakdown category) -->
 	{#if category === 'breakdown'}

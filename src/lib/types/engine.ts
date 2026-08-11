@@ -113,6 +113,11 @@ export interface DistributionConfig {
 	readonly temporalGrouping: DistributionTemporalGrouping;
 	/** Whether the Activity & Preset breakdown groups by activity or preset. */
 	readonly breakdownMode: BreakdownMode;
+	/**
+	 * Show the embedded value labels on the Day-of-Week heatmap `visualMap`.
+	 * Toggleable to prevent overcrowding; axis labels are unaffected.
+	 */
+	readonly showDayOfWeekLabels: boolean;
 }
 
 /** Default configuration for Distribution mode. */
@@ -123,4 +128,5 @@ export const DEFAULT_DISTRIBUTION_CONFIG: DistributionConfig = {
 	thresholdMinutes: 0,
 	temporalGrouping: 'month',
 	breakdownMode: 'activity',
+	showDayOfWeekLabels: true,
 };

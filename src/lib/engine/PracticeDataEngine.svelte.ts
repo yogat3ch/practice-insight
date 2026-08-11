@@ -378,8 +378,13 @@ export class PracticeDataEngine {
 	 *   - thresholdMinutes → filters bins upstream in the calculators
 	 */
 	get distributionOption(): EChartsOption {
-		const {category, chartStyle, metric, temporalGrouping} =
-			this.#distributionConfig;
+		const {
+			category,
+			chartStyle,
+			metric,
+			temporalGrouping,
+			showDayOfWeekLabels,
+		} = this.#distributionConfig;
 		const unit = this.#filters.unit;
 
 		if (category === 'dayOfWeek') {
@@ -393,6 +398,7 @@ export class PracticeDataEngine {
 						unit,
 						metric,
 						temporalGrouping,
+						showDayOfWeekLabels,
 					);
 				}
 				return compileDayOfWeekOption(
@@ -400,6 +406,7 @@ export class PracticeDataEngine {
 					unit,
 					'heatmap',
 					metric,
+					showDayOfWeekLabels,
 				);
 			}
 			return compileDayOfWeekOption(this.dayOfWeekBins, unit, 'bar', metric);
@@ -667,6 +674,18 @@ export class PracticeDataEngine {
 	 */
 	setBreakdownMode(breakdownMode: BreakdownMode): void {
 		this.#distributionConfig = {...this.#distributionConfig, breakdownMode};
+	}
+
+	/**
+	 * Toggles the embedded value labels on the Day-of-Week heatmap `visualMap`.
+	 *
+	 * @param show - Whether to show the heatmap value labels.
+	 */
+	setShowDayOfWeekLabels(show: boolean): void {
+		this.#distributionConfig = {
+			...this.#distributionConfig,
+			showDayOfWeekLabels: show,
+		};
 	}
 
 	setThresholdMinutes(thresholdMinutes: number): void {

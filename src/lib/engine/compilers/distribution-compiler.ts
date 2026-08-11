@@ -12,7 +12,10 @@
  *   - thresholdMinutes: filtered upstream in the calculators
  */
 
-import type {EChartsOption} from 'echarts';
+import type {
+	EChartsOption,
+	VisualMapComponentOption,
+} from 'echarts';
 import type {
 	DistributionMetric,
 	DistributionTemporalGrouping,
@@ -81,6 +84,7 @@ export function compileDayOfWeekOption(
 	unit: Unit,
 	style: 'bar' | 'heatmap' = 'bar',
 	metric: DistributionMetric = 'totalDuration',
+	showHeatmapLabels = true,
 ): EChartsOption {
 	const dayNames = bins.map(b => b.dayName);
 	const values = bins.map(b =>
@@ -186,7 +190,10 @@ export function compileDayOfWeekOption(
 			// Cool-to-warm sequential scale (#3B82F6 -> #EF4444)
 			inRange: {color: ['#3B82F6', '#EAA845', '#EF4444']},
 			textStyle: {color: '#1C1C1C'},
-		},
+			// Show/hide the value labels; round to one decimal to match tooltips.
+			show: showHeatmapLabels,
+			precision: 1,
+		} as VisualMapComponentOption,
 		series: [
 			{
 				name: 'Intensity',
@@ -215,6 +222,7 @@ export function compileDayOfWeekHeatmapMatrix(
 	unit: Unit,
 	metric: DistributionMetric = 'totalDuration',
 	grouping: DistributionTemporalGrouping = 'month',
+	showLabels = true,
 ): EChartsOption {
 	const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 	const rowLabels = periodBins.map(p => p.period);
@@ -274,7 +282,10 @@ export function compileDayOfWeekHeatmapMatrix(
 			bottom: '2%',
 			inRange: {color: ['#3B82F6', '#EAA845', '#EF4444']},
 			textStyle: {color: '#1C1C1C'},
-		},
+			// Show/hide the value labels; round to one decimal to match tooltips.
+			show: showLabels,
+			precision: 1,
+		} as VisualMapComponentOption,
 		title: {
 			text: `Day of Week by ${groupingLabel(grouping)}`,
 			subtext: `Shaded by ${metricLabel(metric).toLowerCase()} (${unit})`,

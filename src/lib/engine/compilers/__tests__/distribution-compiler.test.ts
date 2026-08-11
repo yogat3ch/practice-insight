@@ -155,6 +155,29 @@ describe('compileDayOfWeekOption — heatmap', () => {
 		expect(series[0].data[0]).toEqual([0, 0, 10]);
 		expect(opt.visualMap).toBeDefined();
 	});
+
+	it('formats heatmap visualMap labels to one decimal place by default', () => {
+		const opt = compileDayOfWeekOption(
+			makeDayBins([10, 20]),
+			'minutes',
+			'heatmap',
+		);
+		const vm = opt.visualMap as {show: boolean; precision: number};
+		expect(vm.show).toBe(true);
+		expect(vm.precision).toBe(1);
+	});
+
+	it('hides heatmap visualMap labels when showLabels is false', () => {
+		const opt = compileDayOfWeekOption(
+			makeDayBins([10, 20]),
+			'minutes',
+			'heatmap',
+			'totalDuration',
+			false,
+		);
+		const vm = opt.visualMap as {show: boolean};
+		expect(vm.show).toBe(false);
+	});
 });
 
 describe('compileDayOfWeekHeatmapMatrix (§5.3 temporal grouping)', () => {
@@ -204,6 +227,32 @@ describe('compileDayOfWeekHeatmapMatrix (§5.3 temporal grouping)', () => {
 		expect(avgSeries[0].data[0]).toEqual([0, 0, 5]);
 		// Session-count metric: 2 sessions per non-zero bin.
 		expect(series[0].data[0]).toEqual([0, 0, 2]);
+	});
+
+	it('formats heatmap matrix visualMap labels to one decimal and honors showLabels', () => {
+		const periodBins = [
+			{period: 'Jul 2026', bins: makeDayBins([10, 20, 0, 0, 0, 0, 0])},
+		];
+		const shown = compileDayOfWeekHeatmapMatrix(
+			periodBins,
+			'minutes',
+			'totalDuration',
+			'month',
+			true,
+		);
+		const shownVm = shown.visualMap as {show: boolean; precision: number};
+		expect(shownVm.show).toBe(true);
+		expect(shownVm.precision).toBe(1);
+
+		const hidden = compileDayOfWeekHeatmapMatrix(
+			periodBins,
+			'minutes',
+			'totalDuration',
+			'month',
+			false,
+		);
+		const hiddenVm = hidden.visualMap as {show: boolean};
+		expect(hiddenVm.show).toBe(false);
 	});
 });
 

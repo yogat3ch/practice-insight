@@ -89,6 +89,7 @@ describe('PracticeDataEngine Integration', () => {
 		expect(engine.distributionConfig.thresholdMinutes).toBe(0);
 		expect(engine.distributionConfig.temporalGrouping).toBe('month');
 		expect(engine.distributionConfig.breakdownMode).toBe('activity');
+		expect(engine.distributionConfig.showDayOfWeekLabels).toBe(true);
 	});
 
 	it('wires distribution setters and updates derived config', () => {
@@ -99,6 +100,7 @@ describe('PracticeDataEngine Integration', () => {
 		engine.setTemporalGrouping('season');
 		engine.setBreakdownMode('preset');
 		engine.setThresholdMinutes(5);
+		engine.setShowDayOfWeekLabels(false);
 
 		expect(engine.distributionConfig.category).toBe('timeOfDay');
 		expect(engine.distributionConfig.chartStyle).toBe('polar');
@@ -106,6 +108,7 @@ describe('PracticeDataEngine Integration', () => {
 		expect(engine.distributionConfig.temporalGrouping).toBe('season');
 		expect(engine.distributionConfig.breakdownMode).toBe('preset');
 		expect(engine.distributionConfig.thresholdMinutes).toBe(5);
+		expect(engine.distributionConfig.showDayOfWeekLabels).toBe(false);
 	});
 
 	it('generates a grouped heatmap matrix option when heatmap style is selected', () => {
