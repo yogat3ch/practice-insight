@@ -1,11 +1,11 @@
 <script lang="ts">
-	import {engine} from '$lib';
 	import type {
 		ComparisonPeriod,
 		ComparisonStrategy,
 		XAxisAlignment,
 	} from '$lib';
-	import {format} from 'date-fns';
+	import { engine } from '$lib';
+	import { format } from 'date-fns';
 	import Tooltip from './Tooltip.svelte';
 
 	/** Comparison strategy options per §5.2. */
@@ -210,7 +210,7 @@
 
 		<!-- Add Period constructor -->
 		<div class="mt-2 border-t border-[#E5E5E5] pt-2 space-y-2">
-			<div class="flex space-x-px">
+			<div class="flex -space-x-px">
 				<div class="flex-1">
 					<label
 						for="comparisonFrom"

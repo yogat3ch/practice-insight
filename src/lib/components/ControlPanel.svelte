@@ -1,6 +1,6 @@
 <script lang="ts">
-	import {engine} from '$lib';
-	import {format} from 'date-fns';
+	import { engine } from '$lib';
+	import { format } from 'date-fns';
 	import Accordion from './Accordion.svelte';
 	import CSVIngestionCard from './CSVIngestionCard.svelte';
 	import ComparisonControls from './ComparisonControls.svelte';
@@ -310,7 +310,7 @@
 			<span class="block text-sm font-medium text-[#1C1C1C] mb-1"
 				>Date Range</span
 			>
-			<div class="flex space-x-px">
+			<div class="flex -space-x-px">
 				<div class="flex-1">
 					<label
 						for="dateFrom"

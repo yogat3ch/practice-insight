@@ -1,8 +1,8 @@
 <script lang="ts">
-	import {engine, computeTimeWindowDateRange} from '$lib';
-	import type {Granularity, SplitBy, TimeWindowPreset} from '$lib';
-	import {format} from 'date-fns';
+	import type { Granularity, SplitBy, TimeWindowPreset } from '$lib';
+	import { computeTimeWindowDateRange, engine } from '$lib';
 	import Info from '@lucide/svelte/icons/info';
+	import { format } from 'date-fns';
 	import Tooltip from './Tooltip.svelte';
 
 	const TIME_WINDOW_OPTIONS: {value: TimeWindowPreset; label: string}[] = [
@@ -121,7 +121,7 @@
 	</div>
 
 	{#if isCustom}
-		<div class="flex space-x-px">
+		<div class="flex -space-x-px">
 			<div class="flex-1">
 				<label
 					for="timelineFrom"
