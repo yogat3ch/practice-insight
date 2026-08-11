@@ -13,7 +13,7 @@
 		children?: import('svelte').Snippet;
 	}
 
-	let { title, id, defaultOpen = true, count = null, children }: Props = $props();
+	let {title, id, defaultOpen = true, count = null, children}: Props = $props();
 
 	// Local open/closed state. Kept as plain local state — the section content
 	// remains mounted so filters and charts keep their values when collapsed.
@@ -38,19 +38,28 @@
 			<span class="inline-flex items-center gap-2">
 				{title}
 				{#if count !== null && count > 0}
-					<span class="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-[#EAA845]/15 text-[#B45309] text-xs font-medium">
+					<span
+						class="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-[#EAA845]/15 text-[#B45309] text-xs font-medium"
+					>
 						{count}
 					</span>
 				{/if}
 			</span>
 			<ChevronDown
-				class="w-4 h-4 shrink-0 text-[#6E6E6E] transition-transform duration-200 {open ? 'rotate-180' : ''}"
+				class="w-4 h-4 shrink-0 text-[#6E6E6E] transition-transform duration-200 {open
+					? 'rotate-180'
+					: ''}"
 				aria-hidden="true"
 			/>
 		</button>
 	</h3>
 	{#if open}
-		<div id={panelId} role="region" aria-labelledby={buttonId} class="border-t border-[#E5E5E5] p-3">
+		<div
+			id={panelId}
+			role="region"
+			aria-labelledby={buttonId}
+			class="border-t border-[#E5E5E5] p-3"
+		>
 			{@render children?.()}
 		</div>
 	{/if}

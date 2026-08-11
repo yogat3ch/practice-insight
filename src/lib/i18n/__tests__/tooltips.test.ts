@@ -2,8 +2,8 @@
  * @fileoverview Unit tests for the i18n tooltip lookup helper.
  */
 
-import { describe, expect, it } from 'vitest';
-import { labelFor, tooltipFor } from '../Tooltips';
+import {describe, expect, it} from 'vitest';
+import {labelFor, tooltipFor} from '../Tooltips';
 
 describe('tooltipFor', () => {
 	it('returns the tooltip text for a known key', () => {
@@ -42,11 +42,13 @@ describe('tooltipFor', () => {
 			'breakdownMode',
 			'temporalGrouping',
 			'metric',
-			'threshold'
+			'threshold',
 		] as const;
 
 		for (const key of keys) {
-			expect(tooltipFor(key).trim().length, `${key} tooltip`).toBeGreaterThan(0);
+			expect(tooltipFor(key).trim().length, `${key} tooltip`).toBeGreaterThan(
+				0,
+			);
 			expect(labelFor(key).trim().length, `${key} label`).toBeGreaterThan(0);
 		}
 	});

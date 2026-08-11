@@ -1,35 +1,35 @@
 <script lang="ts">
-	import { engine, computeTimeWindowDateRange } from '$lib';
-	import type { Granularity, SplitBy, TimeWindowPreset } from '$lib';
-	import { format } from 'date-fns';
+	import {engine, computeTimeWindowDateRange} from '$lib';
+	import type {Granularity, SplitBy, TimeWindowPreset} from '$lib';
+	import {format} from 'date-fns';
 	import Info from '@lucide/svelte/icons/info';
 	import Tooltip from './Tooltip.svelte';
 
-	const TIME_WINDOW_OPTIONS: { value: TimeWindowPreset; label: string }[] = [
-		{ value: '3M', label: 'Last 3 Months' },
-		{ value: '6M', label: 'Last 6 Months' },
-		{ value: '1Y', label: 'Last Year' },
-		{ value: 'YTD', label: 'Year to Date' },
-		{ value: 'All', label: 'All Time' },
-		{ value: 'Custom', label: 'Custom Range' }
+	const TIME_WINDOW_OPTIONS: {value: TimeWindowPreset; label: string}[] = [
+		{value: '3M', label: 'Last 3 Months'},
+		{value: '6M', label: 'Last 6 Months'},
+		{value: '1Y', label: 'Last Year'},
+		{value: 'YTD', label: 'Year to Date'},
+		{value: 'All', label: 'All Time'},
+		{value: 'Custom', label: 'Custom Range'},
 	];
 
-	const GRANULARITY_OPTIONS: { value: Granularity; label: string }[] = [
-		{ value: 'day', label: 'Day' },
-		{ value: 'week', label: 'Week' },
-		{ value: 'month', label: 'Month' },
-		{ value: 'quarter', label: 'Quarter' },
-		{ value: 'season', label: 'Season' },
-		{ value: 'year', label: 'Year' }
+	const GRANULARITY_OPTIONS: {value: Granularity; label: string}[] = [
+		{value: 'day', label: 'Day'},
+		{value: 'week', label: 'Week'},
+		{value: 'month', label: 'Month'},
+		{value: 'quarter', label: 'Quarter'},
+		{value: 'season', label: 'Season'},
+		{value: 'year', label: 'Year'},
 	];
 
-	const SPLIT_OPTIONS: { value: SplitBy; label: string }[] = [
-		{ value: 'none', label: 'No Split' },
-		{ value: 'week', label: 'Week' },
-		{ value: 'month', label: 'Month' },
-		{ value: 'quarter', label: 'Quarter' },
-		{ value: 'season', label: 'Season' },
-		{ value: 'year', label: 'Year' }
+	const SPLIT_OPTIONS: {value: SplitBy; label: string}[] = [
+		{value: 'none', label: 'No Split'},
+		{value: 'week', label: 'Week'},
+		{value: 'month', label: 'Month'},
+		{value: 'quarter', label: 'Quarter'},
+		{value: 'season', label: 'Season'},
+		{value: 'year', label: 'Year'},
 	];
 
 	// Local control state, initialized from the engine's current config.
@@ -37,7 +37,9 @@
 	let granularity = $state<Granularity>(engine.timelineConfig.granularity);
 	let splitBy = $state<SplitBy>(engine.timelineConfig.splitBy);
 	let useChartGrid = $state<boolean>(engine.timelineConfig.useChartGrid);
-	let movingAverageDays = $state<number>(engine.timelineConfig.movingAverageDays);
+	let movingAverageDays = $state<number>(
+		engine.timelineConfig.movingAverageDays,
+	);
 	let showMean = $state<boolean>(engine.timelineConfig.showMean);
 	let showStdDev = $state<boolean>(engine.timelineConfig.showStdDev);
 	let showLinearTrend = $state<boolean>(engine.timelineConfig.showLinearTrend);
@@ -49,7 +51,10 @@
 	function selectPreset(value: TimeWindowPreset) {
 		timePreset = value;
 		if (value === 'Custom') return;
-		const [from, to] = computeTimeWindowDateRange(value, engine.filteredSessions);
+		const [from, to] = computeTimeWindowDateRange(
+			value,
+			engine.filteredSessions,
+		);
 		// Store computed bounds locally so Apply can send them to the engine.
 		engine.setDateRange(from, to);
 	}
@@ -72,7 +77,10 @@
 	// Format a preset's resolved range for display in the button area.
 	function formatRangeLabel(preset: TimeWindowPreset): string {
 		if (preset === 'Custom') return '';
-		const [from, to] = computeTimeWindowDateRange(preset, engine.filteredSessions);
+		const [from, to] = computeTimeWindowDateRange(
+			preset,
+			engine.filteredSessions,
+		);
 		if (from === null || to === null) return '';
 		return `${format(from, 'MMM d, yyyy')} – ${format(to, 'MMM d, yyyy')}`;
 	}
@@ -80,12 +88,20 @@
 	const rangeLabel = $derived(formatRangeLabel(timePreset));
 </script>
 
-<section aria-labelledby="timelineControlsTitle" class="border border-[#E5E5E5] bg-white rounded-md p-3 space-y-3">
-	<h3 id="timelineControlsTitle" class="text-sm font-semibold text-[#1C1C1C]">Timeline Controls</h3>
+<section
+	aria-labelledby="timelineControlsTitle"
+	class="border border-[#E5E5E5] bg-white rounded-md p-3 space-y-3"
+>
+	<h3 id="timelineControlsTitle" class="text-sm font-semibold text-[#1C1C1C]">
+		Timeline Controls
+	</h3>
 
 	<!-- Time Window -->
 	<div>
-		<label for="timeWindowSelect" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+		<label
+			for="timeWindowSelect"
+			class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1"
+		>
 			Time Window
 			<Tooltip for="timeWindow" />
 		</label>
@@ -107,25 +123,44 @@
 	{#if isCustom}
 		<div class="flex space-x-px">
 			<div class="flex-1">
-				<label for="timelineFrom" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+				<label
+					for="timelineFrom"
+					class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1"
+				>
 					From
 					<Tooltip for="timelineFrom" />
 				</label>
-				<input id="timelineFrom" type="date" bind:value={customFrom} class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 focus:outline-none" />
+				<input
+					id="timelineFrom"
+					type="date"
+					bind:value={customFrom}
+					class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 focus:outline-none"
+				/>
 			</div>
 			<div class="flex-1">
-				<label for="timelineTo" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+				<label
+					for="timelineTo"
+					class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1"
+				>
 					To
 					<Tooltip for="timelineTo" />
 				</label>
-				<input id="timelineTo" type="date" bind:value={customTo} class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 focus:outline-none" />
+				<input
+					id="timelineTo"
+					type="date"
+					bind:value={customTo}
+					class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 focus:outline-none"
+				/>
 			</div>
 		</div>
 	{/if}
 
 	<!-- Time Aggregation -->
 	<div>
-		<label for="granularitySelect" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+		<label
+			for="granularitySelect"
+			class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1"
+		>
 			Aggregate By
 			<Tooltip for="granularity" />
 		</label>
@@ -141,15 +176,22 @@
 	</div>
 
 	{#if granularity === 'season' || splitBy === 'season'}
-		<p class="flex items-start gap-1.5 rounded-md bg-amber-100 px-2.5 py-2 text-xs text-[#B45309]">
+		<p
+			class="flex items-start gap-1.5 rounded-md bg-amber-100 px-2.5 py-2 text-xs text-[#B45309]"
+		>
 			<Info class="w-4 h-4 shrink-0 text-[#B45309]" aria-hidden="true" />
-			<span>Seasonal years run Dec 22 – Dec 21. Sessions attributed to Start Time.</span>
+			<span
+				>Seasonal years run Dec 22 – Dec 21. Sessions attributed to Start Time.</span
+			>
 		</p>
 	{/if}
 
 	<!-- Time Split -->
 	<div>
-		<label for="splitBySelect" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+		<label
+			for="splitBySelect"
+			class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1"
+		>
 			Time Split
 			<Tooltip for="splitBy" />
 		</label>
@@ -163,7 +205,9 @@
 			{/each}
 		</select>
 		{#if splitBy !== 'none'}
-			<label class="mt-1.5 flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer">
+			<label
+				class="mt-1.5 flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer"
+			>
 				<input
 					type="checkbox"
 					bind:checked={useChartGrid}
@@ -177,7 +221,10 @@
 	<!-- Smoothing -->
 	<div>
 		<div class="flex items-center justify-between mb-1">
-			<label for="movingAvgSlider" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C]">
+			<label
+				for="movingAvgSlider"
+				class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C]"
+			>
 				Moving Average
 				<Tooltip for="movingAverage" />
 			</label>
@@ -196,20 +243,40 @@
 
 	<!-- Statistical Overlays -->
 	<fieldset class="space-y-1.5">
-		<legend class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+		<legend
+			class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1"
+		>
 			Statistical Overlays
 			<Tooltip for="statisticalOverlays" />
 		</legend>
-		<label class="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer">
-			<input type="checkbox" bind:checked={showMean} class="w-4 h-4 rounded border-[#9CA3AF] text-emerald-500 focus:ring-emerald-500/40" />
+		<label
+			class="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer"
+		>
+			<input
+				type="checkbox"
+				bind:checked={showMean}
+				class="w-4 h-4 rounded border-[#9CA3AF] text-emerald-500 focus:ring-emerald-500/40"
+			/>
 			Mean (μ)
 		</label>
-		<label class="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer">
-			<input type="checkbox" bind:checked={showStdDev} class="w-4 h-4 rounded border-[#9CA3AF] text-emerald-500 focus:ring-emerald-500/40" />
+		<label
+			class="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer"
+		>
+			<input
+				type="checkbox"
+				bind:checked={showStdDev}
+				class="w-4 h-4 rounded border-[#9CA3AF] text-emerald-500 focus:ring-emerald-500/40"
+			/>
 			±1 Std Dev (σ)
 		</label>
-		<label class="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer">
-			<input type="checkbox" bind:checked={showLinearTrend} class="w-4 h-4 rounded border-[#9CA3AF] text-emerald-500 focus:ring-emerald-500/40" />
+		<label
+			class="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer"
+		>
+			<input
+				type="checkbox"
+				bind:checked={showLinearTrend}
+				class="w-4 h-4 rounded border-[#9CA3AF] text-emerald-500 focus:ring-emerald-500/40"
+			/>
 			Linear Trendline
 		</label>
 	</fieldset>

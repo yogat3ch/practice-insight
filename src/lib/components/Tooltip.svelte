@@ -1,8 +1,14 @@
 <script lang="ts">
 	import CircleQuestionMark from '@lucide/svelte/icons/circle-question-mark';
-	import { autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
-	import { tooltipFor, labelFor } from '../i18n/Tooltips';
-	import type { TooltipKey } from '../i18n/Tooltips';
+	import {
+		autoUpdate,
+		computePosition,
+		flip,
+		offset,
+		shift,
+	} from '@floating-ui/dom';
+	import {tooltipFor, labelFor} from '../i18n/Tooltips';
+	import type {TooltipKey} from '../i18n/Tooltips';
 
 	interface Props {
 		/** i18n key used to look up the tooltip text and accessible label. */
@@ -11,7 +17,7 @@
 		label?: string;
 	}
 
-	let { for: tooltipKey, label }: Props = $props();
+	let {for: tooltipKey, label}: Props = $props();
 
 	/** Open/closed state; toggled by click/tap and hover/focus on desktop. */
 	let open = $state(false);
@@ -37,8 +43,8 @@
 		const update = () => {
 			void computePosition(trigger, tooltip, {
 				placement: 'top',
-				middleware: [offset(6), flip(), shift({ padding: 8 })]
-			}).then(({ x, y }) => {
+				middleware: [offset(6), flip(), shift({padding: 8})],
+			}).then(({x, y}) => {
 				tooltip.style.left = `${x}px`;
 				tooltip.style.top = `${y}px`;
 			});

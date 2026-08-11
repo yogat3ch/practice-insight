@@ -12,14 +12,17 @@
  *   - thresholdMinutes: filtered upstream in the calculators
  */
 
-import type { EChartsOption } from 'echarts';
-import type { DistributionMetric, DistributionTemporalGrouping } from '../../types/engine.js';
-import type { Unit } from '../../types/filters.js';
+import type {EChartsOption} from 'echarts';
+import type {
+	DistributionMetric,
+	DistributionTemporalGrouping,
+} from '../../types/engine.js';
+import type {Unit} from '../../types/filters.js';
 import {
 	metricValueOf,
 	type CategoryBreakdownItem,
 	type DayOfWeekBin,
-	type TimeOfDayBin
+	type TimeOfDayBin,
 } from '../distribution.js';
 
 /** Distinct stacked-bar palette for the Activity/Preset breakdown segments. */
@@ -31,23 +34,25 @@ const STACKED_PALETTE: readonly string[] = [
 	'#8b5cf6', // Violet 500
 	'#14b8a6', // Teal 500
 	'#f97316', // Orange 500
-	'#6366f1' // Indigo 500
+	'#6366f1', // Indigo 500
 ];
 
 /** Shared base style for every distribution chart (light theme). */
 function baseTextStyle(): EChartsOption['textStyle'] {
-	return { fontFamily: 'system-ui, -apple-system, sans-serif', color: '#1C1C1C' };
+	return {fontFamily: 'system-ui, -apple-system, sans-serif', color: '#1C1C1C'};
 }
 
 /** Shared dark tooltip shell used across distribution charts. */
-function darkTooltip(extra: Record<string, unknown> = {}): EChartsOption['tooltip'] {
+function darkTooltip(
+	extra: Record<string, unknown> = {},
+): EChartsOption['tooltip'] {
 	return {
 		backgroundColor: '#1F2937',
 		borderColor: '#334155',
 		borderWidth: 1,
-		textStyle: { color: '#f8fafc' },
+		textStyle: {color: '#f8fafc'},
 		confine: true,
-		...extra
+		...extra,
 	};
 }
 
@@ -75,11 +80,11 @@ export function compileDayOfWeekOption(
 	bins: readonly DayOfWeekBin[],
 	unit: Unit,
 	style: 'bar' | 'heatmap' = 'bar',
-	metric: DistributionMetric = 'totalDuration'
+	metric: DistributionMetric = 'totalDuration',
 ): EChartsOption {
-	const dayNames = bins.map((b) => b.dayName);
-	const values = bins.map((b) =>
-		metricValueOf(b.totalValue, b.sessionCount, b.averageValue, metric)
+	const dayNames = bins.map(b => b.dayName);
+	const values = bins.map(b =>
+		metricValueOf(b.totalValue, b.sessionCount, b.averageValue, metric),
 	);
 	const unitLabel = unitAxisName(unit);
 
@@ -93,29 +98,40 @@ export function compileDayOfWeekOption(
 					if (!Array.isArray(params) || params.length === 0) return '';
 					const idx = params[0].dataIndex;
 					const bin = bins[idx];
-					const value = metricValueOf(bin.totalValue, bin.sessionCount, bin.averageValue, metric);
+					const value = metricValueOf(
+						bin.totalValue,
+						bin.sessionCount,
+						bin.averageValue,
+						metric,
+					);
 					return `
 						<div style="font-weight:600;">${bin.dayName}</div>
 						<div>${metricLabel(metric)}: <strong>${value.toFixed(1)} ${unit}</strong></div>
 						<div>Sessions: <strong>${bin.sessionCount}</strong></div>
 						<div>Average: <strong>${bin.averageValue.toFixed(1)} ${unit}/session</strong></div>
 					`;
-				}
+				},
 			}),
-			grid: { left: '3%', right: '4%', bottom: '10%', top: '8%', containLabel: true },
+			grid: {
+				left: '3%',
+				right: '4%',
+				bottom: '10%',
+				top: '8%',
+				containLabel: true,
+			},
 			xAxis: {
 				type: 'category',
 				data: dayNames,
-				axisLine: { lineStyle: { color: '#E5E7EB' } },
-				axisLabel: { color: '#1C1C1C' }
+				axisLine: {lineStyle: {color: '#E5E7EB'}},
+				axisLabel: {color: '#1C1C1C'},
 			},
 			yAxis: {
 				type: 'value',
 				name: unitLabel,
-				nameTextStyle: { color: '#1C1C1C', padding: [0, 0, 0, 10] },
-				axisLine: { lineStyle: { color: '#E5E7EB' } },
-				splitLine: { lineStyle: { color: '#E5E7EB' } },
-				axisLabel: { color: '#1C1C1C' }
+				nameTextStyle: {color: '#1C1C1C', padding: [0, 0, 0, 10]},
+				axisLine: {lineStyle: {color: '#E5E7EB'}},
+				splitLine: {lineStyle: {color: '#E5E7EB'}},
+				axisLabel: {color: '#1C1C1C'},
 			},
 			series: [
 				{
@@ -124,10 +140,10 @@ export function compileDayOfWeekOption(
 					data: values,
 					itemStyle: {
 						color: '#EAA845', // Warm amber accent
-						borderRadius: [4, 4, 0, 0]
-					}
-				}
-			]
+						borderRadius: [4, 4, 0, 0],
+					},
+				},
+			],
 		};
 	}
 
@@ -135,9 +151,9 @@ export function compileDayOfWeekOption(
 	const heatmapData = bins.map((b, i) => [
 		i,
 		0,
-		metricValueOf(b.totalValue, b.sessionCount, b.averageValue, metric)
+		metricValueOf(b.totalValue, b.sessionCount, b.averageValue, metric),
 	]);
-	const maxVal = Math.max(...heatmapData.map((d) => d[2] as number), 1);
+	const maxVal = Math.max(...heatmapData.map(d => d[2] as number), 1);
 
 	return {
 		backgroundColor: 'transparent',
@@ -155,11 +171,11 @@ export function compileDayOfWeekOption(
 					<div>Sessions: <strong>${bin.sessionCount}</strong></div>
 					<div>Average: <strong>${bin.averageValue.toFixed(1)} ${unit}/session</strong></div>
 				`;
-			}
+			},
 		}),
-		grid: { height: '30%', top: '20%' },
-		xAxis: { type: 'category', data: dayNames, axisLabel: { color: '#1C1C1C' } },
-		yAxis: { type: 'category', data: ['Volume'], axisLabel: { color: '#1C1C1C' } },
+		grid: {height: '30%', top: '20%'},
+		xAxis: {type: 'category', data: dayNames, axisLabel: {color: '#1C1C1C'}},
+		yAxis: {type: 'category', data: ['Volume'], axisLabel: {color: '#1C1C1C'}},
 		visualMap: {
 			min: 0,
 			max: maxVal,
@@ -168,17 +184,17 @@ export function compileDayOfWeekOption(
 			left: 'center',
 			bottom: '15%',
 			// Cool-to-warm sequential scale (#3B82F6 -> #EF4444)
-			inRange: { color: ['#3B82F6', '#EAA845', '#EF4444'] },
-			textStyle: { color: '#1C1C1C' }
+			inRange: {color: ['#3B82F6', '#EAA845', '#EF4444']},
+			textStyle: {color: '#1C1C1C'},
 		},
 		series: [
 			{
 				name: 'Intensity',
 				type: 'heatmap',
 				data: heatmapData,
-				label: { show: true, color: '#1C1C1C' }
-			}
-		]
+				label: {show: true, color: '#1C1C1C'},
+			},
+		],
 	};
 }
 
@@ -195,20 +211,25 @@ export function compileDayOfWeekOption(
  * @returns EChartsOption heatmap matrix.
  */
 export function compileDayOfWeekHeatmapMatrix(
-	periodBins: readonly { period: string; bins: DayOfWeekBin[] }[],
+	periodBins: readonly {period: string; bins: DayOfWeekBin[]}[],
 	unit: Unit,
 	metric: DistributionMetric = 'totalDuration',
-	grouping: DistributionTemporalGrouping = 'month'
+	grouping: DistributionTemporalGrouping = 'month',
 ): EChartsOption {
 	const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-	const rowLabels = periodBins.map((p) => p.period);
+	const rowLabels = periodBins.map(p => p.period);
 
 	const heatmapData: [number, number, number][] = [];
 	let globalMax = 0;
 
 	periodBins.forEach((period, row) => {
 		period.bins.forEach((bin, col) => {
-			const value = metricValueOf(bin.totalValue, bin.sessionCount, bin.averageValue, metric);
+			const value = metricValueOf(
+				bin.totalValue,
+				bin.sessionCount,
+				bin.averageValue,
+				metric,
+			);
 			heatmapData.push([col, row, value]);
 			if (value > globalMax) globalMax = value;
 		});
@@ -233,11 +254,17 @@ export function compileDayOfWeekHeatmapMatrix(
 					<div>Sessions: <strong>${bin.sessionCount}</strong></div>
 					<div>Average: <strong>${bin.averageValue.toFixed(1)} ${unit}/session</strong></div>
 				`;
-			}
+			},
 		}),
-		grid: { left: '3%', right: '4%', bottom: '15%', top: '12%', containLabel: true },
-		xAxis: { type: 'category', data: dayNames, axisLabel: { color: '#1C1C1C' } },
-		yAxis: { type: 'category', data: rowLabels, axisLabel: { color: '#1C1C1C' } },
+		grid: {
+			left: '3%',
+			right: '4%',
+			bottom: '15%',
+			top: '12%',
+			containLabel: true,
+		},
+		xAxis: {type: 'category', data: dayNames, axisLabel: {color: '#1C1C1C'}},
+		yAxis: {type: 'category', data: rowLabels, axisLabel: {color: '#1C1C1C'}},
 		visualMap: {
 			min: 0,
 			max: maxVal,
@@ -245,25 +272,25 @@ export function compileDayOfWeekHeatmapMatrix(
 			orient: 'horizontal',
 			left: 'center',
 			bottom: '2%',
-			inRange: { color: ['#3B82F6', '#EAA845', '#EF4444'] },
-			textStyle: { color: '#1C1C1C' }
+			inRange: {color: ['#3B82F6', '#EAA845', '#EF4444']},
+			textStyle: {color: '#1C1C1C'},
 		},
 		title: {
 			text: `Day of Week by ${groupingLabel(grouping)}`,
 			subtext: `Shaded by ${metricLabel(metric).toLowerCase()} (${unit})`,
 			left: 'center',
 			top: 'top',
-			textStyle: { color: '#1C1C1C', fontSize: 13, fontWeight: 600 },
-			subtextStyle: { color: '#6E6E6E', fontSize: 11 }
+			textStyle: {color: '#1C1C1C', fontSize: 13, fontWeight: 600},
+			subtextStyle: {color: '#6E6E6E', fontSize: 11},
 		},
 		series: [
 			{
 				name: 'Intensity',
 				type: 'heatmap',
 				data: heatmapData,
-				label: { show: true, color: '#1C1C1C', fontSize: 10 }
-			}
-		]
+				label: {show: true, color: '#1C1C1C', fontSize: 10},
+			},
+		],
 	};
 }
 
@@ -279,11 +306,11 @@ export function compileTimeOfDayOption(
 	bins: readonly TimeOfDayBin[],
 	unit: Unit,
 	style: 'histogram' | 'polar' = 'histogram',
-	metric: DistributionMetric = 'totalDuration'
+	metric: DistributionMetric = 'totalDuration',
 ): EChartsOption {
-	const hourLabels = bins.map((b) => b.hourLabel);
-	const values = bins.map((b) =>
-		metricValueOf(b.totalValue, b.sessionCount, b.averageValue, metric)
+	const hourLabels = bins.map(b => b.hourLabel);
+	const values = bins.map(b =>
+		metricValueOf(b.totalValue, b.sessionCount, b.averageValue, metric),
 	);
 	const unitLabel = unitAxisName(unit);
 
@@ -297,26 +324,31 @@ export function compileTimeOfDayOption(
 					const idx = params?.dataIndex;
 					const bin = bins[idx];
 					if (!bin) return '';
-					const value = metricValueOf(bin.totalValue, bin.sessionCount, bin.averageValue, metric);
+					const value = metricValueOf(
+						bin.totalValue,
+						bin.sessionCount,
+						bin.averageValue,
+						metric,
+					);
 					return `
 						<div style="font-weight:600;">${bin.hourLabel}</div>
 						<div>${metricLabel(metric)}: <strong>${value.toFixed(1)} ${unit}</strong></div>
 						<div>Sessions: <strong>${bin.sessionCount}</strong></div>
 						<div>Average: <strong>${bin.averageValue.toFixed(1)} ${unit}/session</strong></div>
 					`;
-				}
+				},
 			}),
 			angleAxis: {
 				type: 'category',
 				data: hourLabels,
 				startAngle: 90, // 00:00 at top (clock position 12)
 				clockwise: true,
-				axisLabel: { color: '#1C1C1C', interval: 2 }
+				axisLabel: {color: '#1C1C1C', interval: 2},
 			},
 			radiusAxis: {
 				min: 0,
-				axisLabel: { color: '#1C1C1C' },
-				splitLine: { lineStyle: { color: '#E5E7EB' } }
+				axisLabel: {color: '#1C1C1C'},
+				splitLine: {lineStyle: {color: '#E5E7EB'}},
 			},
 			polar: {},
 			series: [
@@ -325,9 +357,9 @@ export function compileTimeOfDayOption(
 					data: values,
 					coordinateSystem: 'polar',
 					name: 'Practice Volume',
-					itemStyle: { color: '#10B981' } // Emerald 500
-				}
-			]
+					itemStyle: {color: '#10B981'}, // Emerald 500
+				},
+			],
 		};
 	}
 
@@ -342,29 +374,40 @@ export function compileTimeOfDayOption(
 				const idx = params[0].dataIndex;
 				const bin = bins[idx];
 				if (!bin) return '';
-				const value = metricValueOf(bin.totalValue, bin.sessionCount, bin.averageValue, metric);
+				const value = metricValueOf(
+					bin.totalValue,
+					bin.sessionCount,
+					bin.averageValue,
+					metric,
+				);
 				return `
 					<div style="font-weight:600;">${bin.hourLabel}</div>
 					<div>${metricLabel(metric)}: <strong>${value.toFixed(1)} ${unit}</strong></div>
 					<div>Sessions: <strong>${bin.sessionCount}</strong></div>
 					<div>Average: <strong>${bin.averageValue.toFixed(1)} ${unit}/session</strong></div>
 				`;
-			}
+			},
 		}),
-		grid: { left: '3%', right: '4%', bottom: '10%', top: '8%', containLabel: true },
+		grid: {
+			left: '3%',
+			right: '4%',
+			bottom: '10%',
+			top: '8%',
+			containLabel: true,
+		},
 		xAxis: {
 			type: 'category',
 			data: hourLabels,
-			axisLine: { lineStyle: { color: '#E5E7EB' } },
-			axisLabel: { color: '#1C1C1C', interval: 1, rotate: 45 }
+			axisLine: {lineStyle: {color: '#E5E7EB'}},
+			axisLabel: {color: '#1C1C1C', interval: 1, rotate: 45},
 		},
 		yAxis: {
 			type: 'value',
 			name: unitLabel,
-			nameTextStyle: { color: '#1C1C1C', padding: [0, 0, 0, 10] },
-			axisLine: { lineStyle: { color: '#E5E7EB' } },
-			splitLine: { lineStyle: { color: '#E5E7EB' } },
-			axisLabel: { color: '#1C1C1C' }
+			nameTextStyle: {color: '#1C1C1C', padding: [0, 0, 0, 10]},
+			axisLine: {lineStyle: {color: '#E5E7EB'}},
+			splitLine: {lineStyle: {color: '#E5E7EB'}},
+			axisLabel: {color: '#1C1C1C'},
 		},
 		series: [
 			{
@@ -373,10 +416,10 @@ export function compileTimeOfDayOption(
 				data: values,
 				itemStyle: {
 					color: '#EAA845', // Warm amber accent
-					borderRadius: [2, 2, 0, 0]
-				}
-			}
-		]
+					borderRadius: [2, 2, 0, 0],
+				},
+			},
+		],
 	};
 }
 
@@ -392,14 +435,19 @@ export function compileCategoryBreakdownOption(
 	items: readonly CategoryBreakdownItem[],
 	unit: Unit,
 	style: 'donut' | 'stackedBar' = 'donut',
-	metric: DistributionMetric = 'totalDuration'
+	metric: DistributionMetric = 'totalDuration',
 ): EChartsOption {
 	if (style === 'donut') {
-		const pieData = items.map((item) => ({
+		const pieData = items.map(item => ({
 			name: item.name,
 			value: Number(
-				metricValueOf(item.totalValue, item.sessionCount, item.averageValue, metric).toFixed(1)
-			)
+				metricValueOf(
+					item.totalValue,
+					item.sessionCount,
+					item.averageValue,
+					metric,
+				).toFixed(1),
+			),
 		}));
 
 		return {
@@ -414,7 +462,7 @@ export function compileCategoryBreakdownOption(
 						item.totalValue,
 						item.sessionCount,
 						item.averageValue,
-						metric
+						metric,
 					);
 					return `
 						<div style="font-weight:600;">${item.name}</div>
@@ -422,13 +470,13 @@ export function compileCategoryBreakdownOption(
 						<div>Sessions: <strong>${item.sessionCount}</strong></div>
 						<div>Share: <strong>${item.percentage.toFixed(1)}%</strong></div>
 					`;
-				}
+				},
 			}),
 			legend: {
 				orient: 'vertical',
 				right: '5%',
 				top: 'center',
-				textStyle: { color: '#1C1C1C' }
+				textStyle: {color: '#1C1C1C'},
 			},
 			series: [
 				{
@@ -440,15 +488,22 @@ export function compileCategoryBreakdownOption(
 					itemStyle: {
 						borderRadius: 6,
 						borderColor: '#ffffff',
-						borderWidth: 2
+						borderWidth: 2,
 					},
-					label: { show: false },
-					emphasis: { label: { show: true, fontSize: 14, fontWeight: 'bold' } },
+					label: {show: false},
+					emphasis: {label: {show: true, fontSize: 14, fontWeight: 'bold'}},
 					// Distinct pastel hues (#F59E0B, #FBBF24, #FCD34D, #A7F3D0)
-					color: ['#F59E0B', '#FBBF24', '#FCD34D', '#A7F3D0', '#6EE7B7', '#93C5FD'],
-					data: pieData
-				}
-			]
+					color: [
+						'#F59E0B',
+						'#FBBF24',
+						'#FCD34D',
+						'#A7F3D0',
+						'#6EE7B7',
+						'#93C5FD',
+					],
+					data: pieData,
+				},
+			],
 		};
 	}
 
@@ -460,7 +515,7 @@ export function compileCategoryBreakdownOption(
 		textStyle: baseTextStyle(),
 		tooltip: darkTooltip({
 			trigger: 'axis',
-			axisPointer: { type: 'shadow' },
+			axisPointer: {type: 'shadow'},
 			formatter: (params: any) => {
 				if (!Array.isArray(params) || params.length === 0) return '';
 				const category = params[0].name;
@@ -476,23 +531,36 @@ export function compileCategoryBreakdownOption(
 				html += `<div style="border-top:1px solid #334155;margin-top:4px;padding-top:4px;display:flex;align-items:center;justify-content:space-between;font-size:12px;">`;
 				html += `<span>Total ${metricLabel(metric)}</span><strong>${total.toFixed(1)} ${unit}</strong></div>`;
 				return html;
-			}
+			},
 		}),
-		grid: { left: '3%', right: '4%', bottom: '5%', top: '5%', containLabel: true },
+		grid: {
+			left: '3%',
+			right: '4%',
+			bottom: '5%',
+			top: '5%',
+			containLabel: true,
+		},
 		xAxis: {
 			type: 'value',
-			axisLabel: { color: '#1C1C1C' },
-			splitLine: { lineStyle: { color: '#E5E7EB' } }
+			axisLabel: {color: '#1C1C1C'},
+			splitLine: {lineStyle: {color: '#E5E7EB'}},
 		},
-		yAxis: { type: 'category', data: ['All'], axisLabel: { color: '#1C1C1C' } },
+		yAxis: {type: 'category', data: ['All'], axisLabel: {color: '#1C1C1C'}},
 		series: items.map((item, index) => ({
 			name: item.name,
 			type: 'bar' as const,
 			stack: 'total',
-			emphasis: { focus: 'series' as const },
-			data: [metricValueOf(item.totalValue, item.sessionCount, item.averageValue, metric)],
-			itemStyle: { color: STACKED_PALETTE[index % STACKED_PALETTE.length] }
-		}))
+			emphasis: {focus: 'series' as const},
+			data: [
+				metricValueOf(
+					item.totalValue,
+					item.sessionCount,
+					item.averageValue,
+					metric,
+				),
+			],
+			itemStyle: {color: STACKED_PALETTE[index % STACKED_PALETTE.length]},
+		})),
 	};
 }
 
@@ -510,25 +578,32 @@ export function compileCategoryBreakdownOption(
  * @returns EChartsOption stacked bar.
  */
 export function compileCategoryStackedBar(
-	periodItems: readonly { period: string; items: CategoryBreakdownItem[] }[],
+	periodItems: readonly {period: string; items: CategoryBreakdownItem[]}[],
 	unit: Unit,
 	metric: DistributionMetric = 'totalDuration',
-	grouping: DistributionTemporalGrouping = 'month'
+	grouping: DistributionTemporalGrouping = 'month',
 ): EChartsOption {
-	const periodLabels = periodItems.map((p) => p.period);
-	const allNames = Array.from(new Set(periodItems.flatMap((p) => p.items.map((i) => i.name))));
+	const periodLabels = periodItems.map(p => p.period);
+	const allNames = Array.from(
+		new Set(periodItems.flatMap(p => p.items.map(i => i.name))),
+	);
 
 	const series = allNames.map((name, index) => ({
 		name,
 		type: 'bar' as const,
 		stack: 'total',
-		emphasis: { focus: 'series' as const },
-		data: periodItems.map((period) => {
-			const item = period.items.find((i) => i.name === name);
+		emphasis: {focus: 'series' as const},
+		data: periodItems.map(period => {
+			const item = period.items.find(i => i.name === name);
 			if (!item) return 0;
-			return metricValueOf(item.totalValue, item.sessionCount, item.averageValue, metric);
+			return metricValueOf(
+				item.totalValue,
+				item.sessionCount,
+				item.averageValue,
+				metric,
+			);
 		}),
-		itemStyle: { color: STACKED_PALETTE[index % STACKED_PALETTE.length] }
+		itemStyle: {color: STACKED_PALETTE[index % STACKED_PALETTE.length]},
 	}));
 
 	return {
@@ -536,7 +611,7 @@ export function compileCategoryStackedBar(
 		textStyle: baseTextStyle(),
 		tooltip: darkTooltip({
 			trigger: 'axis',
-			axisPointer: { type: 'shadow' },
+			axisPointer: {type: 'shadow'},
 			formatter: (params: any) => {
 				if (!Array.isArray(params) || params.length === 0) return '';
 				const period = params[0].name;
@@ -552,35 +627,41 @@ export function compileCategoryStackedBar(
 				html += `<div style="border-top:1px solid #334155;margin-top:4px;padding-top:4px;display:flex;align-items:center;justify-content:space-between;font-size:12px;">`;
 				html += `<span>Total ${metricLabel(metric)}</span><strong>${total.toFixed(1)} ${unit}</strong></div>`;
 				return html;
-			}
+			},
 		}),
 		legend: {
 			type: 'scroll',
 			bottom: 0,
-			textStyle: { color: '#1C1C1C' }
+			textStyle: {color: '#1C1C1C'},
 		},
-		grid: { left: '3%', right: '4%', bottom: '12%', top: '12%', containLabel: true },
+		grid: {
+			left: '3%',
+			right: '4%',
+			bottom: '12%',
+			top: '12%',
+			containLabel: true,
+		},
 		xAxis: {
 			type: 'value',
-			axisLabel: { color: '#1C1C1C' },
-			splitLine: { lineStyle: { color: '#E5E7EB' } },
+			axisLabel: {color: '#1C1C1C'},
+			splitLine: {lineStyle: {color: '#E5E7EB'}},
 			name: unitAxisName(unit),
-			nameTextStyle: { color: '#1C1C1C' }
+			nameTextStyle: {color: '#1C1C1C'},
 		},
 		yAxis: {
 			type: 'category',
 			data: periodLabels,
-			axisLabel: { color: '#1C1C1C' }
+			axisLabel: {color: '#1C1C1C'},
 		},
 		title: {
 			text: `Breakdown by ${groupingLabel(grouping)}`,
 			subtext: `Stacked by ${metricLabel(metric).toLowerCase()} (${unit})`,
 			left: 'center',
 			top: 'top',
-			textStyle: { color: '#1C1C1C', fontSize: 13, fontWeight: 600 },
-			subtextStyle: { color: '#6E6E6E', fontSize: 11 }
+			textStyle: {color: '#1C1C1C', fontSize: 13, fontWeight: 600},
+			subtextStyle: {color: '#6E6E6E', fontSize: 11},
 		},
-		series
+		series,
 	};
 }
 
@@ -593,8 +674,8 @@ export function emptyDistributionOption(): EChartsOption {
 			subtext: 'Load a CSV to view practice distribution',
 			left: 'center',
 			top: 'middle',
-			textStyle: { color: '#6E6E6E' }
-		}
+			textStyle: {color: '#6E6E6E'},
+		},
 	};
 }
 

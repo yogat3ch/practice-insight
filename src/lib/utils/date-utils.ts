@@ -19,12 +19,12 @@ import {
 	startOfDay,
 	startOfWeek,
 	startOfYear,
-	subYears
+	subYears,
 } from 'date-fns';
-import type { TimeWindowPreset } from '../types/engine.js';
-import type { Season, Unit } from '../types/filters.js';
-import type { SessionEntry } from '../types/session.js';
-import type { SeasonalYear } from '../types/temporal.js';
+import type {TimeWindowPreset} from '../types/engine.js';
+import type {Season, Unit} from '../types/filters.js';
+import type {SessionEntry} from '../types/session.js';
+import type {SeasonalYear} from '../types/temporal.js';
 
 // ---------------------------------------------------------------------------
 // Date parsing
@@ -146,7 +146,7 @@ export function getSeasonalYear(date: Date): SeasonalYear {
 		label: `${endYear} Seasonal Year`,
 		season: getSeasonForDate(date),
 		startDate,
-		endDate
+		endDate,
 	};
 }
 
@@ -162,7 +162,7 @@ export function getSeasonalYear(date: Date): SeasonalYear {
  * @returns The Monday 00:00:00 of that week.
  */
 export function getWeekStart(date: Date): Date {
-	return startOfWeek(date, { weekStartsOn: 1 });
+	return startOfWeek(date, {weekStartsOn: 1});
 }
 
 // ---------------------------------------------------------------------------
@@ -197,19 +197,19 @@ export function getSeasonRange(date: Date): {
 			return {
 				startDate: new Date(year, 2, 20),
 				endDate: new Date(year, 5, 20),
-				label: `Spring ${year}`
+				label: `Spring ${year}`,
 			};
 		case 'summer':
 			return {
 				startDate: new Date(year, 5, 21),
 				endDate: new Date(year, 8, 21),
-				label: `Summer ${year}`
+				label: `Summer ${year}`,
 			};
 		case 'autumn':
 			return {
 				startDate: new Date(year, 8, 22),
 				endDate: new Date(year, 11, 21),
-				label: `Autumn ${year}`
+				label: `Autumn ${year}`,
 			};
 		case 'winter': {
 			// Winter spans two calendar years (Dec 22 → Mar 19).
@@ -220,7 +220,7 @@ export function getSeasonRange(date: Date): {
 			return {
 				startDate: new Date(startYear, 11, 22),
 				endDate: new Date(endYear, 2, 19),
-				label: `Winter ${startYear}–${endYear}`
+				label: `Winter ${startYear}–${endYear}`,
 			};
 		}
 	}
@@ -273,7 +273,7 @@ export function formatDuration(seconds: number, unit: Unit): string {
 export function computeTimeWindowDateRange(
 	preset: TimeWindowPreset,
 	allSessions: readonly SessionEntry[],
-	today: Date = new Date()
+	today: Date = new Date(),
 ): [Date | null, Date | null] {
 	switch (preset) {
 		case '3M':
@@ -300,4 +300,4 @@ export function computeTimeWindowDateRange(
 }
 
 // Re-export date helpers used by tests.
-export { addYears, subYears };
+export {addYears, subYears};

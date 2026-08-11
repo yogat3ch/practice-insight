@@ -7,7 +7,7 @@
  *   - fetchAndParseSampleCSV()   — fetch /sample.csv and parse it on boot
  */
 
-import type { WorkerMessage, WorkerResult } from './types/session.js';
+import type {WorkerMessage, WorkerResult} from './types/session.js';
 
 /** Timeout in milliseconds before a parse operation is considered failed. */
 const PARSE_TIMEOUT_MS = 30_000;
@@ -23,9 +23,12 @@ const PARSE_TIMEOUT_MS = 30_000;
 export function parseCSV(source: File | string): Promise<WorkerResult> {
 	return new Promise<WorkerResult>((resolve, reject) => {
 		// Vite bundles the worker at build time via ?worker URL pattern
-		const worker = new Worker(new URL('./workers/csv-worker.ts', import.meta.url), {
-			type: 'module'
-		});
+		const worker = new Worker(
+			new URL('./workers/csv-worker.ts', import.meta.url),
+			{
+				type: 'module',
+			},
+		);
 
 		const timer = setTimeout(() => {
 			worker.terminate();
@@ -51,9 +54,9 @@ export function parseCSV(source: File | string): Promise<WorkerResult> {
 		};
 
 		if (typeof source === 'string') {
-			worker.postMessage({ text: source });
+			worker.postMessage({text: source});
 		} else {
-			worker.postMessage({ file: source });
+			worker.postMessage({file: source});
 		}
 	});
 }
@@ -69,7 +72,9 @@ export function parseCSV(source: File | string): Promise<WorkerResult> {
 export async function fetchAndParseSampleCSV(): Promise<WorkerResult> {
 	const response = await fetch('/sample.csv');
 	if (!response.ok) {
-		throw new Error(`Failed to fetch sample CSV: ${response.status} ${response.statusText}`);
+		throw new Error(
+			`Failed to fetch sample CSV: ${response.status} ${response.statusText}`,
+		);
 	}
 	const text = await response.text();
 	return parseCSV(text);

@@ -26,13 +26,17 @@ import {
 	startOfMonth,
 	startOfQuarter,
 	startOfWeek,
-	startOfYear
+	startOfYear,
 } from 'date-fns';
-import type { SplitBy } from '../types/engine.js';
-import type { Granularity, Unit } from '../types/filters.js';
-import type { SessionEntry } from '../types/session.js';
-import type { TimeBucket } from '../types/temporal.js';
-import { getSeasonForDate, getSeasonRange, getSeasonalYear } from '../utils/date-utils.js';
+import type {SplitBy} from '../types/engine.js';
+import type {Granularity, Unit} from '../types/filters.js';
+import type {SessionEntry} from '../types/session.js';
+import type {TimeBucket} from '../types/temporal.js';
+import {
+	getSeasonForDate,
+	getSeasonRange,
+	getSeasonalYear,
+} from '../utils/date-utils.js';
 
 /**
  * Converts duration seconds or session count to a numeric scalar for the given unit.
@@ -65,11 +69,11 @@ export function convertValue(seconds: number, unit: Unit): number {
  */
 export function getPeriodForDate(
 	date: Date,
-	granularity: Granularity
-): { label: string; startDate: Date; endDate: Date; key: string } {
+	granularity: Granularity,
+): {label: string; startDate: Date; endDate: Date; key: string} {
 	if (granularity === 'season') {
 		const range = getSeasonRange(date);
-		return { ...range, key: range.label };
+		return {...range, key: range.label};
 	}
 	return getIntervalRange(date, granularity);
 }
@@ -77,29 +81,29 @@ export function getPeriodForDate(
 /** Internal helper computing interval start, end, and label for a target date. */
 function getIntervalRange(
 	date: Date,
-	granularity: Granularity
-): { startDate: Date; endDate: Date; label: string; key: string } {
+	granularity: Granularity,
+): {startDate: Date; endDate: Date; label: string; key: string} {
 	switch (granularity) {
 		case 'day': {
 			const startDate = startOfDay(date);
 			const endDate = endOfDay(date);
 			const label = format(date, 'MMM d, yyyy');
 			const key = format(date, 'yyyy-MM-dd');
-			return { startDate, endDate, label, key };
+			return {startDate, endDate, label, key};
 		}
 		case 'week': {
-			const startDate = startOfWeek(date, { weekStartsOn: 1 });
-			const endDate = endOfWeek(date, { weekStartsOn: 1 });
+			const startDate = startOfWeek(date, {weekStartsOn: 1});
+			const endDate = endOfWeek(date, {weekStartsOn: 1});
 			const label = `W${format(startDate, 'II')} (${format(startDate, 'MMM d')})`;
 			const key = format(startDate, 'yyyy-II');
-			return { startDate, endDate, label, key };
+			return {startDate, endDate, label, key};
 		}
 		case 'month': {
 			const startDate = startOfMonth(date);
 			const endDate = endOfMonth(date);
 			const label = format(date, 'MMM yyyy');
 			const key = format(date, 'yyyy-MM');
-			return { startDate, endDate, label, key };
+			return {startDate, endDate, label, key};
 		}
 		case 'quarter': {
 			const startDate = startOfQuarter(date);
@@ -107,7 +111,7 @@ function getIntervalRange(
 			const q = Math.floor(startDate.getMonth() / 3) + 1;
 			const label = `Q${q} ${startDate.getFullYear()}`;
 			const key = `${startDate.getFullYear()}-Q${q}`;
-			return { startDate, endDate, label, key };
+			return {startDate, endDate, label, key};
 		}
 		case 'season': {
 			const sy = getSeasonalYear(date);
@@ -115,14 +119,14 @@ function getIntervalRange(
 			const capitalized = season.charAt(0).toUpperCase() + season.slice(1);
 			const label = `${capitalized} (${sy.label.split(' ')[0]})`;
 			const key = `${sy.label}-${season}`;
-			return { startDate: sy.startDate, endDate: sy.endDate, label, key };
+			return {startDate: sy.startDate, endDate: sy.endDate, label, key};
 		}
 		case 'year': {
 			const startDate = startOfYear(date);
 			const endDate = endOfYear(date);
 			const label = format(date, 'yyyy');
 			const key = format(date, 'yyyy');
-			return { startDate, endDate, label, key };
+			return {startDate, endDate, label, key};
 		}
 	}
 }
@@ -163,14 +167,20 @@ export function aggregateTimelineBuckets(
 	granularity: Granularity,
 	unit: Unit,
 	dateFrom: Date | null = null,
-	dateTo: Date | null = null
+	dateTo: Date | null = null,
 ): TimeBucket[] {
 	if (sessions.length === 0) return [];
 
 	// Map sessions into buckets by key
 	const bucketMap = new Map<
 		string,
-		{ label: string; startDate: Date; endDate: Date; totalSeconds: number; sessionCount: number }
+		{
+			label: string;
+			startDate: Date;
+			endDate: Date;
+			totalSeconds: number;
+			sessionCount: number;
+		}
 	>();
 
 	let minDate = sessions[0].startedAt;
@@ -180,7 +190,10 @@ export function aggregateTimelineBuckets(
 		if (isBefore(session.startedAt, minDate)) minDate = session.startedAt;
 		if (isAfter(session.startedAt, maxDate)) maxDate = session.startedAt;
 
-		const { key, label, startDate, endDate } = getIntervalRange(session.startedAt, granularity);
+		const {key, label, startDate, endDate} = getIntervalRange(
+			session.startedAt,
+			granularity,
+		);
 
 		const existing = bucketMap.get(key);
 		if (existing) {
@@ -192,7 +205,7 @@ export function aggregateTimelineBuckets(
 				startDate,
 				endDate,
 				totalSeconds: session.durationSeconds,
-				sessionCount: 1
+				sessionCount: 1,
 			});
 		}
 	}
@@ -209,7 +222,10 @@ export function aggregateTimelineBuckets(
 	const seenKeys = new Set<string>();
 
 	while (!isAfter(curr, endLimit)) {
-		const { key, label, startDate, endDate } = getIntervalRange(curr, granularity);
+		const {key, label, startDate, endDate} = getIntervalRange(
+			curr,
+			granularity,
+		);
 
 		if (!seenKeys.has(key)) {
 			seenKeys.add(key);
@@ -220,7 +236,7 @@ export function aggregateTimelineBuckets(
 				startDate,
 				endDate,
 				totalSeconds: aggregated ? aggregated.totalSeconds : 0,
-				sessionCount: aggregated ? aggregated.sessionCount : 0
+				sessionCount: aggregated ? aggregated.sessionCount : 0,
 			});
 		}
 
@@ -243,8 +259,8 @@ export function aggregateTimelineBuckets(
  */
 export function groupBucketsBySegment(
 	buckets: readonly TimeBucket[],
-	splitBy: Exclude<SplitBy, 'none'>
-): { segment: string; buckets: TimeBucket[] }[] {
+	splitBy: Exclude<SplitBy, 'none'>,
+): {segment: string; buckets: TimeBucket[]}[] {
 	const groups = new Map<string, TimeBucket[]>();
 
 	for (const bucket of buckets) {
@@ -257,7 +273,10 @@ export function groupBucketsBySegment(
 		}
 	}
 
-	return Array.from(groups.entries()).map(([segment, group]) => ({ segment, buckets: group }));
+	return Array.from(groups.entries()).map(([segment, group]) => ({
+		segment,
+		buckets: group,
+	}));
 }
 
 /**
@@ -274,7 +293,7 @@ export function groupBucketsBySegment(
 function getSegmentKey(date: Date, splitBy: Exclude<SplitBy, 'none'>): string {
 	switch (splitBy) {
 		case 'week': {
-			const monday = startOfWeek(date, { weekStartsOn: 1 });
+			const monday = startOfWeek(date, {weekStartsOn: 1});
 			return `W${format(monday, 'II')} ${monday.getFullYear()}`;
 		}
 		case 'month':

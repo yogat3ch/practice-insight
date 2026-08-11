@@ -9,7 +9,8 @@ export type Unit = 'minutes' | 'hours' | 'sessions';
  * Time aggregation granularity for timeline bucketing.
  * Determines the width of each x-axis data point.
  */
-export type Granularity = 'day' | 'week' | 'month' | 'quarter' | 'season' | 'year';
+export type Granularity =
+	'day' | 'week' | 'month' | 'quarter' | 'season' | 'year';
 
 /** Fixed solar season per §3.3 of the specification. */
 export type Season = 'winter' | 'spring' | 'summer' | 'autumn';
@@ -34,5 +35,5 @@ export const DEFAULT_FILTERS: ActiveFilters = {
 	presets: new Set(),
 	unit: 'minutes',
 	dateFrom: null,
-	dateTo: null
+	dateTo: null,
 };

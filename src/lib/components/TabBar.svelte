@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { engine } from '$lib';
-	import type { TabId } from '$lib';
-	const tabs: { id: TabId; label: string }[] = [
-		{ id: 'timeline', label: 'Timeline' },
-		{ id: 'comparison', label: 'Comparison' },
-		{ id: 'distribution', label: 'Distribution' }
+	import {engine} from '$lib';
+	import type {TabId} from '$lib';
+	const tabs: {id: TabId; label: string}[] = [
+		{id: 'timeline', label: 'Timeline'},
+		{id: 'comparison', label: 'Comparison'},
+		{id: 'distribution', label: 'Distribution'},
 	];
 
 	function selectTab(id: TabId) {
@@ -12,7 +12,11 @@
 	}
 </script>
 
-<div class="border-b border-[#E5E5E5] bg-white" role="tablist" aria-label="Dashboard views">
+<div
+	class="border-b border-[#E5E5E5] bg-white"
+	role="tablist"
+	aria-label="Dashboard views"
+>
 	<ul class="flex space-x-1 px-4">
 		{#each tabs as { id, label }}
 			<li>

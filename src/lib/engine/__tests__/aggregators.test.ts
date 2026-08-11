@@ -2,9 +2,13 @@
  * @fileoverview Unit tests for time-series bucketing aggregators and unit converters.
  */
 
-import { describe, expect, it } from 'vitest';
-import type { SessionEntry } from '../../types/session.js';
-import { aggregateTimelineBuckets, convertValue, getPeriodForDate } from '../aggregators.js';
+import {describe, expect, it} from 'vitest';
+import type {SessionEntry} from '../../types/session.js';
+import {
+	aggregateTimelineBuckets,
+	convertValue,
+	getPeriodForDate,
+} from '../aggregators.js';
 
 describe('convertValue (§3.4 Rule 4)', () => {
 	it('converts seconds to minutes', () => {
@@ -28,20 +32,20 @@ describe('aggregateTimelineBuckets', () => {
 			startedAt: new Date(2026, 6, 20, 10, 0, 0), // Mon Jul 20, 2026
 			durationSeconds: 1800, // 30 mins
 			preset: '(No Preset)',
-			activity: 'Meditation'
+			activity: 'Meditation',
 		},
 		{
 			startedAt: new Date(2026, 6, 21, 15, 0, 0), // Tue Jul 21, 2026
 			durationSeconds: 3600, // 60 mins
 			preset: '(No Preset)',
-			activity: 'Meditation'
+			activity: 'Meditation',
 		},
 		{
 			startedAt: new Date(2026, 6, 23, 8, 0, 0), // Thu Jul 23, 2026
 			durationSeconds: 900, // 15 mins
 			preset: '(No Preset)',
-			activity: 'Yoga'
-		}
+			activity: 'Yoga',
+		},
 	];
 
 	it('aggregates daily buckets and fills zero-value gap for Wed Jul 22', () => {

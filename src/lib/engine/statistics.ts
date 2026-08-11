@@ -5,7 +5,11 @@
  * and boundary-padded symmetric moving averages per §3.4 of the specification.
  */
 
-import { mean, sampleStandardDeviation, linearRegression } from 'simple-statistics';
+import {
+	mean,
+	sampleStandardDeviation,
+	linearRegression,
+} from 'simple-statistics';
 
 /**
  * Computes the arithmetic mean (μ) of an array of numeric values.
@@ -43,13 +47,15 @@ export interface LinearRegressionResult {
  * @param values - Array of numeric values (y-coordinates).
  * @returns Slope, intercept, and predicted trendline values for each index.
  */
-export function computeLinearRegression(values: number[]): LinearRegressionResult {
+export function computeLinearRegression(
+	values: number[],
+): LinearRegressionResult {
 	if (values.length === 0) {
-		return { slope: 0, intercept: 0, trendline: [] };
+		return {slope: 0, intercept: 0, trendline: []};
 	}
 
 	if (values.length === 1) {
-		return { slope: 0, intercept: values[0], trendline: [values[0]] };
+		return {slope: 0, intercept: values[0], trendline: [values[0]]};
 	}
 
 	const points: Array<[number, number]> = values.map((y, x) => [x, y]);
@@ -60,7 +66,7 @@ export function computeLinearRegression(values: number[]): LinearRegressionResul
 	return {
 		slope: line.m,
 		intercept: line.b,
-		trendline
+		trendline,
 	};
 }
 
@@ -75,7 +81,10 @@ export function computeLinearRegression(values: number[]): LinearRegressionResul
  * @param windowSize - Moving average window size (number of points). If <= 1, returns values.
  * @returns Array of smoothed moving average values of equal length.
  */
-export function computeSymmetricMovingAverage(values: number[], windowSize: number): number[] {
+export function computeSymmetricMovingAverage(
+	values: number[],
+	windowSize: number,
+): number[] {
 	if (values.length === 0) return [];
 	if (windowSize <= 1) return [...values];
 

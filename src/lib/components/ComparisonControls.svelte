@@ -1,25 +1,31 @@
 <script lang="ts">
-	import { engine } from '$lib';
-	import type { ComparisonPeriod, ComparisonStrategy, XAxisAlignment } from '$lib';
-	import { format } from 'date-fns';
+	import {engine} from '$lib';
+	import type {
+		ComparisonPeriod,
+		ComparisonStrategy,
+		XAxisAlignment,
+	} from '$lib';
+	import {format} from 'date-fns';
 	import Tooltip from './Tooltip.svelte';
 
 	/** Comparison strategy options per §5.2. */
-	const STRATEGY_OPTIONS: { value: ComparisonStrategy; label: string }[] = [
-		{ value: 'period', label: 'Period-over-Period (Relative)' },
-		{ value: 'grid', label: 'Sequential Side-by-Side' }
+	const STRATEGY_OPTIONS: {value: ComparisonStrategy; label: string}[] = [
+		{value: 'period', label: 'Period-over-Period (Relative)'},
+		{value: 'grid', label: 'Sequential Side-by-Side'},
 	];
 
 	/** X-axis alignment options per §5.2. */
-	const ALIGNMENT_OPTIONS: { value: XAxisAlignment; label: string }[] = [
-		{ value: 'calendar', label: 'Calendar Date' },
-		{ value: 'elapsed', label: 'Elapsed Days' }
+	const ALIGNMENT_OPTIONS: {value: XAxisAlignment; label: string}[] = [
+		{value: 'calendar', label: 'Calendar Date'},
+		{value: 'elapsed', label: 'Elapsed Days'},
 	];
 
 	// Local control state, initialized from the engine's current config.
 	let strategy = $state<ComparisonStrategy>(engine.comparisonConfig.strategy);
 	let lockYAxis = $state<boolean>(engine.comparisonConfig.lockYAxis);
-	let xAxisAlignment = $state<XAxisAlignment>(engine.comparisonConfig.xAxisAlignment);
+	let xAxisAlignment = $state<XAxisAlignment>(
+		engine.comparisonConfig.xAxisAlignment,
+	);
 
 	// New-period constructor inputs.
 	let newFrom = $state('');
@@ -38,7 +44,11 @@
 	/** Adds a new comparison period from the current constructor inputs. */
 	function addPeriod(): void {
 		if (!newFrom || !newTo) return;
-		engine.addComparisonPeriodRange(new Date(newFrom), new Date(newTo), newColor);
+		engine.addComparisonPeriodRange(
+			new Date(newFrom),
+			new Date(newTo),
+			newColor,
+		);
 		// Clear the constructor for the next entry.
 		newFrom = '';
 		newTo = '';
@@ -50,7 +60,7 @@
 	}
 
 	function updatePeriodColor(id: string, color: string): void {
-		engine.updateComparisonPeriod(id, { color });
+		engine.updateComparisonPeriod(id, {color});
 	}
 
 	function formatBounds(period: ComparisonPeriod): string {
@@ -58,18 +68,27 @@
 	}
 </script>
 
-<section aria-labelledby="comparisonControlsTitle" class="border border-[#E5E5E5] bg-white rounded-md p-3 space-y-3">
-	<h3 id="comparisonControlsTitle" class="text-sm font-semibold text-[#1C1C1C]">Comparison Controls</h3>
+<section
+	aria-labelledby="comparisonControlsTitle"
+	class="border border-[#E5E5E5] bg-white rounded-md p-3 space-y-3"
+>
+	<h3 id="comparisonControlsTitle" class="text-sm font-semibold text-[#1C1C1C]">
+		Comparison Controls
+	</h3>
 
 	<!-- Comparison Strategy -->
 	<fieldset>
-		<legend class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+		<legend
+			class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1"
+		>
 			Comparison Strategy
 			<Tooltip for="comparisonStrategy" />
 		</legend>
 		<div class="space-y-1.5">
 			{#each STRATEGY_OPTIONS as opt}
-				<label class="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer">
+				<label
+					class="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer"
+				>
 					<input
 						type="radio"
 						name="comparisonStrategy"
@@ -85,7 +104,9 @@
 	</fieldset>
 
 	<!-- Y-Axis Lock -->
-	<label class="flex items-center justify-between gap-2 text-sm text-[#1C1C1C] cursor-pointer">
+	<label
+		class="flex items-center justify-between gap-2 text-sm text-[#1C1C1C] cursor-pointer"
+	>
 		<span class="inline-flex items-center gap-1.5">
 			Lock Y-Axis Scale
 			<Tooltip for="lockYAxis" />
@@ -101,13 +122,17 @@
 
 	<!-- X-Axis Alignment -->
 	<fieldset>
-		<legend class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+		<legend
+			class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1"
+		>
 			X-Axis Alignment
 			<Tooltip for="xAxisAlignment" />
 		</legend>
 		<div class="space-y-1.5">
 			{#each ALIGNMENT_OPTIONS as opt}
-				<label class="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer">
+				<label
+					class="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer"
+				>
 					<input
 						type="radio"
 						name="xAxisAlignment"
@@ -130,21 +155,33 @@
 		<span class="block text-sm font-medium text-[#1C1C1C] mb-1">Periods</span>
 
 		{#if periods.length === 0}
-			<p class="text-xs text-[#6E6E6E] mb-2">No periods yet. Add one below to start comparing.</p>
+			<p class="text-xs text-[#6E6E6E] mb-2">
+				No periods yet. Add one below to start comparing.
+			</p>
 		{:else}
 			<ul class="space-y-2" aria-label="Active comparison periods">
 				{#each periods as period}
-					<li class="flex items-center gap-2 border border-[#E5E7EB] rounded p-2 bg-[#F9FAFB]">
+					<li
+						class="flex items-center gap-2 border border-[#E5E7EB] rounded p-2 bg-[#F9FAFB]"
+					>
 						<input
 							type="color"
 							value={period.color || '#10b981'}
-							onchange={(e) => updatePeriodColor(period.id, (e.currentTarget as HTMLInputElement).value)}
+							onchange={e =>
+								updatePeriodColor(
+									period.id,
+									(e.currentTarget as HTMLInputElement).value,
+								)}
 							aria-label={`Color for ${period.label}`}
 							class="w-7 h-7 shrink-0 cursor-pointer border border-[#E5E7EB] rounded bg-white p-0.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
 						/>
 						<div class="min-w-0 flex-1">
-							<p class="text-sm font-medium text-[#1C1C1C] truncate">{period.label}</p>
-							<p class="text-xs text-[#6E6E6E] truncate">{formatBounds(period)}</p>
+							<p class="text-sm font-medium text-[#1C1C1C] truncate">
+								{period.label}
+							</p>
+							<p class="text-xs text-[#6E6E6E] truncate">
+								{formatBounds(period)}
+							</p>
 						</div>
 						<button
 							type="button"
@@ -152,8 +189,18 @@
 							aria-label={`Remove ${period.label}`}
 							class="shrink-0 text-[#6E6E6E] hover:text-[#EF4444] rounded p-1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EF4444]"
 						>
-							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+							<svg
+								class="w-4 h-4"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M6 18L18 6M6 6l12 12"
+								/>
 							</svg>
 						</button>
 					</li>
@@ -165,7 +212,10 @@
 		<div class="mt-2 border-t border-[#E5E5E5] pt-2 space-y-2">
 			<div class="flex space-x-px">
 				<div class="flex-1">
-					<label for="comparisonFrom" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+					<label
+						for="comparisonFrom"
+						class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1"
+					>
 						From
 						<Tooltip for="comparisonFrom" />
 					</label>
@@ -177,7 +227,10 @@
 					/>
 				</div>
 				<div class="flex-1">
-					<label for="comparisonTo" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+					<label
+						for="comparisonTo"
+						class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1"
+					>
 						To
 						<Tooltip for="comparisonTo" />
 					</label>
@@ -190,7 +243,10 @@
 				</div>
 			</div>
 			<div>
-				<label for="comparisonColor" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+				<label
+					for="comparisonColor"
+					class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1"
+				>
 					Color
 					<Tooltip for="comparisonColor" />
 				</label>

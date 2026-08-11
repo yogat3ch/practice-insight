@@ -5,10 +5,10 @@
  * calendar vs. elapsed-day x-axis alignment, and differential tooltips.
  */
 
-import type { EChartsOption } from 'echarts';
-import type { XAxisAlignment } from '../../types/engine.js';
-import type { Unit } from '../../types/filters.js';
-import type { TimeBucket } from '../../types/temporal.js';
+import type {EChartsOption} from 'echarts';
+import type {XAxisAlignment} from '../../types/engine.js';
+import type {Unit} from '../../types/filters.js';
+import type {TimeBucket} from '../../types/temporal.js';
 
 export interface ComparisonSeriesData {
 	readonly id: string;
@@ -33,7 +33,7 @@ const DEFAULT_SERIES_PALETTE: readonly string[] = [
 	'#8b5cf6', // Violet 500
 	'#14b8a6', // Teal 500
 	'#f97316', // Orange 500
-	'#6366f1' // Indigo 500
+	'#6366f1', // Indigo 500
 ];
 
 /**
@@ -86,7 +86,7 @@ function computeComparisonLayout(
 	seriesList: readonly ComparisonSeriesData[],
 	unit: Unit,
 	lockYAxis: boolean,
-	xAxisAlignment: XAxisAlignment
+	xAxisAlignment: XAxisAlignment,
 ): ComparisonLayout {
 	// Global maximum Y-value across all series for Y-axis range locking (§5.2).
 	let globalMaxY = 0;
@@ -98,7 +98,9 @@ function computeComparisonLayout(
 	}
 	// Add 10% headroom. Floor the Y max at 0 so negative-axis artifacts never appear.
 	const yAxisMax =
-		lockYAxis && globalMaxY > 0 ? Math.max(0, Math.ceil(globalMaxY * 1.1)) : undefined;
+		lockYAxis && globalMaxY > 0
+			? Math.max(0, Math.ceil(globalMaxY * 1.1))
+			: undefined;
 
 	// Build X-axis categories.
 	// - Calendar alignment: union of every series' bucket labels in chronological order.
@@ -107,9 +109,9 @@ function computeComparisonLayout(
 	const labelSet = new Set<string>();
 
 	if (xAxisAlignment === 'elapsed') {
-		const maxLen = Math.max(...seriesList.map((s) => s.buckets.length));
+		const maxLen = Math.max(...seriesList.map(s => s.buckets.length));
 		// Phase-0 relative alignment: each series starts at its own first bucket.
-		xCategories = Array.from({ length: maxLen }, (_, i) => `Day ${i + 1}`);
+		xCategories = Array.from({length: maxLen}, (_, i) => `Day ${i + 1}`);
 		// Build a union map so calendar dates can be shown in the tooltip as well.
 		for (const s of seriesList) {
 			for (const b of s.buckets) labelSet.add(b.label);
@@ -121,7 +123,7 @@ function computeComparisonLayout(
 		xCategories = Array.from(labelSet);
 	}
 
-	return { yAxisMax, xCategories, elapsedToCalendar: Array.from(labelSet) };
+	return {yAxisMax, xCategories, elapsedToCalendar: Array.from(labelSet)};
 }
 
 /**
@@ -137,14 +139,14 @@ function alignSeriesData(
 	series: ComparisonSeriesData,
 	unit: Unit,
 	xAxisAlignment: XAxisAlignment,
-	xCategories: readonly string[]
+	xCategories: readonly string[],
 ): (number | null)[] {
 	if (xAxisAlignment === 'elapsed') {
-		return series.buckets.map((b) => bucketValue(b, unit));
+		return series.buckets.map(b => bucketValue(b, unit));
 	}
 	const indexByLabel = new Map(xCategories.map((label, i) => [label, i]));
-	return xCategories.map((label) => {
-		const bucket = series.buckets.find((b) => b.label === label);
+	return xCategories.map(label => {
+		const bucket = series.buckets.find(b => b.label === label);
 		return bucket === undefined ? null : bucketValue(bucket, unit);
 	});
 }
@@ -153,7 +155,7 @@ function alignSeriesData(
 function buildTooltipFormatter(
 	unit: Unit,
 	xAxisAlignment: XAxisAlignment,
-	elapsedToCalendar: readonly string[]
+	elapsedToCalendar: readonly string[],
 ): (params: any) => string {
 	return (params: any) => {
 		if (!Array.isArray(params) || params.length === 0) return '';
@@ -170,7 +172,9 @@ function buildTooltipFormatter(
 
 		// Render each period value and compute differential vs baseline (first series).
 		const baselineVal =
-			params.length > 0 && typeof params[0].value === 'number' ? params[0].value : null;
+			params.length > 0 && typeof params[0].value === 'number'
+				? params[0].value
+				: null;
 
 		params.forEach((p: any, idx: number) => {
 			// Null values (a gap in one period) are skipped, not treated as 0.
@@ -206,8 +210,8 @@ function emptyComparisonOption(): EChartsOption {
 			subtext: 'Click "+ Add Period" to compare time windows',
 			left: 'center',
 			top: 'middle',
-			textStyle: { color: '#6E6E6E' }
-		}
+			textStyle: {color: '#6E6E6E'},
+		},
 	};
 }
 
@@ -217,32 +221,36 @@ function emptyComparisonOption(): EChartsOption {
  * @param input - Series list, unit, y-axis lock toggle, and x-axis alignment mode.
  * @returns Complete EChartsOption object ready for chart.setOption().
  */
-export function compileComparisonOption(input: ComparisonCompilerInput): EChartsOption {
-	const { seriesList, unit, lockYAxis, xAxisAlignment } = input;
+export function compileComparisonOption(
+	input: ComparisonCompilerInput,
+): EChartsOption {
+	const {seriesList, unit, lockYAxis, xAxisAlignment} = input;
 
 	if (seriesList.length === 0) return emptyComparisonOption();
 
-	const { yAxisMax, xCategories, elapsedToCalendar } = computeComparisonLayout(
+	const {yAxisMax, xCategories, elapsedToCalendar} = computeComparisonLayout(
 		seriesList,
 		unit,
 		lockYAxis,
-		xAxisAlignment
+		xAxisAlignment,
 	);
 
 	// Construct series array. Data is aligned to the union x-axis: null = no
 	// bucket at that slot, so ECharts renders a gap instead of a false zero.
 	const echartsSeries = seriesList.map((s, seriesIndex) => {
-		const color = s.color || DEFAULT_SERIES_PALETTE[seriesIndex % DEFAULT_SERIES_PALETTE.length];
+		const color =
+			s.color ||
+			DEFAULT_SERIES_PALETTE[seriesIndex % DEFAULT_SERIES_PALETTE.length];
 		return {
 			name: s.label,
 			type: 'line' as const,
 			data: alignSeriesData(s, unit, xAxisAlignment, xCategories),
 			smooth: true,
 			symbolSize: 6,
-			lineStyle: { color, width: 2.5 },
-			itemStyle: { color },
+			lineStyle: {color, width: 2.5},
+			itemStyle: {color},
 			connectNulls: false,
-			emphasis: { focus: 'series' as const }
+			emphasis: {focus: 'series' as const},
 		};
 	});
 
@@ -250,47 +258,47 @@ export function compileComparisonOption(input: ComparisonCompilerInput): ECharts
 		backgroundColor: 'transparent',
 		textStyle: {
 			fontFamily: 'system-ui, -apple-system, sans-serif',
-			color: '#1C1C1C'
+			color: '#1C1C1C',
 		},
 		legend: {
 			top: '2%',
-			textStyle: { color: '#1C1C1C' }
+			textStyle: {color: '#1C1C1C'},
 		},
 		tooltip: {
 			trigger: 'axis',
 			backgroundColor: '#1F2937',
 			borderColor: '#334155',
 			borderWidth: 1,
-			textStyle: { color: '#f8fafc' },
-			axisPointer: { type: 'cross', crossStyle: { color: '#9CA3AF' } },
-			formatter: buildTooltipFormatter(unit, xAxisAlignment, elapsedToCalendar)
+			textStyle: {color: '#f8fafc'},
+			axisPointer: {type: 'cross', crossStyle: {color: '#9CA3AF'}},
+			formatter: buildTooltipFormatter(unit, xAxisAlignment, elapsedToCalendar),
 		},
 		grid: {
 			left: '3%',
 			right: '4%',
 			bottom: '18%',
 			top: '12%',
-			containLabel: true
+			containLabel: true,
 		},
 		xAxis: {
 			type: 'category',
 			data: [...xCategories],
-			axisLine: { lineStyle: { color: '#E5E7EB' } },
+			axisLine: {lineStyle: {color: '#E5E7EB'}},
 			axisLabel: {
 				color: '#1C1C1C',
 				interval: xCategories.length > 24 ? 1 : 0,
-				rotate: xCategories.length > 30 ? 45 : 0
-			}
+				rotate: xCategories.length > 30 ? 45 : 0,
+			},
 		},
 		yAxis: {
 			type: 'value',
 			max: yAxisMax,
 			min: 0,
 			name: unitAxisName(unit),
-			nameTextStyle: { color: '#1C1C1C', padding: [0, 0, 0, 10] },
-			axisLine: { lineStyle: { color: '#E5E7EB' } },
-			splitLine: { lineStyle: { color: '#E5E7EB' } },
-			axisLabel: { color: '#1C1C1C' }
+			nameTextStyle: {color: '#1C1C1C', padding: [0, 0, 0, 10]},
+			axisLine: {lineStyle: {color: '#E5E7EB'}},
+			splitLine: {lineStyle: {color: '#E5E7EB'}},
+			axisLabel: {color: '#1C1C1C'},
 		},
 		dataZoom: [
 			{
@@ -301,14 +309,14 @@ export function compileComparisonOption(input: ComparisonCompilerInput): ECharts
 				borderColor: '#E5E7EB',
 				backgroundColor: '#F9FAFB',
 				fillerColor: 'rgba(16, 185, 129, 0.25)',
-				handleStyle: { color: '#10b981' },
-				textStyle: { color: '#6E6E6E' }
+				handleStyle: {color: '#10b981'},
+				textStyle: {color: '#6E6E6E'},
 			},
 			{
-				type: 'inside'
-			}
+				type: 'inside',
+			},
 		],
-		series: echartsSeries
+		series: echartsSeries,
 	};
 }
 
@@ -322,23 +330,25 @@ export function compileComparisonOption(input: ComparisonCompilerInput): ECharts
  * @returns Array of { period, option } entries for rendering as a grid.
  */
 export function compileComparisonGridOptions(
-	input: ComparisonCompilerInput
-): { period: string; option: EChartsOption }[] {
-	const { seriesList, unit, lockYAxis, xAxisAlignment } = input;
+	input: ComparisonCompilerInput,
+): {period: string; option: EChartsOption}[] {
+	const {seriesList, unit, lockYAxis, xAxisAlignment} = input;
 
 	if (seriesList.length === 0) {
-		return [{ period: 'Comparison', option: emptyComparisonOption() }];
+		return [{period: 'Comparison', option: emptyComparisonOption()}];
 	}
 
-	const { yAxisMax, xCategories, elapsedToCalendar } = computeComparisonLayout(
+	const {yAxisMax, xCategories, elapsedToCalendar} = computeComparisonLayout(
 		seriesList,
 		unit,
 		lockYAxis,
-		xAxisAlignment
+		xAxisAlignment,
 	);
 
 	return seriesList.map((s, seriesIndex) => {
-		const color = s.color || DEFAULT_SERIES_PALETTE[seriesIndex % DEFAULT_SERIES_PALETTE.length];
+		const color =
+			s.color ||
+			DEFAULT_SERIES_PALETTE[seriesIndex % DEFAULT_SERIES_PALETTE.length];
 		const data = alignSeriesData(s, unit, xAxisAlignment, xCategories);
 
 		return {
@@ -347,43 +357,47 @@ export function compileComparisonGridOptions(
 				backgroundColor: 'transparent',
 				textStyle: {
 					fontFamily: 'system-ui, -apple-system, sans-serif',
-					color: '#1C1C1C'
+					color: '#1C1C1C',
 				},
 				tooltip: {
 					trigger: 'axis',
 					backgroundColor: '#1F2937',
 					borderColor: '#334155',
 					borderWidth: 1,
-					textStyle: { color: '#f8fafc' },
-					axisPointer: { type: 'cross', crossStyle: { color: '#9CA3AF' } },
-					formatter: buildTooltipFormatter(unit, xAxisAlignment, elapsedToCalendar)
+					textStyle: {color: '#f8fafc'},
+					axisPointer: {type: 'cross', crossStyle: {color: '#9CA3AF'}},
+					formatter: buildTooltipFormatter(
+						unit,
+						xAxisAlignment,
+						elapsedToCalendar,
+					),
 				},
 				grid: {
 					left: '3%',
 					right: '4%',
 					bottom: '10%',
 					top: '8%',
-					containLabel: true
+					containLabel: true,
 				},
 				xAxis: {
 					type: 'category',
 					data: [...xCategories],
-					axisLine: { lineStyle: { color: '#E5E7EB' } },
+					axisLine: {lineStyle: {color: '#E5E7EB'}},
 					axisLabel: {
 						color: '#1C1C1C',
 						interval: xCategories.length > 24 ? 1 : 0,
-						rotate: xCategories.length > 30 ? 45 : 0
-					}
+						rotate: xCategories.length > 30 ? 45 : 0,
+					},
 				},
 				yAxis: {
 					type: 'value',
 					max: yAxisMax,
 					min: 0,
 					name: unitAxisName(unit),
-					nameTextStyle: { color: '#1C1C1C', padding: [0, 0, 0, 10] },
-					axisLine: { lineStyle: { color: '#E5E7EB' } },
-					splitLine: { lineStyle: { color: '#E5E7EB' } },
-					axisLabel: { color: '#1C1C1C' }
+					nameTextStyle: {color: '#1C1C1C', padding: [0, 0, 0, 10]},
+					axisLine: {lineStyle: {color: '#E5E7EB'}},
+					splitLine: {lineStyle: {color: '#E5E7EB'}},
+					axisLabel: {color: '#1C1C1C'},
 				},
 				series: [
 					{
@@ -392,12 +406,12 @@ export function compileComparisonGridOptions(
 						data,
 						smooth: true,
 						symbolSize: 6,
-						lineStyle: { color, width: 2.5 },
-						itemStyle: { color },
-						connectNulls: false
-					}
-				]
-			}
+						lineStyle: {color, width: 2.5},
+						itemStyle: {color},
+						connectNulls: false,
+					},
+				],
+			},
 		};
 	});
 }

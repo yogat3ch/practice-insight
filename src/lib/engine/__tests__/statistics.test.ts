@@ -2,12 +2,12 @@
  * @fileoverview Unit tests for statistical calculators and symmetric moving average.
  */
 
-import { describe, it, expect } from 'vitest';
+import {describe, it, expect} from 'vitest';
 import {
 	computeMean,
 	computeStandardDeviation,
 	computeLinearRegression,
-	computeSymmetricMovingAverage
+	computeSymmetricMovingAverage,
 } from '../statistics.js';
 
 describe('computeMean', () => {
@@ -56,8 +56,12 @@ describe('computeLinearRegression', () => {
 
 describe('computeSymmetricMovingAverage (§3.4 Rule 3.3)', () => {
 	it('returns a copy of array when windowSize <= 1', () => {
-		expect(computeSymmetricMovingAverage([10, 20, 30], 1)).toEqual([10, 20, 30]);
-		expect(computeSymmetricMovingAverage([10, 20, 30], 0)).toEqual([10, 20, 30]);
+		expect(computeSymmetricMovingAverage([10, 20, 30], 1)).toEqual([
+			10, 20, 30,
+		]);
+		expect(computeSymmetricMovingAverage([10, 20, 30], 0)).toEqual([
+			10, 20, 30,
+		]);
 	});
 
 	it('averages available boundary points without zero-padding', () => {

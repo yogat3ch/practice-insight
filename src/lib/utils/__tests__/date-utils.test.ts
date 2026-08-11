@@ -4,7 +4,7 @@
  * Test data derived from static/sample.csv (real Insight Timer export).
  */
 
-import { describe, expect, it } from 'vitest';
+import {describe, expect, it} from 'vitest';
 import {
 	formatDuration,
 	getSeasonalYear,
@@ -12,7 +12,7 @@ import {
 	getSeasonRange,
 	getWeekStart,
 	parseDurationToSeconds,
-	parseInsightTimerDate
+	parseInsightTimerDate,
 } from '../date-utils.js';
 
 // ---------------------------------------------------------------------------

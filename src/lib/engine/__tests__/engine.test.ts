@@ -2,9 +2,9 @@
  * @fileoverview Integration unit tests for PracticeDataEngine state management and derived getters.
  */
 
-import { describe, expect, it } from 'vitest';
-import type { WorkerResult } from '../../types/session.js';
-import { PracticeDataEngine } from '../PracticeDataEngine.svelte.js';
+import {describe, expect, it} from 'vitest';
+import type {WorkerResult} from '../../types/session.js';
+import {PracticeDataEngine} from '../PracticeDataEngine.svelte.js';
 
 function makeMockWorkerResult(): WorkerResult {
 	return {
@@ -13,24 +13,24 @@ function makeMockWorkerResult(): WorkerResult {
 				startedAt: new Date(2026, 6, 20, 10, 0, 0),
 				durationSeconds: 1800,
 				preset: '(No Preset)',
-				activity: 'Meditation'
+				activity: 'Meditation',
 			},
 			{
 				startedAt: new Date(2026, 6, 21, 15, 0, 0),
 				durationSeconds: 3600,
 				preset: 'Morning Sit',
-				activity: 'Meditation'
+				activity: 'Meditation',
 			},
 			{
 				startedAt: new Date(2026, 6, 22, 8, 0, 0),
 				durationSeconds: 900,
 				preset: '(No Preset)',
-				activity: 'Yoga'
-			}
+				activity: 'Yoga',
+			},
 		],
 		skippedCount: 2,
 		activities: ['Meditation', 'Yoga'],
-		presets: ['Morning Sit']
+		presets: ['Morning Sit'],
 	};
 }
 
@@ -116,7 +116,7 @@ describe('PracticeDataEngine Integration', () => {
 		engine.setTemporalGrouping('month');
 
 		const opt = engine.distributionOption;
-		const series = opt.series as Array<{ type: string; data: unknown[] }>;
+		const series = opt.series as Array<{type: string; data: unknown[]}>;
 		expect(series[0].type).toBe('heatmap');
 		// One month row in the mock data (Jul 2026), 7 cells.
 		expect(series[0].data.length).toBe(7);
@@ -130,7 +130,7 @@ describe('PracticeDataEngine Integration', () => {
 
 		const opt = engine.distributionOption;
 		expect(opt.polar).toBeDefined();
-		const series = opt.series as Array<{ coordinateSystem: string }>;
+		const series = opt.series as Array<{coordinateSystem: string}>;
 		expect(series[0].coordinateSystem).toBe('polar');
 	});
 
@@ -143,6 +143,9 @@ describe('PracticeDataEngine Integration', () => {
 
 		const items = engine.categoryBreakdownItems;
 		// "(No Preset)" and "Morning Sit" only — excludes any activity grouping.
-		expect(items.map((i) => i.name).sort()).toEqual(['(No Preset)', 'Morning Sit']);
+		expect(items.map(i => i.name).sort()).toEqual([
+			'(No Preset)',
+			'Morning Sit',
+		]);
 	});
 });

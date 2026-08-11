@@ -2,7 +2,7 @@
  * @fileoverview View control and configuration types for PracticeDataEngine.
  */
 
-import type { Granularity } from './filters.js';
+import type {Granularity} from './filters.js';
 
 /** Active top-level visualization tab. */
 export type TabId = 'timeline' | 'comparison' | 'distribution';
@@ -42,7 +42,7 @@ export const DEFAULT_TIMELINE_CONFIG: TimelineConfig = {
 	movingAverageDays: 7,
 	showMean: true,
 	showStdDev: true,
-	showLinearTrend: true
+	showLinearTrend: true,
 };
 
 /** Comparison strategies for Tab 2: Comparison Mode. */
@@ -74,7 +74,7 @@ export const DEFAULT_COMPARISON_CONFIG: ComparisonConfig = {
 	strategy: 'period',
 	periods: [],
 	lockYAxis: true,
-	xAxisAlignment: 'calendar'
+	xAxisAlignment: 'calendar',
 };
 
 /** Distribution categories for Tab 3: Distribution & Breakdown Mode. */
@@ -85,13 +85,15 @@ export type DistributionChartStyle =
 	'heatmap' | 'bar' | 'polar' | 'histogram' | 'donut' | 'stackedBar';
 
 /** Metric calculation mode for distribution breakdowns. */
-export type DistributionMetric = 'totalDuration' | 'sessionCount' | 'averageDuration';
+export type DistributionMetric =
+	'totalDuration' | 'sessionCount' | 'averageDuration';
 
 /**
  * Temporal grouping for the multi-period heatmap matrix (Day-of-Week) and
  * the stacked-bar breakdown. Each period becomes a row/segment in the chart.
  */
-export type DistributionTemporalGrouping = 'week' | 'month' | 'quarter' | 'season' | 'year';
+export type DistributionTemporalGrouping =
+	'week' | 'month' | 'quarter' | 'season' | 'year';
 
 /** Category group mode for the Activity & Preset Breakdown charts. */
 export type BreakdownMode = 'activity' | 'preset';
@@ -120,5 +122,5 @@ export const DEFAULT_DISTRIBUTION_CONFIG: DistributionConfig = {
 	metric: 'totalDuration',
 	thresholdMinutes: 0,
 	temporalGrouping: 'month',
-	breakdownMode: 'activity'
+	breakdownMode: 'activity',
 };

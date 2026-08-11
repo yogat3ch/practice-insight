@@ -1,7 +1,7 @@
 /**
  * ECharts shared registry: import needed charts/components and register them.
  */
-import { BarChart, HeatmapChart, LineChart, PieChart } from 'echarts/charts';
+import {BarChart, HeatmapChart, LineChart, PieChart} from 'echarts/charts';
 import {
 	DataZoomComponent,
 	GridComponent,
@@ -11,10 +11,10 @@ import {
 	PolarComponent,
 	TitleComponent,
 	TooltipComponent,
-	VisualMapComponent
+	VisualMapComponent,
 } from 'echarts/components';
 import * as echarts from 'echarts/core';
-import { CanvasRenderer } from 'echarts/renderers';
+import {CanvasRenderer} from 'echarts/renderers';
 
 // Register required modules once
 echarts.use([
@@ -31,7 +31,7 @@ echarts.use([
 	MarkAreaComponent,
 	PolarComponent, // polar + angleAxis + radiusAxis for the Time-of-Day clock
 	VisualMapComponent,
-	CanvasRenderer
+	CanvasRenderer,
 ]);
 
 export default echarts;

@@ -1,5 +1,5 @@
-import type { EChartsOption } from 'echarts';
-import type { EChartsType } from 'echarts/core';
+import type {EChartsOption} from 'echarts';
+import type {EChartsType} from 'echarts/core';
 import echarts from './registry';
 
 /**
@@ -7,8 +7,11 @@ import echarts from './registry';
  * @param node - HTML element to initialize chart in.
  * @param params - Object containing `option` and optional `theme`.
  */
-export function echartAction(node: HTMLElement, params: { option: EChartsOption; theme?: string }) {
-	let { option, theme } = params;
+export function echartAction(
+	node: HTMLElement,
+	params: {option: EChartsOption; theme?: string},
+) {
+	let {option, theme} = params;
 	// Default to the light theme to match the light-mode UI.
 	const chart: EChartsType = echarts.init(node, theme ?? 'light');
 	// Store reference for external helpers
@@ -20,7 +23,7 @@ export function echartAction(node: HTMLElement, params: { option: EChartsOption;
 	resizeObserver.observe(node);
 
 	return {
-		update(newParams: { option: EChartsOption; theme?: string }) {
+		update(newParams: {option: EChartsOption; theme?: string}) {
 			option = newParams.option;
 			if (chart && option) {
 				chart.setOption(option, true);
@@ -30,7 +33,7 @@ export function echartAction(node: HTMLElement, params: { option: EChartsOption;
 			resizeObserver.disconnect();
 			chart.dispose();
 			delete (node as any).__chart;
-		}
+		},
 	};
 }
 
@@ -38,7 +41,11 @@ export function echartAction(node: HTMLElement, params: { option: EChartsOption;
 export function exportPNG(node: HTMLElement, filename: string = 'chart.png') {
 	const chart: EChartsType | undefined = (node as any).__chart;
 	if (!chart) return;
-	const dataUrl = chart.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: '#fff' });
+	const dataUrl = chart.getDataURL({
+		type: 'png',
+		pixelRatio: 2,
+		backgroundColor: '#fff',
+	});
 	const a = document.createElement('a');
 	a.href = dataUrl;
 	a.download = filename;
@@ -48,7 +55,7 @@ export function exportPNG(node: HTMLElement, filename: string = 'chart.png') {
 export function exportSVG(node: HTMLElement, filename: string = 'chart.svg') {
 	const chart: EChartsType | undefined = (node as any).__chart;
 	if (!chart) return;
-	const dataUrl = chart.getDataURL({ type: 'svg' });
+	const dataUrl = chart.getDataURL({type: 'svg'});
 	const a = document.createElement('a');
 	a.href = dataUrl;
 	a.download = filename;

@@ -2,7 +2,7 @@
  * @fileoverview Temporal aggregation bucket and seasonal year types.
  */
 
-import type { Season } from './filters.js';
+import type {Season} from './filters.js';
 
 /**
  * A single aggregated time bucket for charting.

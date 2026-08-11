@@ -43,5 +43,5 @@ export interface WorkerResult {
 
 /** Union type for all messages the CSV Web Worker can post to the main thread. */
 export type WorkerMessage =
-	| { readonly type: 'result'; readonly payload: WorkerResult }
-	| { readonly type: 'error'; readonly message: string };
+	| {readonly type: 'result'; readonly payload: WorkerResult}
+	| {readonly type: 'error'; readonly message: string};

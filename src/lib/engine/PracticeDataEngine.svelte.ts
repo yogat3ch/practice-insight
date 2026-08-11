@@ -12,8 +12,8 @@
  *   - Declarative ECharts option compilers for Timeline, Comparison, and Distribution views
  */
 
-import { format } from 'date-fns';
-import type { EChartsOption } from 'echarts';
+import {format} from 'date-fns';
+import type {EChartsOption} from 'echarts';
 import {
 	DEFAULT_COMPARISON_CONFIG,
 	DEFAULT_DISTRIBUTION_CONFIG,
@@ -29,21 +29,25 @@ import {
 	type SplitBy,
 	type TabId,
 	type TimelineConfig,
-	type TimeWindowPreset
+	type TimeWindowPreset,
 } from '../types/engine.js';
 import {
 	DEFAULT_FILTERS,
 	type ActiveFilters,
 	type Granularity,
-	type Unit
+	type Unit,
 } from '../types/filters.js';
-import type { SessionEntry, WorkerResult } from '../types/session.js';
-import type { TimeBucket } from '../types/temporal.js';
-import { aggregateTimelineBuckets, convertValue, groupBucketsBySegment } from './aggregators.js';
+import type {SessionEntry, WorkerResult} from '../types/session.js';
+import type {TimeBucket} from '../types/temporal.js';
+import {
+	aggregateTimelineBuckets,
+	convertValue,
+	groupBucketsBySegment,
+} from './aggregators.js';
 import {
 	compileComparisonGridOptions,
 	compileComparisonOption,
-	type ComparisonSeriesData
+	type ComparisonSeriesData,
 } from './compilers/comparison-compiler.js';
 import {
 	compileCategoryBreakdownOption,
@@ -51,11 +55,11 @@ import {
 	compileDayOfWeekHeatmapMatrix,
 	compileDayOfWeekOption,
 	compileTimeOfDayOption,
-	emptyDistributionOption
+	emptyDistributionOption,
 } from './compilers/distribution-compiler.js';
 import {
 	compileSplitTimelineOption,
-	compileTimelineOption
+	compileTimelineOption,
 } from './compilers/timeline-compiler.js';
 import {
 	computeCategoryBreakdown,
@@ -67,14 +71,14 @@ import {
 	type CategoryPeriodItem,
 	type DayOfWeekBin,
 	type DayOfWeekPeriodBin,
-	type TimeOfDayBin
+	type TimeOfDayBin,
 } from './distribution.js';
 import {
 	computeLinearRegression,
 	computeMean,
 	computeStandardDeviation,
 	computeSymmetricMovingAverage,
-	type LinearRegressionResult
+	type LinearRegressionResult,
 } from './statistics.js';
 
 export class PracticeDataEngine {
@@ -89,19 +93,21 @@ export class PracticeDataEngine {
 	#skippedCount = $state(0);
 
 	/** Global filter selections. */
-	#filters = $state<ActiveFilters>({ ...DEFAULT_FILTERS });
+	#filters = $state<ActiveFilters>({...DEFAULT_FILTERS});
 
 	/** Active main visualization tab. */
 	#activeTab = $state<TabId>('timeline');
 
 	/** Tab 1 Timeline parameters. */
-	#timelineConfig = $state<TimelineConfig>({ ...DEFAULT_TIMELINE_CONFIG });
+	#timelineConfig = $state<TimelineConfig>({...DEFAULT_TIMELINE_CONFIG});
 
 	/** Tab 2 Comparison parameters. */
-	#comparisonConfig = $state<ComparisonConfig>({ ...DEFAULT_COMPARISON_CONFIG });
+	#comparisonConfig = $state<ComparisonConfig>({...DEFAULT_COMPARISON_CONFIG});
 
 	/** Tab 3 Distribution parameters. */
-	#distributionConfig = $state<DistributionConfig>({ ...DEFAULT_DISTRIBUTION_CONFIG });
+	#distributionConfig = $state<DistributionConfig>({
+		...DEFAULT_DISTRIBUTION_CONFIG,
+	});
 
 	// -------------------------------------------------------------------------
 	// Derived Working Set ($derived)
@@ -109,9 +115,10 @@ export class PracticeDataEngine {
 
 	/** Filtered session array matching active activity, preset, and date range bounds. */
 	get filteredSessions(): SessionEntry[] {
-		return this.#sessions.filter((session) => {
-			const { activities, presets, dateFrom, dateTo } = this.#filters;
-			if (activities.size > 0 && !activities.has(session.activity)) return false;
+		return this.#sessions.filter(session => {
+			const {activities, presets, dateFrom, dateTo} = this.#filters;
+			if (activities.size > 0 && !activities.has(session.activity))
+				return false;
 			if (presets.size > 0 && !presets.has(session.preset)) return false;
 			if (dateFrom !== null && session.startedAt < dateFrom) return false;
 			if (dateTo !== null && session.startedAt > dateTo) return false;
@@ -121,7 +128,7 @@ export class PracticeDataEngine {
 
 	/** Unique, sorted activity strings present in the dataset. */
 	get availableActivities(): string[] {
-		return Array.from(new Set(this.#sessions.map((s) => s.activity)))
+		return Array.from(new Set(this.#sessions.map(s => s.activity)))
 			.filter(Boolean)
 			.sort();
 	}
@@ -129,7 +136,9 @@ export class PracticeDataEngine {
 	/** Unique, sorted preset names (excludes "(No Preset)"). */
 	get availablePresets(): string[] {
 		return Array.from(
-			new Set(this.#sessions.map((s) => s.preset).filter((p) => p !== '(No Preset)'))
+			new Set(
+				this.#sessions.map(s => s.preset).filter(p => p !== '(No Preset)'),
+			),
 		).sort();
 	}
 
@@ -144,13 +153,15 @@ export class PracticeDataEngine {
 			this.#timelineConfig.granularity,
 			this.#filters.unit,
 			this.#filters.dateFrom,
-			this.#filters.dateTo
+			this.#filters.dateTo,
 		);
 	}
 
 	/** Scalar numeric array corresponding to timeline buckets. */
 	get timelineValues(): number[] {
-		return this.timelineBuckets.map((b) => convertValue(b.totalSeconds, this.#filters.unit));
+		return this.timelineBuckets.map(b =>
+			convertValue(b.totalSeconds, this.#filters.unit),
+		);
 	}
 
 	/** Arithmetic mean (μ) of current timeline bucket values. */
@@ -173,7 +184,7 @@ export class PracticeDataEngine {
 	get timelineMovingAverage(): number[] {
 		return computeSymmetricMovingAverage(
 			this.timelineValues,
-			this.#timelineConfig.movingAverageDays
+			this.#timelineConfig.movingAverageDays,
 		);
 	}
 
@@ -189,7 +200,7 @@ export class PracticeDataEngine {
 			showMean: this.#timelineConfig.showMean,
 			showStdDev: this.#timelineConfig.showStdDev,
 			showLinearTrend: this.#timelineConfig.showLinearTrend,
-			movingAverageDays: this.#timelineConfig.movingAverageDays
+			movingAverageDays: this.#timelineConfig.movingAverageDays,
 		});
 	}
 
@@ -201,12 +212,12 @@ export class PracticeDataEngine {
 	 *                                    colored series per split segment.
 	 * - splitBy active, useChartGrid   → one chart card per split segment.
 	 */
-	get timelineOptionsBySegment(): { segment: string; option: EChartsOption }[] {
-		const { splitBy, useChartGrid } = this.#timelineConfig;
+	get timelineOptionsBySegment(): {segment: string; option: EChartsOption}[] {
+		const {splitBy, useChartGrid} = this.#timelineConfig;
 
 		// No split requested — single overlay chart.
 		if (splitBy === 'none') {
-			return [{ segment: 'All', option: this.timelineOption }];
+			return [{segment: 'All', option: this.timelineOption}];
 		}
 
 		const segments = groupBucketsBySegment(this.timelineBuckets, splitBy);
@@ -216,19 +227,24 @@ export class PracticeDataEngine {
 			return [
 				{
 					segment: 'All',
-					option: compileSplitTimelineOption(segments, this.#filters.unit)
-				}
+					option: compileSplitTimelineOption(segments, this.#filters.unit),
+				},
 			];
 		}
 
 		// Card grid — one chart per split segment.
-		return segments.map(({ segment, buckets }) => {
-			const values = buckets.map((b) => convertValue(b.totalSeconds, this.#filters.unit));
+		return segments.map(({segment, buckets}) => {
+			const values = buckets.map(b =>
+				convertValue(b.totalSeconds, this.#filters.unit),
+			);
 			const mean = computeMean(values);
 			const stdDev = computeStandardDeviation(values);
 			const linearTrend = computeLinearRegression(values);
 			// Recompute moving average on the segment-local values.
-			const ma = computeSymmetricMovingAverage(values, this.#timelineConfig.movingAverageDays);
+			const ma = computeSymmetricMovingAverage(
+				values,
+				this.#timelineConfig.movingAverageDays,
+			);
 
 			return {
 				segment,
@@ -242,8 +258,8 @@ export class PracticeDataEngine {
 					showMean: this.#timelineConfig.showMean,
 					showStdDev: this.#timelineConfig.showStdDev,
 					showLinearTrend: this.#timelineConfig.showLinearTrend,
-					movingAverageDays: this.#timelineConfig.movingAverageDays
-				})
+					movingAverageDays: this.#timelineConfig.movingAverageDays,
+				}),
 			};
 		});
 	}
@@ -254,18 +270,18 @@ export class PracticeDataEngine {
 
 	/** Multi-period series list for Comparison mode. */
 	get comparisonSeriesList(): ComparisonSeriesData[] {
-		return this.#comparisonConfig.periods.map((period) => {
+		return this.#comparisonConfig.periods.map(period => {
 			const periodSessions = this.filteredSessions.filter(
-				(s) => s.startedAt >= period.dateFrom && s.startedAt <= period.dateTo
+				s => s.startedAt >= period.dateFrom && s.startedAt <= period.dateTo,
 			);
 			const buckets = aggregateTimelineBuckets(
 				periodSessions,
 				this.#timelineConfig.granularity,
 				this.#filters.unit,
 				period.dateFrom,
-				period.dateTo
+				period.dateTo,
 			);
-			return { id: period.id, label: period.label, color: period.color, buckets };
+			return {id: period.id, label: period.label, color: period.color, buckets};
 		});
 	}
 
@@ -275,7 +291,7 @@ export class PracticeDataEngine {
 			seriesList: this.comparisonSeriesList,
 			unit: this.#filters.unit,
 			lockYAxis: this.#comparisonConfig.lockYAxis,
-			xAxisAlignment: this.#comparisonConfig.xAxisAlignment
+			xAxisAlignment: this.#comparisonConfig.xAxisAlignment,
 		});
 	}
 
@@ -283,12 +299,12 @@ export class PracticeDataEngine {
 	 * Per-period standalone chart options for Tab 2's Sequential Side-by-Side
 	 * strategy. Each entry is one chart card with a shared (locked) Y-axis.
 	 */
-	get comparisonGridOptions(): { period: string; option: EChartsOption }[] {
+	get comparisonGridOptions(): {period: string; option: EChartsOption}[] {
 		return compileComparisonGridOptions({
 			seriesList: this.comparisonSeriesList,
 			unit: this.#filters.unit,
 			lockYAxis: this.#comparisonConfig.lockYAxis,
-			xAxisAlignment: this.#comparisonConfig.xAxisAlignment
+			xAxisAlignment: this.#comparisonConfig.xAxisAlignment,
 		});
 	}
 
@@ -301,7 +317,7 @@ export class PracticeDataEngine {
 		return computeDayOfWeekDistribution(
 			this.filteredSessions,
 			this.#filters.unit,
-			this.#distributionConfig.thresholdMinutes
+			this.#distributionConfig.thresholdMinutes,
 		);
 	}
 
@@ -314,7 +330,7 @@ export class PracticeDataEngine {
 			this.filteredSessions,
 			this.#filters.unit,
 			this.#distributionConfig.thresholdMinutes,
-			this.#distributionConfig.temporalGrouping
+			this.#distributionConfig.temporalGrouping,
 		);
 	}
 
@@ -323,7 +339,7 @@ export class PracticeDataEngine {
 		return computeTimeOfDayDistribution(
 			this.filteredSessions,
 			this.#filters.unit,
-			this.#distributionConfig.thresholdMinutes
+			this.#distributionConfig.thresholdMinutes,
 		);
 	}
 
@@ -333,7 +349,7 @@ export class PracticeDataEngine {
 			this.filteredSessions,
 			this.#filters.unit,
 			this.#distributionConfig.breakdownMode,
-			this.#distributionConfig.thresholdMinutes
+			this.#distributionConfig.thresholdMinutes,
 		);
 	}
 
@@ -347,7 +363,7 @@ export class PracticeDataEngine {
 			this.#filters.unit,
 			this.#distributionConfig.breakdownMode,
 			this.#distributionConfig.thresholdMinutes,
-			this.#distributionConfig.temporalGrouping
+			this.#distributionConfig.temporalGrouping,
 		);
 	}
 
@@ -363,7 +379,8 @@ export class PracticeDataEngine {
 	 *   - thresholdMinutes → filters bins upstream in the calculators
 	 */
 	get distributionOption(): EChartsOption {
-		const { category, chartStyle, metric, temporalGrouping } = this.#distributionConfig;
+		const {category, chartStyle, metric, temporalGrouping} =
+			this.#distributionConfig;
 		const unit = this.#filters.unit;
 
 		if (category === 'dayOfWeek') {
@@ -372,9 +389,19 @@ export class PracticeDataEngine {
 			if (chartStyle === 'heatmap') {
 				const periods = this.dayOfWeekPeriodBins;
 				if (periods.length > 0) {
-					return compileDayOfWeekHeatmapMatrix(periods, unit, metric, temporalGrouping);
+					return compileDayOfWeekHeatmapMatrix(
+						periods,
+						unit,
+						metric,
+						temporalGrouping,
+					);
 				}
-				return compileDayOfWeekOption(this.dayOfWeekBins, unit, 'heatmap', metric);
+				return compileDayOfWeekOption(
+					this.dayOfWeekBins,
+					unit,
+					'heatmap',
+					metric,
+				);
 			}
 			return compileDayOfWeekOption(this.dayOfWeekBins, unit, 'bar', metric);
 		}
@@ -388,16 +415,26 @@ export class PracticeDataEngine {
 		if (chartStyle === 'stackedBar') {
 			const periods = this.categoryPeriodItems;
 			if (periods.length > 0) {
-				return compileCategoryStackedBar(periods, unit, metric, temporalGrouping);
+				return compileCategoryStackedBar(
+					periods,
+					unit,
+					metric,
+					temporalGrouping,
+				);
 			}
 			return compileCategoryBreakdownOption(
 				this.categoryBreakdownItems,
 				unit,
 				'stackedBar',
-				metric
+				metric,
 			);
 		}
-		return compileCategoryBreakdownOption(this.categoryBreakdownItems, unit, 'donut', metric);
+		return compileCategoryBreakdownOption(
+			this.categoryBreakdownItems,
+			unit,
+			'donut',
+			metric,
+		);
 	}
 
 	/**
@@ -444,17 +481,17 @@ export class PracticeDataEngine {
 	loadData(result: WorkerResult): void {
 		this.#sessions = result.sessions;
 		this.#skippedCount = result.skippedCount;
-		this.#filters = { ...DEFAULT_FILTERS };
+		this.#filters = {...DEFAULT_FILTERS};
 	}
 
 	/** Clears all raw data and resets all view controls to default. */
 	clearData(): void {
 		this.#sessions = [];
 		this.#skippedCount = 0;
-		this.#filters = { ...DEFAULT_FILTERS };
-		this.#timelineConfig = { ...DEFAULT_TIMELINE_CONFIG };
-		this.#comparisonConfig = { ...DEFAULT_COMPARISON_CONFIG };
-		this.#distributionConfig = { ...DEFAULT_DISTRIBUTION_CONFIG };
+		this.#filters = {...DEFAULT_FILTERS};
+		this.#timelineConfig = {...DEFAULT_TIMELINE_CONFIG};
+		this.#comparisonConfig = {...DEFAULT_COMPARISON_CONFIG};
+		this.#distributionConfig = {...DEFAULT_DISTRIBUTION_CONFIG};
 	}
 
 	// -------------------------------------------------------------------------
@@ -466,19 +503,19 @@ export class PracticeDataEngine {
 	}
 
 	setActivityFilter(activities: readonly string[]): void {
-		this.#filters = { ...this.#filters, activities: new Set(activities) };
+		this.#filters = {...this.#filters, activities: new Set(activities)};
 	}
 
 	setPresetFilter(presets: readonly string[]): void {
-		this.#filters = { ...this.#filters, presets: new Set(presets) };
+		this.#filters = {...this.#filters, presets: new Set(presets)};
 	}
 
 	setUnit(unit: Unit): void {
-		this.#filters = { ...this.#filters, unit };
+		this.#filters = {...this.#filters, unit};
 	}
 
 	setDateRange(from: Date | null, to: Date | null): void {
-		this.#filters = { ...this.#filters, dateFrom: from, dateTo: to };
+		this.#filters = {...this.#filters, dateFrom: from, dateTo: to};
 	}
 
 	// -------------------------------------------------------------------------
@@ -486,32 +523,39 @@ export class PracticeDataEngine {
 	// -------------------------------------------------------------------------
 
 	setTimePreset(preset: TimeWindowPreset): void {
-		this.#timelineConfig = { ...this.#timelineConfig, timePreset: preset };
+		this.#timelineConfig = {...this.#timelineConfig, timePreset: preset};
 	}
 
 	setGranularity(granularity: Granularity): void {
-		this.#timelineConfig = { ...this.#timelineConfig, granularity };
+		this.#timelineConfig = {...this.#timelineConfig, granularity};
 	}
 
 	setTimeSplit(splitBy: SplitBy): void {
-		this.#timelineConfig = { ...this.#timelineConfig, splitBy };
+		this.#timelineConfig = {...this.#timelineConfig, splitBy};
 	}
 
 	setUseChartGrid(useChartGrid: boolean): void {
-		this.#timelineConfig = { ...this.#timelineConfig, useChartGrid };
+		this.#timelineConfig = {...this.#timelineConfig, useChartGrid};
 	}
 
 	setMovingAverageDays(days: number): void {
 		const clamped = Math.max(0, Math.min(30, days));
-		this.#timelineConfig = { ...this.#timelineConfig, movingAverageDays: clamped };
+		this.#timelineConfig = {
+			...this.#timelineConfig,
+			movingAverageDays: clamped,
+		};
 	}
 
-	setStatisticalOverlays(showMean: boolean, showStdDev: boolean, showLinearTrend: boolean): void {
+	setStatisticalOverlays(
+		showMean: boolean,
+		showStdDev: boolean,
+		showLinearTrend: boolean,
+	): void {
 		this.#timelineConfig = {
 			...this.#timelineConfig,
 			showMean,
 			showStdDev,
-			showLinearTrend
+			showLinearTrend,
 		};
 	}
 
@@ -520,7 +564,7 @@ export class PracticeDataEngine {
 	// -------------------------------------------------------------------------
 
 	setComparisonStrategy(strategy: 'period' | 'grid'): void {
-		this.#comparisonConfig = { ...this.#comparisonConfig, strategy };
+		this.#comparisonConfig = {...this.#comparisonConfig, strategy};
 	}
 
 	/**
@@ -531,7 +575,7 @@ export class PracticeDataEngine {
 	addComparisonPeriod(period: ComparisonPeriod): void {
 		this.#comparisonConfig = {
 			...this.#comparisonConfig,
-			periods: [...this.#comparisonConfig.periods, period]
+			periods: [...this.#comparisonConfig.periods, period],
 		};
 	}
 
@@ -552,7 +596,7 @@ export class PracticeDataEngine {
 			label,
 			dateFrom: from,
 			dateTo: to,
-			color: color ?? ''
+			color: color ?? '',
 		};
 		this.addComparisonPeriod(period);
 	}
@@ -560,7 +604,7 @@ export class PracticeDataEngine {
 	removeComparisonPeriod(id: string): void {
 		this.#comparisonConfig = {
 			...this.#comparisonConfig,
-			periods: this.#comparisonConfig.periods.filter((p) => p.id !== id)
+			periods: this.#comparisonConfig.periods.filter(p => p.id !== id),
 		};
 	}
 
@@ -571,19 +615,27 @@ export class PracticeDataEngine {
 	 * @param id - Id of the period to update.
 	 * @param updates - Partial fields to merge into the period.
 	 */
-	updateComparisonPeriod(id: string, updates: Partial<Omit<ComparisonPeriod, 'id'>>): void {
+	updateComparisonPeriod(
+		id: string,
+		updates: Partial<Omit<ComparisonPeriod, 'id'>>,
+	): void {
 		this.#comparisonConfig = {
 			...this.#comparisonConfig,
-			periods: this.#comparisonConfig.periods.map((p) => (p.id === id ? { ...p, ...updates } : p))
+			periods: this.#comparisonConfig.periods.map(p =>
+				p.id === id ? {...p, ...updates} : p,
+			),
 		};
 	}
 
 	setLockYAxis(lockYAxis: boolean): void {
-		this.#comparisonConfig = { ...this.#comparisonConfig, lockYAxis };
+		this.#comparisonConfig = {...this.#comparisonConfig, lockYAxis};
 	}
 
 	setXAxisAlignment(alignment: 'calendar' | 'elapsed'): void {
-		this.#comparisonConfig = { ...this.#comparisonConfig, xAxisAlignment: alignment };
+		this.#comparisonConfig = {
+			...this.#comparisonConfig,
+			xAxisAlignment: alignment,
+		};
 	}
 
 	// -------------------------------------------------------------------------
@@ -591,15 +643,15 @@ export class PracticeDataEngine {
 	// -------------------------------------------------------------------------
 
 	setDistributionCategory(category: DistributionCategory): void {
-		this.#distributionConfig = { ...this.#distributionConfig, category };
+		this.#distributionConfig = {...this.#distributionConfig, category};
 	}
 
 	setDistributionStyle(chartStyle: DistributionChartStyle): void {
-		this.#distributionConfig = { ...this.#distributionConfig, chartStyle };
+		this.#distributionConfig = {...this.#distributionConfig, chartStyle};
 	}
 
 	setDistributionMetric(metric: DistributionMetric): void {
-		this.#distributionConfig = { ...this.#distributionConfig, metric };
+		this.#distributionConfig = {...this.#distributionConfig, metric};
 	}
 
 	/**
@@ -609,7 +661,7 @@ export class PracticeDataEngine {
 	 * @param temporalGrouping - Week/Month/Quarter/Season/Year.
 	 */
 	setTemporalGrouping(temporalGrouping: DistributionTemporalGrouping): void {
-		this.#distributionConfig = { ...this.#distributionConfig, temporalGrouping };
+		this.#distributionConfig = {...this.#distributionConfig, temporalGrouping};
 	}
 
 	/**
@@ -619,13 +671,13 @@ export class PracticeDataEngine {
 	 * @param breakdownMode - 'activity' | 'preset'.
 	 */
 	setBreakdownMode(breakdownMode: BreakdownMode): void {
-		this.#distributionConfig = { ...this.#distributionConfig, breakdownMode };
+		this.#distributionConfig = {...this.#distributionConfig, breakdownMode};
 	}
 
 	setThresholdMinutes(thresholdMinutes: number): void {
 		this.#distributionConfig = {
 			...this.#distributionConfig,
-			thresholdMinutes: Math.max(0, thresholdMinutes)
+			thresholdMinutes: Math.max(0, thresholdMinutes),
 		};
 	}
 }

@@ -6,8 +6,8 @@
  * JS environment.
  */
 
-import { parseInsightTimerDate, parseDurationToSeconds } from './date-utils.js';
-import { NO_PRESET, type CsvRow, type SessionEntry } from '../types/session.js';
+import {parseInsightTimerDate, parseDurationToSeconds} from './date-utils.js';
+import {NO_PRESET, type CsvRow, type SessionEntry} from '../types/session.js';
 
 // ---------------------------------------------------------------------------
 // Row validation
@@ -38,7 +38,7 @@ export function validateRow(row: CsvRow): SessionEntry | null {
 
 	const activity = row['Activity']?.trim() ?? '';
 
-	return { startedAt, durationSeconds, preset, activity };
+	return {startedAt, durationSeconds, preset, activity};
 }
 
 // ---------------------------------------------------------------------------
@@ -69,6 +69,6 @@ export function extractFilters(sessions: SessionEntry[]): {
 
 	return {
 		activities: Array.from(activitySet).sort(),
-		presets: Array.from(presetSet).sort()
+		presets: Array.from(presetSet).sort(),
 	};
 }

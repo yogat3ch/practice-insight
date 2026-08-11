@@ -6,16 +6,19 @@
  */
 
 // Engine singleton
-export { engine, PracticeDataEngine } from './engine/PracticeDataEngine.svelte.js';
+export {
+	engine,
+	PracticeDataEngine,
+} from './engine/PracticeDataEngine.svelte.js';
 
 // Worker bridge
-export { fetchAndParseSampleCSV, parseCSV } from './parse-csv.js';
+export {fetchAndParseSampleCSV, parseCSV} from './parse-csv.js';
 
 // Types
 export {
 	DEFAULT_COMPARISON_CONFIG,
 	DEFAULT_DISTRIBUTION_CONFIG,
-	DEFAULT_TIMELINE_CONFIG
+	DEFAULT_TIMELINE_CONFIG,
 } from './types/engine.js';
 export type {
 	ComparisonConfig,
@@ -30,20 +33,30 @@ export type {
 	TabId,
 	TimelineConfig,
 	TimeWindowPreset,
-	XAxisAlignment
+	XAxisAlignment,
 } from './types/engine.js';
-export { DEFAULT_FILTERS } from './types/filters.js';
-export type { ActiveFilters, Granularity, Season, Unit } from './types/filters.js';
-export { NO_PRESET } from './types/session.js';
-export type { CsvRow, SessionEntry, WorkerMessage, WorkerResult } from './types/session.js';
-export type { SeasonalYear, TimeBucket } from './types/temporal.js';
+export {DEFAULT_FILTERS} from './types/filters.js';
+export type {
+	ActiveFilters,
+	Granularity,
+	Season,
+	Unit,
+} from './types/filters.js';
+export {NO_PRESET} from './types/session.js';
+export type {
+	CsvRow,
+	SessionEntry,
+	WorkerMessage,
+	WorkerResult,
+} from './types/session.js';
+export type {SeasonalYear, TimeBucket} from './types/temporal.js';
 
 // Calculators & Aggregators
 export {
 	aggregateTimelineBuckets,
 	convertValue,
 	getPeriodForDate,
-	groupBucketsBySegment
+	groupBucketsBySegment,
 } from './engine/aggregators.js';
 export {
 	computeCategoryBreakdown,
@@ -51,7 +64,7 @@ export {
 	computeDayOfWeekDistribution,
 	computeDayOfWeekPeriodDistribution,
 	computeTimeOfDayDistribution,
-	metricValueOf
+	metricValueOf,
 } from './engine/distribution.js';
 export type {
 	BreakdownMode,
@@ -59,46 +72,46 @@ export type {
 	CategoryPeriodItem,
 	DayOfWeekBin,
 	DayOfWeekPeriodBin,
-	TimeOfDayBin
+	TimeOfDayBin,
 } from './engine/distribution.js';
 export {
 	computeLinearRegression,
 	computeMean,
 	computeStandardDeviation,
-	computeSymmetricMovingAverage
+	computeSymmetricMovingAverage,
 } from './engine/statistics.js';
-export type { LinearRegressionResult } from './engine/statistics.js';
+export type {LinearRegressionResult} from './engine/statistics.js';
 
 // ECharts Option Compilers
 export {
 	compileComparisonGridOptions,
-	compileComparisonOption
+	compileComparisonOption,
 } from './engine/compilers/comparison-compiler.js';
-export type { ComparisonSeriesData } from './engine/compilers/comparison-compiler.js';
+export type {ComparisonSeriesData} from './engine/compilers/comparison-compiler.js';
 export {
 	compileCategoryBreakdownOption,
 	compileCategoryStackedBar,
 	compileDayOfWeekHeatmapMatrix,
 	compileDayOfWeekOption,
 	compileTimeOfDayOption,
-	emptyDistributionOption
+	emptyDistributionOption,
 } from './engine/compilers/distribution-compiler.js';
 export {
 	compileSplitTimelineOption,
-	compileTimelineOption
+	compileTimelineOption,
 } from './engine/compilers/timeline-compiler.js';
-export type { TimelineSegment } from './engine/compilers/timeline-compiler.js';
+export type {TimelineSegment} from './engine/compilers/timeline-compiler.js';
 
 // ECharts shared modules
-export { echartAction, exportPNG, exportSVG } from './echarts/echartAction.js';
-export { default as echarts } from './echarts/registry.js';
+export {echartAction, exportPNG, exportSVG} from './echarts/echartAction.js';
+export {default as echarts} from './echarts/registry.js';
 
 // i18n tooltips
-export { labelFor, tooltipFor } from './i18n/Tooltips.js';
-export type { TooltipKey } from './i18n/Tooltips.js';
+export {labelFor, tooltipFor} from './i18n/Tooltips.js';
+export type {TooltipKey} from './i18n/Tooltips.js';
 
 // Utilities
-export { extractFilters, validateRow } from './utils/csv-parser.js';
+export {extractFilters, validateRow} from './utils/csv-parser.js';
 export {
 	computeTimeWindowDateRange,
 	formatDuration,
@@ -107,5 +120,5 @@ export {
 	getSeasonRange,
 	getWeekStart,
 	parseDurationToSeconds,
-	parseInsightTimerDate
+	parseInsightTimerDate,
 } from './utils/date-utils.js';

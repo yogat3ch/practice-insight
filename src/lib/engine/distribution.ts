@@ -7,10 +7,10 @@
  * breakdown (§5.3).
  */
 
-import type { DistributionMetric } from '../types/engine.js';
-import type { Granularity, Unit } from '../types/filters.js';
-import type { SessionEntry } from '../types/session.js';
-import { convertValue, getPeriodForDate } from './aggregators.js';
+import type {DistributionMetric} from '../types/engine.js';
+import type {Granularity, Unit} from '../types/filters.js';
+import type {SessionEntry} from '../types/session.js';
+import {convertValue, getPeriodForDate} from './aggregators.js';
 
 /** Grouping mode for the Activity & Preset breakdown charts. */
 export type BreakdownMode = 'activity' | 'preset';
@@ -74,10 +74,12 @@ const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const;
 export function computeDayOfWeekDistribution(
 	sessions: SessionEntry[],
 	unit: Unit,
-	thresholdMinutes = 0
+	thresholdMinutes = 0,
 ): DayOfWeekBin[] {
 	const thresholdSeconds = thresholdMinutes * 60;
-	const validSessions = sessions.filter((s) => s.durationSeconds >= thresholdSeconds);
+	const validSessions = sessions.filter(
+		s => s.durationSeconds >= thresholdSeconds,
+	);
 
 	const counts = new Array(7).fill(0);
 	const totals = new Array(7).fill(0);
@@ -102,7 +104,7 @@ export function computeDayOfWeekDistribution(
 			dayName: name,
 			sessionCount,
 			totalValue,
-			averageValue
+			averageValue,
 		};
 	});
 }
@@ -118,10 +120,12 @@ export function computeDayOfWeekDistribution(
 export function computeTimeOfDayDistribution(
 	sessions: SessionEntry[],
 	unit: Unit,
-	thresholdMinutes = 0
+	thresholdMinutes = 0,
 ): TimeOfDayBin[] {
 	const thresholdSeconds = thresholdMinutes * 60;
-	const validSessions = sessions.filter((s) => s.durationSeconds >= thresholdSeconds);
+	const validSessions = sessions.filter(
+		s => s.durationSeconds >= thresholdSeconds,
+	);
 
 	const counts = new Array(24).fill(0);
 	const totals = new Array(24).fill(0);
@@ -134,12 +138,12 @@ export function computeTimeOfDayDistribution(
 		totals[hour] += val;
 	}
 
-	return Array.from({ length: 24 }, (_, hour) => ({
+	return Array.from({length: 24}, (_, hour) => ({
 		hour,
 		hourLabel: `${hour.toString().padStart(2, '0')}:00`,
 		sessionCount: counts[hour],
 		totalValue: totals[hour],
-		averageValue: counts[hour] > 0 ? totals[hour] / counts[hour] : 0
+		averageValue: counts[hour] > 0 ? totals[hour] / counts[hour] : 0,
 	}));
 }
 
@@ -156,12 +160,14 @@ export function computeCategoryBreakdown(
 	sessions: SessionEntry[],
 	unit: Unit,
 	mode: 'activity' | 'preset',
-	thresholdMinutes = 0
+	thresholdMinutes = 0,
 ): CategoryBreakdownItem[] {
 	const thresholdSeconds = thresholdMinutes * 60;
-	const validSessions = sessions.filter((s) => s.durationSeconds >= thresholdSeconds);
+	const validSessions = sessions.filter(
+		s => s.durationSeconds >= thresholdSeconds,
+	);
 
-	const map = new Map<string, { count: number; totalVal: number }>();
+	const map = new Map<string, {count: number; totalVal: number}>();
 	let sumTotalVal = 0;
 
 	for (const session of validSessions) {
@@ -176,20 +182,21 @@ export function computeCategoryBreakdown(
 			existing.count += 1;
 			existing.totalVal += val;
 		} else {
-			map.set(name, { count: 1, totalVal: val });
+			map.set(name, {count: 1, totalVal: val});
 		}
 	}
 
 	const items: CategoryBreakdownItem[] = [];
 
 	for (const [name, data] of map.entries()) {
-		const percentage = sumTotalVal > 0 ? (data.totalVal / sumTotalVal) * 100 : 0;
+		const percentage =
+			sumTotalVal > 0 ? (data.totalVal / sumTotalVal) * 100 : 0;
 		items.push({
 			name,
 			sessionCount: data.count,
 			totalValue: data.totalVal,
 			averageValue: data.count > 0 ? data.totalVal / data.count : 0,
-			percentage
+			percentage,
 		});
 	}
 
@@ -210,7 +217,7 @@ export function metricValueOf(
 	totalValue: number,
 	sessionCount: number,
 	averageValue: number,
-	metric: DistributionMetric
+	metric: DistributionMetric,
 ): number {
 	switch (metric) {
 		case 'sessionCount':
@@ -237,23 +244,23 @@ export function computeDayOfWeekPeriodDistribution(
 	sessions: SessionEntry[],
 	unit: Unit,
 	thresholdMinutes: number,
-	grouping: Granularity
+	grouping: Granularity,
 ): DayOfWeekPeriodBin[] {
-	const periods = new Map<string, { label: string; sessions: SessionEntry[] }>();
+	const periods = new Map<string, {label: string; sessions: SessionEntry[]}>();
 
 	for (const session of sessions) {
-		const { label, key } = getPeriodForDate(session.startedAt, grouping);
+		const {label, key} = getPeriodForDate(session.startedAt, grouping);
 		const existing = periods.get(key);
 		if (existing) {
 			existing.sessions.push(session);
 		} else {
-			periods.set(key, { label, sessions: [session] });
+			periods.set(key, {label, sessions: [session]});
 		}
 	}
 
 	return Array.from(periods.entries()).map(([, period]) => ({
 		period: period.label,
-		bins: computeDayOfWeekDistribution(period.sessions, unit, thresholdMinutes)
+		bins: computeDayOfWeekDistribution(period.sessions, unit, thresholdMinutes),
 	}));
 }
 
@@ -273,22 +280,27 @@ export function computeCategoryPeriodBreakdown(
 	unit: Unit,
 	mode: BreakdownMode,
 	thresholdMinutes: number,
-	grouping: Granularity
+	grouping: Granularity,
 ): CategoryPeriodItem[] {
-	const periods = new Map<string, { label: string; sessions: SessionEntry[] }>();
+	const periods = new Map<string, {label: string; sessions: SessionEntry[]}>();
 
 	for (const session of sessions) {
-		const { label, key } = getPeriodForDate(session.startedAt, grouping);
+		const {label, key} = getPeriodForDate(session.startedAt, grouping);
 		const existing = periods.get(key);
 		if (existing) {
 			existing.sessions.push(session);
 		} else {
-			periods.set(key, { label, sessions: [session] });
+			periods.set(key, {label, sessions: [session]});
 		}
 	}
 
 	return Array.from(periods.entries()).map(([, period]) => ({
 		period: period.label,
-		items: computeCategoryBreakdown(period.sessions, unit, mode, thresholdMinutes)
+		items: computeCategoryBreakdown(
+			period.sessions,
+			unit,
+			mode,
+			thresholdMinutes,
+		),
 	}));
 }

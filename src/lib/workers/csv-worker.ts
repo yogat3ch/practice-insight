@@ -9,10 +9,10 @@
  */
 
 import Papa from 'papaparse';
-import { validateRow, extractFilters } from '../utils/csv-parser.js';
-import type { CsvRow, SessionEntry, WorkerMessage } from '../types/session.js';
+import {validateRow, extractFilters} from '../utils/csv-parser.js';
+import type {CsvRow, SessionEntry, WorkerMessage} from '../types/session.js';
 
-type IncomingMessage = { file: File } | { text: string };
+type IncomingMessage = {file: File} | {text: string};
 
 self.onmessage = (event: MessageEvent<IncomingMessage>): void => {
 	const data = event.data;
@@ -31,11 +31,11 @@ self.onmessage = (event: MessageEvent<IncomingMessage>): void => {
 				}
 			}
 
-			const { activities, presets } = extractFilters(sessions);
+			const {activities, presets} = extractFilters(sessions);
 
 			const message: WorkerMessage = {
 				type: 'result',
-				payload: { sessions, skippedCount, activities, presets }
+				payload: {sessions, skippedCount, activities, presets},
 			};
 
 			self.postMessage(message);
@@ -44,7 +44,7 @@ self.onmessage = (event: MessageEvent<IncomingMessage>): void => {
 		const onError = (error: Error): void => {
 			const message: WorkerMessage = {
 				type: 'error',
-				message: error.message
+				message: error.message,
 			};
 			self.postMessage(message);
 		};
@@ -54,20 +54,20 @@ self.onmessage = (event: MessageEvent<IncomingMessage>): void => {
 				header: true,
 				skipEmptyLines: true,
 				complete: onComplete,
-				error: onError
+				error: onError,
 			});
 		} else {
 			Papa.parse<CsvRow>(data.text, {
 				header: true,
 				skipEmptyLines: true,
 				complete: onComplete,
-				error: onError
+				error: onError,
 			});
 		}
 	} catch (err) {
 		const message: WorkerMessage = {
 			type: 'error',
-			message: err instanceof Error ? err.message : 'Unknown worker error'
+			message: err instanceof Error ? err.message : 'Unknown worker error',
 		};
 		self.postMessage(message);
 	}

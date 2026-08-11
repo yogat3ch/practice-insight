@@ -6,10 +6,10 @@
  * ECharts option payload.
  */
 
-import type { EChartsOption } from 'echarts';
-import type { Unit } from '../../types/filters.js';
-import type { TimeBucket } from '../../types/temporal.js';
-import type { LinearRegressionResult } from '../statistics.js';
+import type {EChartsOption} from 'echarts';
+import type {Unit} from '../../types/filters.js';
+import type {TimeBucket} from '../../types/temporal.js';
+import type {LinearRegressionResult} from '../statistics.js';
 
 export interface TimelineCompilerInput {
 	readonly buckets: readonly TimeBucket[];
@@ -39,7 +39,7 @@ const SEGMENT_PALETTE: readonly string[] = [
 	'#8b5cf6', // Violet 500
 	'#14b8a6', // Teal 500
 	'#f97316', // Orange 500
-	'#6366f1' // Indigo 500
+	'#6366f1', // Indigo 500
 ];
 
 /**
@@ -48,7 +48,9 @@ const SEGMENT_PALETTE: readonly string[] = [
  * @param input - Aggregated buckets, unit, statistical calculations, and toggle states.
  * @returns Complete EChartsOption object ready for chart.setOption().
  */
-export function compileTimelineOption(input: TimelineCompilerInput): EChartsOption {
+export function compileTimelineOption(
+	input: TimelineCompilerInput,
+): EChartsOption {
 	const {
 		buckets,
 		unit,
@@ -59,19 +61,20 @@ export function compileTimelineOption(input: TimelineCompilerInput): EChartsOpti
 		showMean,
 		showStdDev,
 		showLinearTrend,
-		movingAverageDays
+		movingAverageDays,
 	} = input;
 
-	const xLabels = buckets.map((b) => b.label);
-	const rawValues = buckets.map((b) =>
+	const xLabels = buckets.map(b => b.label);
+	const rawValues = buckets.map(b =>
 		unit === 'sessions'
 			? b.sessionCount
 			: unit === 'hours'
 				? b.totalSeconds / 3600
-				: b.totalSeconds / 60
+				: b.totalSeconds / 60,
 	);
 
-	const unitSuffix = unit === 'sessions' ? ' sessions' : unit === 'hours' ? 'h' : 'm';
+	const unitSuffix =
+		unit === 'sessions' ? ' sessions' : unit === 'hours' ? 'h' : 'm';
 
 	// Main primary bar/line series
 	const primarySeries: EChartsOption['series'] = [
@@ -81,14 +84,14 @@ export function compileTimelineOption(input: TimelineCompilerInput): EChartsOpti
 			data: rawValues,
 			itemStyle: {
 				color: '#10b981', // Emerald 500
-				borderRadius: [4, 4, 0, 0]
+				borderRadius: [4, 4, 0, 0],
 			},
 			emphasis: {
 				itemStyle: {
-					color: '#34d399'
-				}
-			}
-		}
+					color: '#34d399',
+				},
+			},
+		},
 	];
 
 	// Moving Average overlay series
@@ -101,8 +104,8 @@ export function compileTimelineOption(input: TimelineCompilerInput): EChartsOpti
 			symbol: 'none',
 			lineStyle: {
 				color: '#38bdf8', // Sky 400
-				width: 2.5
-			}
+				width: 2.5,
+			},
 		});
 	}
 
@@ -116,8 +119,8 @@ export function compileTimelineOption(input: TimelineCompilerInput): EChartsOpti
 			lineStyle: {
 				color: '#f59e0b', // Amber 500
 				width: 2,
-				type: 'dashed'
-			}
+				type: 'dashed',
+			},
 		});
 	}
 
@@ -129,12 +132,12 @@ export function compileTimelineOption(input: TimelineCompilerInput): EChartsOpti
 		markLineData.push({
 			name: 'Mean (μ)',
 			yAxis: mean,
-			lineStyle: { color: '#ec4899', width: 2, type: 'solid' },
+			lineStyle: {color: '#ec4899', width: 2, type: 'solid'},
 			label: {
 				formatter: `μ: {c}${unitSuffix}`,
 				position: 'end',
-				color: '#db2777'
-			}
+				color: '#db2777',
+			},
 		});
 	}
 
@@ -146,33 +149,41 @@ export function compileTimelineOption(input: TimelineCompilerInput): EChartsOpti
 			{
 				name: '+1 Std Dev (+σ)',
 				yAxis: upper,
-				lineStyle: { color: '#9333ea', width: 1.5, type: 'dotted' },
-				label: { formatter: `+σ: {c}${unitSuffix}`, position: 'end', color: '#9333ea' }
+				lineStyle: {color: '#9333ea', width: 1.5, type: 'dotted'},
+				label: {
+					formatter: `+σ: {c}${unitSuffix}`,
+					position: 'end',
+					color: '#9333ea',
+				},
 			},
 			{
 				name: '-1 Std Dev (-σ)',
 				yAxis: lower,
-				lineStyle: { color: '#9333ea', width: 1.5, type: 'dotted' },
-				label: { formatter: `-σ: {c}${unitSuffix}`, position: 'end', color: '#9333ea' }
-			}
+				lineStyle: {color: '#9333ea', width: 1.5, type: 'dotted'},
+				label: {
+					formatter: `-σ: {c}${unitSuffix}`,
+					position: 'end',
+					color: '#9333ea',
+				},
+			},
 		);
 
 		markAreaData.push([
-			{ yAxis: lower, itemStyle: { color: 'rgba(147, 51, 234, 0.08)' } },
-			{ yAxis: upper }
+			{yAxis: lower, itemStyle: {color: 'rgba(147, 51, 234, 0.08)'}},
+			{yAxis: upper},
 		]);
 	}
 
 	if (markLineData.length > 0 || markAreaData.length > 0) {
 		(primarySeries[0] as any).markLine = {
 			symbol: ['none', 'none'],
-			data: markLineData
+			data: markLineData,
 		};
 
 		if (markAreaData.length > 0) {
 			(primarySeries[0] as any).markArea = {
 				silent: true,
-				data: markAreaData
+				data: markAreaData,
 			};
 		}
 	}
@@ -181,15 +192,15 @@ export function compileTimelineOption(input: TimelineCompilerInput): EChartsOpti
 		backgroundColor: 'transparent',
 		textStyle: {
 			fontFamily: 'system-ui, -apple-system, sans-serif',
-			color: '#1C1C1C'
+			color: '#1C1C1C',
 		},
 		tooltip: {
 			trigger: 'axis',
 			backgroundColor: '#1F2937',
 			borderColor: '#334155',
 			borderWidth: 1,
-			textStyle: { color: '#f8fafc' },
-			axisPointer: { type: 'cross', crossStyle: { color: '#9CA3AF' } },
+			textStyle: {color: '#f8fafc'},
+			axisPointer: {type: 'cross', crossStyle: {color: '#9CA3AF'}},
 			formatter: (params: any) => {
 				if (!Array.isArray(params) || params.length === 0) return '';
 				const dataIndex = params[0].dataIndex;
@@ -200,34 +211,35 @@ export function compileTimelineOption(input: TimelineCompilerInput): EChartsOpti
 				html += `<div style="font-size:12px;color:#94a3b8;margin-bottom:6px;">Sessions: <strong>${bucket.sessionCount}</strong></div>`;
 
 				for (const p of params) {
-					const val = typeof p.value === 'number' ? p.value.toFixed(1) : p.value;
+					const val =
+						typeof p.value === 'number' ? p.value.toFixed(1) : p.value;
 					html += `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;">`;
 					html += `<span>${p.marker} ${p.seriesName}</span>`;
 					html += `<strong style="color:#f8fafc;">${val} ${unit}</strong></div>`;
 				}
 				return html;
-			}
+			},
 		},
 		grid: {
 			left: '3%',
 			right: '4%',
 			bottom: '15%',
 			top: '10%',
-			containLabel: true
+			containLabel: true,
 		},
 		xAxis: {
 			type: 'category',
 			data: xLabels,
-			axisLine: { lineStyle: { color: '#E5E7EB' } },
-			axisLabel: { color: '#1C1C1C', rotate: xLabels.length > 20 ? 45 : 0 }
+			axisLine: {lineStyle: {color: '#E5E7EB'}},
+			axisLabel: {color: '#1C1C1C', rotate: xLabels.length > 20 ? 45 : 0},
 		},
 		yAxis: {
 			type: 'value',
 			name: unit.charAt(0).toUpperCase() + unit.slice(1),
-			nameTextStyle: { color: '#1C1C1C', padding: [0, 0, 0, 10] },
-			axisLine: { lineStyle: { color: '#E5E7EB' } },
-			splitLine: { lineStyle: { color: '#E5E7EB' } },
-			axisLabel: { color: '#1C1C1C' }
+			nameTextStyle: {color: '#1C1C1C', padding: [0, 0, 0, 10]},
+			axisLine: {lineStyle: {color: '#E5E7EB'}},
+			splitLine: {lineStyle: {color: '#E5E7EB'}},
+			axisLabel: {color: '#1C1C1C'},
 		},
 		dataZoom: [
 			{
@@ -238,14 +250,14 @@ export function compileTimelineOption(input: TimelineCompilerInput): EChartsOpti
 				borderColor: '#E5E7EB',
 				backgroundColor: '#F9FAFB',
 				fillerColor: 'rgba(16, 185, 129, 0.25)',
-				handleStyle: { color: '#10b981' },
-				textStyle: { color: '#6E6E6E' }
+				handleStyle: {color: '#10b981'},
+				textStyle: {color: '#6E6E6E'},
 			},
 			{
-				type: 'inside'
-			}
+				type: 'inside',
+			},
 		],
-		series: primarySeries
+		series: primarySeries,
 	};
 }
 
@@ -263,13 +275,14 @@ export function compileTimelineOption(input: TimelineCompilerInput): EChartsOpti
  */
 export function compileSplitTimelineOption(
 	segments: readonly TimelineSegment[],
-	unit: Unit
+	unit: Unit,
 ): EChartsOption {
 	// Build the union of all x labels in chronological order.
 	const labelOrder = new Map<string, number>();
 	for (const seg of segments) {
 		for (const bucket of seg.buckets) {
-			if (!labelOrder.has(bucket.label)) labelOrder.set(bucket.label, labelOrder.size);
+			if (!labelOrder.has(bucket.label))
+				labelOrder.set(bucket.label, labelOrder.size);
 		}
 	}
 	const xLabels = Array.from(labelOrder.keys());
@@ -295,32 +308,33 @@ export function compileSplitTimelineOption(
 			data,
 			smooth: true,
 			symbol: 'none',
-			lineStyle: { color, width: 2.5 },
+			lineStyle: {color, width: 2.5},
 			connectNulls: false,
-			emphasis: { focus: 'series' as const }
+			emphasis: {focus: 'series' as const},
 		};
 	});
 
-	const unitSuffix = unit === 'sessions' ? ' sessions' : unit === 'hours' ? 'h' : 'm';
+	const unitSuffix =
+		unit === 'sessions' ? ' sessions' : unit === 'hours' ? 'h' : 'm';
 
 	return {
 		backgroundColor: 'transparent',
 		textStyle: {
 			fontFamily: 'system-ui, -apple-system, sans-serif',
-			color: '#1C1C1C'
+			color: '#1C1C1C',
 		},
 		legend: {
 			type: 'scroll',
 			bottom: 0,
-			textStyle: { color: '#1C1C1C' }
+			textStyle: {color: '#1C1C1C'},
 		},
 		tooltip: {
 			trigger: 'axis',
 			backgroundColor: '#1F2937',
 			borderColor: '#334155',
 			borderWidth: 1,
-			textStyle: { color: '#f8fafc' },
-			axisPointer: { type: 'cross', crossStyle: { color: '#9CA3AF' } },
+			textStyle: {color: '#f8fafc'},
+			axisPointer: {type: 'cross', crossStyle: {color: '#9CA3AF'}},
 			formatter: (params: any) => {
 				if (!Array.isArray(params) || params.length === 0) return '';
 				const dataIndex = params[0].dataIndex;
@@ -328,36 +342,39 @@ export function compileSplitTimelineOption(
 				if (!label) return '';
 
 				let html = `<div style="font-weight:600;margin-bottom:6px;color:#cbd5e1;">${label}</div>`;
-				const present = params.filter((p) => p.value !== null && p.value !== undefined);
+				const present = params.filter(
+					p => p.value !== null && p.value !== undefined,
+				);
 				for (const p of present) {
-					const val = typeof p.value === 'number' ? p.value.toFixed(1) : p.value;
+					const val =
+						typeof p.value === 'number' ? p.value.toFixed(1) : p.value;
 					html += `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;">`;
 					html += `<span>${p.marker} ${p.seriesName}</span>`;
 					html += `<strong style="color:#f8fafc;">${val}${unitSuffix}</strong></div>`;
 				}
 				return html;
-			}
+			},
 		},
 		grid: {
 			left: '3%',
 			right: '4%',
 			bottom: '18%',
 			top: '10%',
-			containLabel: true
+			containLabel: true,
 		},
 		xAxis: {
 			type: 'category',
 			data: xLabels,
-			axisLine: { lineStyle: { color: '#E5E7EB' } },
-			axisLabel: { color: '#1C1C1C', rotate: xLabels.length > 20 ? 45 : 0 }
+			axisLine: {lineStyle: {color: '#E5E7EB'}},
+			axisLabel: {color: '#1C1C1C', rotate: xLabels.length > 20 ? 45 : 0},
 		},
 		yAxis: {
 			type: 'value',
 			name: unit.charAt(0).toUpperCase() + unit.slice(1),
-			nameTextStyle: { color: '#1C1C1C', padding: [0, 0, 0, 10] },
-			axisLine: { lineStyle: { color: '#E5E7EB' } },
-			splitLine: { lineStyle: { color: '#E5E7EB' } },
-			axisLabel: { color: '#1C1C1C' }
+			nameTextStyle: {color: '#1C1C1C', padding: [0, 0, 0, 10]},
+			axisLine: {lineStyle: {color: '#E5E7EB'}},
+			splitLine: {lineStyle: {color: '#E5E7EB'}},
+			axisLabel: {color: '#1C1C1C'},
 		},
 		dataZoom: [
 			{
@@ -368,13 +385,13 @@ export function compileSplitTimelineOption(
 				borderColor: '#E5E7EB',
 				backgroundColor: '#F9FAFB',
 				fillerColor: 'rgba(16, 185, 129, 0.25)',
-				handleStyle: { color: '#10b981' },
-				textStyle: { color: '#6E6E6E' }
+				handleStyle: {color: '#10b981'},
+				textStyle: {color: '#6E6E6E'},
 			},
 			{
-				type: 'inside'
-			}
+				type: 'inside',
+			},
 		],
-		series
+		series,
 	};
 }

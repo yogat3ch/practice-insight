@@ -1,72 +1,83 @@
 <script lang="ts">
-	import { engine } from '$lib';
+	import {engine} from '$lib';
 	import type {
 		BreakdownMode,
 		DistributionCategory,
 		DistributionChartStyle,
 		DistributionMetric,
-		DistributionTemporalGrouping
+		DistributionTemporalGrouping,
 	} from '$lib';
 	import Info from '@lucide/svelte/icons/info';
 	import Tooltip from './Tooltip.svelte';
 
 	/** Category selector options per §5.3. */
-	const CATEGORY_OPTIONS: { value: DistributionCategory; label: string }[] = [
-		{ value: 'dayOfWeek', label: 'Day-of-Week Distribution' },
-		{ value: 'timeOfDay', label: 'Time-of-Day Practice Windows' },
-		{ value: 'breakdown', label: 'Activity & Preset Breakdown' }
+	const CATEGORY_OPTIONS: {value: DistributionCategory; label: string}[] = [
+		{value: 'dayOfWeek', label: 'Day-of-Week Distribution'},
+		{value: 'timeOfDay', label: 'Time-of-Day Practice Windows'},
+		{value: 'breakdown', label: 'Activity & Preset Breakdown'},
 	];
 
 	/** Context-dependent chart style options per §5.3. */
 	const STYLE_OPTIONS: Record<
 		DistributionCategory,
-		{ value: DistributionChartStyle; label: string }[]
+		{value: DistributionChartStyle; label: string}[]
 	> = {
 		dayOfWeek: [
-			{ value: 'heatmap', label: 'Heatmap Matrix' },
-			{ value: 'bar', label: 'Bar Chart' }
+			{value: 'heatmap', label: 'Heatmap Matrix'},
+			{value: 'bar', label: 'Bar Chart'},
 		],
 		timeOfDay: [
-			{ value: 'polar', label: 'Polar Clock (24h)' },
-			{ value: 'histogram', label: 'Hourly Histogram' }
+			{value: 'polar', label: 'Polar Clock (24h)'},
+			{value: 'histogram', label: 'Hourly Histogram'},
 		],
 		breakdown: [
-			{ value: 'donut', label: 'Donut Chart' },
-			{ value: 'stackedBar', label: 'Stacked Bar' }
-		]
+			{value: 'donut', label: 'Donut Chart'},
+			{value: 'stackedBar', label: 'Stacked Bar'},
+		],
 	};
 
 	/** Temporal grouping options per §5.3. */
-	const GROUPING_OPTIONS: { value: DistributionTemporalGrouping; label: string }[] = [
-		{ value: 'week', label: 'By Week' },
-		{ value: 'month', label: 'By Month' },
-		{ value: 'quarter', label: 'By Quarter' },
-		{ value: 'season', label: 'By Season' },
-		{ value: 'year', label: 'By Year' }
+	const GROUPING_OPTIONS: {
+		value: DistributionTemporalGrouping;
+		label: string;
+	}[] = [
+		{value: 'week', label: 'By Week'},
+		{value: 'month', label: 'By Month'},
+		{value: 'quarter', label: 'By Quarter'},
+		{value: 'season', label: 'By Season'},
+		{value: 'year', label: 'By Year'},
 	];
 
 	/** Metric calculation options per §5.3. */
-	const METRIC_OPTIONS: { value: DistributionMetric; label: string }[] = [
-		{ value: 'totalDuration', label: 'Total Duration' },
-		{ value: 'sessionCount', label: 'Session Count' },
-		{ value: 'averageDuration', label: 'Average Session Length' }
+	const METRIC_OPTIONS: {value: DistributionMetric; label: string}[] = [
+		{value: 'totalDuration', label: 'Total Duration'},
+		{value: 'sessionCount', label: 'Session Count'},
+		{value: 'averageDuration', label: 'Average Session Length'},
 	];
 
 	/** Breakdown grouping mode (Activity vs Preset). */
-	const BREAKDOWN_MODE_OPTIONS: { value: BreakdownMode; label: string }[] = [
-		{ value: 'activity', label: 'By Activity' },
-		{ value: 'preset', label: 'By Preset' }
+	const BREAKDOWN_MODE_OPTIONS: {value: BreakdownMode; label: string}[] = [
+		{value: 'activity', label: 'By Activity'},
+		{value: 'preset', label: 'By Preset'},
 	];
 
 	// Local control state, initialized from the engine's current config.
-	let category = $state<DistributionCategory>(engine.distributionConfig.category);
-	let chartStyle = $state<DistributionChartStyle>(engine.distributionConfig.chartStyle);
+	let category = $state<DistributionCategory>(
+		engine.distributionConfig.category,
+	);
+	let chartStyle = $state<DistributionChartStyle>(
+		engine.distributionConfig.chartStyle,
+	);
 	let temporalGrouping = $state<DistributionTemporalGrouping>(
-		engine.distributionConfig.temporalGrouping
+		engine.distributionConfig.temporalGrouping,
 	);
 	let metric = $state<DistributionMetric>(engine.distributionConfig.metric);
-	let thresholdMinutes = $state<number>(engine.distributionConfig.thresholdMinutes);
-	let breakdownMode = $state<BreakdownMode>(engine.distributionConfig.breakdownMode);
+	let thresholdMinutes = $state<number>(
+		engine.distributionConfig.thresholdMinutes,
+	);
+	let breakdownMode = $state<BreakdownMode>(
+		engine.distributionConfig.breakdownMode,
+	);
 
 	/** Style options for the currently selected category. */
 	const currentStyles = $derived(STYLE_OPTIONS[category]);
@@ -91,19 +102,33 @@
 	}
 </script>
 
-<section aria-labelledby="distributionControlsTitle" class="border border-[#E5E5E5] bg-white rounded-md p-3 space-y-3">
-	<h3 id="distributionControlsTitle" class="text-sm font-semibold text-[#1C1C1C]">Distribution Controls</h3>
+<section
+	aria-labelledby="distributionControlsTitle"
+	class="border border-[#E5E5E5] bg-white rounded-md p-3 space-y-3"
+>
+	<h3
+		id="distributionControlsTitle"
+		class="text-sm font-semibold text-[#1C1C1C]"
+	>
+		Distribution Controls
+	</h3>
 
 	<!-- Category Selector -->
 	<div>
-		<label for="categorySelect" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+		<label
+			for="categorySelect"
+			class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1"
+		>
 			Category
 			<Tooltip for="category" />
 		</label>
 		<select
 			id="categorySelect"
 			value={category}
-			onchange={(e) => selectCategory((e.currentTarget as HTMLSelectElement).value as DistributionCategory)}
+			onchange={e =>
+				selectCategory(
+					(e.currentTarget as HTMLSelectElement).value as DistributionCategory,
+				)}
 			class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1.5 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 focus:outline-none"
 		>
 			{#each CATEGORY_OPTIONS as opt}
@@ -114,13 +139,17 @@
 
 	<!-- Chart Style (context-dependent) -->
 	<fieldset>
-		<legend class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+		<legend
+			class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1"
+		>
 			Chart Style
 			<Tooltip for="chartStyle" />
 		</legend>
 		<div class="space-y-1.5">
 			{#each currentStyles as opt}
-				<label class="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer">
+				<label
+					class="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer"
+				>
 					<input
 						type="radio"
 						name="distributionChartStyle"
@@ -138,13 +167,17 @@
 	<!-- Breakdown Mode (only for Activity & Preset Breakdown category) -->
 	{#if category === 'breakdown'}
 		<fieldset>
-			<legend class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+			<legend
+				class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1"
+			>
 				Breakdown By
 				<Tooltip for="breakdownMode" />
 			</legend>
 			<div class="space-y-1.5">
 				{#each BREAKDOWN_MODE_OPTIONS as opt}
-					<label class="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer">
+					<label
+						class="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer"
+					>
 						<input
 							type="radio"
 							name="breakdownMode"
@@ -162,15 +195,22 @@
 
 	<!-- Seasonal Time Rule Note (shown when By Season is selected) -->
 	{#if temporalGrouping === 'season'}
-		<p class="flex items-start gap-1.5 rounded-md bg-amber-100 px-2.5 py-2 text-xs text-[#B45309]">
+		<p
+			class="flex items-start gap-1.5 rounded-md bg-amber-100 px-2.5 py-2 text-xs text-[#B45309]"
+		>
 			<Info class="w-4 h-4 shrink-0 text-[#B45309]" aria-hidden="true" />
-			<span>Seasonal years run Dec 22 – Dec 21. Sessions attributed to Start Time.</span>
+			<span
+				>Seasonal years run Dec 22 – Dec 21. Sessions attributed to Start Time.</span
+			>
 		</p>
 	{/if}
 
 	<!-- Temporal Grouping -->
 	<div>
-		<label for="temporalGroupingSelect" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+		<label
+			for="temporalGroupingSelect"
+			class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1"
+		>
 			Temporal Grouping
 			<Tooltip for="temporalGrouping" />
 		</label>
@@ -184,21 +224,29 @@
 			{/each}
 		</select>
 		{#if category === 'dayOfWeek' && chartStyle === 'heatmap'}
-			<p class="mt-1 text-xs text-[#6E6E6E]">Groups the heatmap matrix into rows by time period.</p>
+			<p class="mt-1 text-xs text-[#6E6E6E]">
+				Groups the heatmap matrix into rows by time period.
+			</p>
 		{:else if category === 'breakdown' && chartStyle === 'stackedBar'}
-			<p class="mt-1 text-xs text-[#6E6E6E]">Shows how the activity/preset mix shifts across time periods.</p>
+			<p class="mt-1 text-xs text-[#6E6E6E]">
+				Shows how the activity/preset mix shifts across time periods.
+			</p>
 		{/if}
 	</div>
 
 	<!-- Metric Calculation -->
 	<fieldset>
-		<legend class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+		<legend
+			class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1"
+		>
 			Metric
 			<Tooltip for="metric" />
 		</legend>
 		<div class="space-y-1.5">
 			{#each METRIC_OPTIONS as opt}
-				<label class="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer">
+				<label
+					class="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer"
+				>
 					<input
 						type="radio"
 						name="distributionMetric"
@@ -215,7 +263,10 @@
 
 	<!-- Threshold Filter -->
 	<div>
-		<label for="thresholdInput" class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1">
+		<label
+			for="thresholdInput"
+			class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1"
+		>
 			Threshold Filter
 			<Tooltip for="threshold" />
 		</label>
@@ -228,7 +279,9 @@
 			class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1.5 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 focus:outline-none"
 			placeholder="0"
 		/>
-		<p class="mt-1 text-xs text-[#6E6E6E]">Ignore sessions shorter than this many minutes.</p>
+		<p class="mt-1 text-xs text-[#6E6E6E]">
+			Ignore sessions shorter than this many minutes.
+		</p>
 	</div>
 
 	<button

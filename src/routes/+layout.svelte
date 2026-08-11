@@ -1,6 +1,6 @@
 <script lang="ts">
 	import '../app.css';
-	import { onMount } from 'svelte';
+	import {onMount} from 'svelte';
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import ControlPanel from '$lib/components/ControlPanel.svelte';
@@ -8,7 +8,7 @@
 	import TimelineView from '$lib/components/TimelineView.svelte';
 	import ComparisonView from '$lib/components/ComparisonView.svelte';
 	import DistributionView from '$lib/components/DistributionView.svelte';
-	import { engine, fetchAndParseSampleCSV } from '$lib';
+	import {engine, fetchAndParseSampleCSV} from '$lib';
 
 	// Drawer open state (mobile)
 	let drawerOpen = $state(false);
@@ -28,7 +28,7 @@
 	// Collapsed strip width — just wide enough to hold the toggle button.
 	const COLLAPSED_SIDEBAR_WIDTH = 40;
 
-	let { children } = $props();
+	let {children} = $props();
 
 	// Load sample dataset on boot so charts have data to render.
 	onMount(async () => {
@@ -58,7 +58,10 @@
 
 		const handlePointerMove = (moveEvent: PointerEvent) => {
 			const next = startWidth + (moveEvent.clientX - startX);
-			sidebarWidth = Math.min(MAX_SIDEBAR_WIDTH, Math.max(MIN_SIDEBAR_WIDTH, next));
+			sidebarWidth = Math.min(
+				MAX_SIDEBAR_WIDTH,
+				Math.max(MIN_SIDEBAR_WIDTH, next),
+			);
 		};
 
 		const handlePointerUp = () => {
@@ -82,12 +85,19 @@
 		<aside
 			class="hidden lg:flex flex-col bg-[#F9FAFB] border-r border-[#E5E5E5] overflow-hidden shrink-0 transition-[width] duration-200"
 			class:!flex={drawerOpen}
-			style:width={sidebarCollapsed ? COLLAPSED_SIDEBAR_WIDTH + 'px' : sidebarWidth + 'px'}
+			style:width={sidebarCollapsed
+				? COLLAPSED_SIDEBAR_WIDTH + 'px'
+				: sidebarWidth + 'px'}
 		>
 			<!-- Brand header at top of the sidebar pane (pinned, never scrolls) -->
-			<header class="flex items-center justify-between gap-2 border-b border-[#E5E5E5] bg-white px-3 py-2 shrink-0">
+			<header
+				class="flex items-center justify-between gap-2 border-b border-[#E5E5E5] bg-white px-3 py-2 shrink-0"
+			>
 				{#if !sidebarCollapsed}
-					<span class="text-lg font-bold tracking-tight text-[#1C1C1C] whitespace-nowrap">Practice Insight</span>
+					<span
+						class="text-lg font-bold tracking-tight text-[#1C1C1C] whitespace-nowrap"
+						>Practice Insight</span
+					>
 				{/if}
 				<button
 					type="button"
@@ -95,7 +105,9 @@
 					aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
 					aria-expanded={!sidebarCollapsed}
 					title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-					class="shrink-0 rounded-md p-1.5 text-[#6E6E6E] hover:bg-[#F9FAFB] hover:text-[#1C1C1C] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EAA845] {sidebarCollapsed ? 'mx-auto' : ''}"
+					class="shrink-0 rounded-md p-1.5 text-[#6E6E6E] hover:bg-[#F9FAFB] hover:text-[#1C1C1C] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EAA845] {sidebarCollapsed
+						? 'mx-auto'
+						: ''}"
 				>
 					{#if sidebarCollapsed}
 						<ChevronRight class="w-5 h-5" aria-hidden="true" />
@@ -126,9 +138,26 @@
 
 		<main class="flex-1 flex flex-col overflow-y-auto">
 			<!-- Mobile drawer trigger (visible only on mobile) -->
-			<div class="lg:hidden flex items-center border-b border-[#E5E5E5] px-2 py-1">
-				<button class="rounded-md p-1.5 text-[#6E6E6E] hover:bg-[#F9FAFB] hover:text-[#1C1C1C] transition-colors" onclick={toggleDrawer} aria-label="Open menu">
-					<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+			<div
+				class="lg:hidden flex items-center border-b border-[#E5E5E5] px-2 py-1"
+			>
+				<button
+					class="rounded-md p-1.5 text-[#6E6E6E] hover:bg-[#F9FAFB] hover:text-[#1C1C1C] transition-colors"
+					onclick={toggleDrawer}
+					aria-label="Open menu"
+				>
+					<svg
+						class="w-5 h-5"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+						><path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M4 6h16M4 12h16M4 18h16"
+						/></svg
+					>
 				</button>
 			</div>
 			<TabBar />
