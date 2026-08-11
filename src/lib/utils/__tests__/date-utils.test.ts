@@ -4,14 +4,15 @@
  * Test data derived from static/sample.csv (real Insight Timer export).
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-	parseInsightTimerDate,
-	parseDurationToSeconds,
-	getSeasonForDate,
+	formatDuration,
 	getSeasonalYear,
+	getSeasonForDate,
+	getSeasonRange,
 	getWeekStart,
-	formatDuration
+	parseDurationToSeconds,
+	parseInsightTimerDate
 } from '../date-utils.js';
 
 // ---------------------------------------------------------------------------
@@ -183,6 +184,55 @@ describe('getSeasonalYear', () => {
 		expect(sy.endDate.getFullYear()).toBe(2025);
 		expect(sy.endDate.getMonth()).toBe(11);
 		expect(sy.endDate.getDate()).toBe(21);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// getSeasonRange (§3.3 fixed solar season bounds)
+// ---------------------------------------------------------------------------
+
+describe('getSeasonRange', () => {
+	it('spring runs Mar 20 – Jun 20', () => {
+		const range = getSeasonRange(new Date(2025, 4, 15));
+		expect(range.label).toBe('Spring 2025');
+		expect(range.startDate.getMonth()).toBe(2);
+		expect(range.startDate.getDate()).toBe(20);
+		expect(range.endDate.getMonth()).toBe(5);
+		expect(range.endDate.getDate()).toBe(20);
+	});
+
+	it('summer runs Jun 21 – Sep 21', () => {
+		const range = getSeasonRange(new Date(2025, 6, 15));
+		expect(range.label).toBe('Summer 2025');
+		expect(range.startDate.getMonth()).toBe(5);
+		expect(range.startDate.getDate()).toBe(21);
+		expect(range.endDate.getMonth()).toBe(8);
+		expect(range.endDate.getDate()).toBe(21);
+	});
+
+	it('autumn runs Sep 22 – Dec 21', () => {
+		const range = getSeasonRange(new Date(2025, 9, 15));
+		expect(range.label).toBe('Autumn 2025');
+		expect(range.startDate.getMonth()).toBe(8);
+		expect(range.startDate.getDate()).toBe(22);
+		expect(range.endDate.getMonth()).toBe(11);
+		expect(range.endDate.getDate()).toBe(21);
+	});
+
+	it('winter spans Dec 22 – Mar 19 across the calendar-year boundary', () => {
+		const janRange = getSeasonRange(new Date(2025, 0, 15));
+		expect(janRange.label).toBe('Winter 2024–2025');
+		expect(janRange.startDate.getFullYear()).toBe(2024);
+		expect(janRange.startDate.getMonth()).toBe(11);
+		expect(janRange.startDate.getDate()).toBe(22);
+		expect(janRange.endDate.getFullYear()).toBe(2025);
+		expect(janRange.endDate.getMonth()).toBe(2);
+		expect(janRange.endDate.getDate()).toBe(19);
+
+		const decRange = getSeasonRange(new Date(2025, 11, 25));
+		expect(decRange.label).toBe('Winter 2025–2026');
+		expect(decRange.startDate.getFullYear()).toBe(2025);
+		expect(decRange.endDate.getFullYear()).toBe(2026);
 	});
 });
 

@@ -2,9 +2,9 @@
  * @fileoverview Unit tests for time-series bucketing aggregators and unit converters.
  */
 
-import { describe, it, expect } from 'vitest';
-import { convertValue, aggregateTimelineBuckets } from '../aggregators.js';
+import { describe, expect, it } from 'vitest';
 import type { SessionEntry } from '../../types/session.js';
+import { aggregateTimelineBuckets, convertValue, getPeriodForDate } from '../aggregators.js';
 
 describe('convertValue (§3.4 Rule 4)', () => {
 	it('converts seconds to minutes', () => {
@@ -73,5 +73,34 @@ describe('aggregateTimelineBuckets', () => {
 
 	it('returns empty array for empty sessions input', () => {
 		expect(aggregateTimelineBuckets([], 'month', 'minutes')).toEqual([]);
+	});
+});
+
+describe('getPeriodForDate (§5.3 temporal grouping)', () => {
+	it('maps a date to its month period', () => {
+		const period = getPeriodForDate(new Date(2026, 6, 20), 'month');
+		expect(period.label).toBe('Jul 2026');
+		expect(period.key).toBe('2026-07');
+	});
+
+	it('maps a date to its quarter period', () => {
+		const period = getPeriodForDate(new Date(2026, 6, 20), 'quarter');
+		expect(period.label).toBe('Q3 2026');
+	});
+
+	it('maps a date to its seasonal-year period', () => {
+		const period = getPeriodForDate(new Date(2026, 6, 20), 'season');
+		// July is Summer 2026 (fixed solar bounds, not the full seasonal year).
+		expect(period.label).toBe('Summer 2026');
+	});
+
+	it('maps a December date to the correct winter period', () => {
+		const period = getPeriodForDate(new Date(2026, 11, 25), 'season');
+		expect(period.label).toBe('Winter 2026–2027');
+	});
+
+	it('maps a date to its year period', () => {
+		const period = getPeriodForDate(new Date(2026, 6, 20), 'year');
+		expect(period.label).toBe('2026');
 	});
 });
