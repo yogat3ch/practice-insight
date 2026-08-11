@@ -1,98 +1,98 @@
 {
-	"activities": {
-		"label": "Activities",
-		"tooltip": "Filter which meditation activities are included in every chart. Click to toggle, or use Select All / Deselect All."
-	},
-	"presets": {
-		"label": "Presets",
-		"tooltip": "Filter which Insight Timer presets are included in every chart. Click to toggle, or use Select All / Deselect All."
-	},
-	"unit": {
-		"label": "Unit",
-		"tooltip": "The measurement shown on every chart's Y-axis and tooltip: minutes, hours, or raw session count."
-	},
-	"dateFrom": {
-		"label": "From",
-		"tooltip": "Start of the global date range. Sessions before this date are excluded."
-	},
-	"dateTo": {
-		"label": "To",
-		"tooltip": "End of the global date range. Sessions after this date are excluded."
-	},
-	"timeWindow": {
-		"label": "Time Window",
-		"tooltip": "Quick presets for the visible date range: Last 3 Months, Last 6 Months, Last Year, Year to Date, All Time, or a Custom Range."
-	},
-	"timelineFrom": {
-		"label": "From",
-		"tooltip": "Start date for the custom time window."
-	},
-	"timelineTo": {
-		"label": "To",
-		"tooltip": "End date for the custom time window."
-	},
-	"granularity": {
-		"label": "Aggregate By",
-		"tooltip": "How sessions are grouped along the time axis: day, week, month, quarter, season, or year."
-	},
-	"splitBy": {
-		"label": "Time Split",
-		"tooltip": "Split the timeline into separate colored series, one per time period (week, month, quarter, season, or year)."
-	},
-	"movingAverage": {
-		"label": "Moving Average",
-		"tooltip": "Smooths the line by averaging each point with its neighbors over N days. Set to 0 to disable."
-	},
-	"statisticalOverlays": {
-		"label": "Statistical Overlays",
-		"tooltip": "Add a mean line, a shaded ±1 standard deviation band, or a linear trendline to the timeline."
-	},
-	"comparisonStrategy": {
-		"label": "Comparison Strategy",
-		"tooltip": "Overlay multiple periods on one chart (relative), or lay them out side-by-side as separate charts (grid)."
-	},
-	"lockYAxis": {
-		"label": "Lock Y-Axis Scale",
-		"tooltip": "Use one shared Y-axis scale across all compared periods so bars and lines are visually comparable."
-	},
-	"xAxisAlignment": {
-		"label": "X-Axis Alignment",
-		"tooltip": "Align periods by calendar date, or by elapsed days from each period's first data point (Day 1)."
-	},
-	"comparisonFrom": {
-		"label": "From",
-		"tooltip": "Start date of the new comparison period."
-	},
-	"comparisonTo": {
-		"label": "To",
-		"tooltip": "End date of the new comparison period."
-	},
-	"comparisonColor": {
-		"label": "Color",
-		"tooltip": "The line/bar color used for this comparison period."
-	},
-	"category": {
-		"label": "Category",
-		"tooltip": "Which breakdown to visualize: Day-of-Week, Time-of-Day, or Activity & Preset."
-	},
-	"chartStyle": {
-		"label": "Chart Style",
-		"tooltip": "The visualization type for the selected category, e.g. heatmap matrix, polar clock, donut, or stacked bar."
-	},
-	"breakdownMode": {
-		"label": "Breakdown By",
-		"tooltip": "Split the breakdown by activity or by preset."
-	},
-	"temporalGrouping": {
-		"label": "Temporal Grouping",
-		"tooltip": "Group distribution values by week, month, quarter, season, or year."
-	},
-	"metric": {
-		"label": "Metric",
-		"tooltip": "The value being measured: total duration, session count, or average session length."
-	},
-	"threshold": {
-		"label": "Threshold Filter",
-		"tooltip": "Ignore sessions shorter than this many minutes when computing distributions."
-	}
+    "activities": {
+        "label": "Activities",
+        "tooltip": "Filter which Insight Timer activities are included in every chart. Click to toggle, or use Select All / Deselect All."
+    },
+    "presets": {
+        "label": "Presets",
+        "tooltip": "Filter which Insight Timer presets are included in every chart. Click to toggle, or use Select All / Deselect All."
+    },
+    "unit": {
+        "label": "Unit",
+        "tooltip": "The measurement shown on every chart's Y-axis and tooltip: minutes, hours, or raw session count."
+    },
+    "dateFrom": {
+        "label": "From",
+        "tooltip": "Start of the global date range. Sessions before this date are excluded."
+    },
+    "dateTo": {
+        "label": "To",
+        "tooltip": "End of the global date range. Sessions after this date are excluded."
+    },
+    "timeWindow": {
+        "label": "Time Window",
+        "tooltip": "Quick presets for the visible date range: Last 3 Months, Last 6 Months, Last Year, Year to Date, All Time, or a Custom Range."
+    },
+    "timelineFrom": {
+        "label": "From",
+        "tooltip": "Start date for the custom time window."
+    },
+    "timelineTo": {
+        "label": "To",
+        "tooltip": "End date for the custom time window."
+    },
+    "granularity": {
+        "label": "Aggregate By",
+        "tooltip": "How sessions are grouped along the time axis: day, week, month, quarter, season, or year."
+    },
+    "splitBy": {
+        "label": "Time Split",
+        "tooltip": "Split the timeline into separate colored series, one per time period (week, month, quarter, season, or year)."
+    },
+    "movingAverage": {
+        "label": "Moving Average",
+        "tooltip": "Smooths the line by averaging each point with its neighbors over N days. Set to 0 to disable."
+    },
+    "statisticalOverlays": {
+        "label": "Statistical Overlays",
+        "tooltip": "Add a mean line, a shaded ±1 standard deviation band, or a linear trendline to the timeline."
+    },
+    "comparisonStrategy": {
+        "label": "Comparison Strategy",
+        "tooltip": "Overlay multiple periods on one chart (relative), or lay them out side-by-side as separate charts (grid)."
+    },
+    "lockYAxis": {
+        "label": "Lock Y-Axis Scale",
+        "tooltip": "Use one shared Y-axis scale across all compared periods so bars and lines are visually comparable."
+    },
+    "xAxisAlignment": {
+        "label": "X-Axis Alignment",
+        "tooltip": "Align periods by calendar date, or by elapsed days from each period's first data point (Day 1)."
+    },
+    "comparisonFrom": {
+        "label": "From",
+        "tooltip": "Start date of the new comparison period."
+    },
+    "comparisonTo": {
+        "label": "To",
+        "tooltip": "End date of the new comparison period."
+    },
+    "comparisonColor": {
+        "label": "Color",
+        "tooltip": "The line/bar color used for this comparison period."
+    },
+    "category": {
+        "label": "Category",
+        "tooltip": "Which breakdown to visualize: Day-of-Week, Time-of-Day, or Activity & Preset."
+    },
+    "chartStyle": {
+        "label": "Chart Style",
+        "tooltip": "The visualization type for the selected category, e.g. heatmap matrix, polar clock, donut, or stacked bar."
+    },
+    "breakdownMode": {
+        "label": "Breakdown By",
+        "tooltip": "Split the breakdown by activity or by preset."
+    },
+    "temporalGrouping": {
+        "label": "Temporal Grouping",
+        "tooltip": "Group distribution values by week, month, quarter, season, or year."
+    },
+    "metric": {
+        "label": "Metric",
+        "tooltip": "The value being measured: total duration, session count, or average session length."
+    },
+    "threshold": {
+        "label": "Threshold Filter",
+        "tooltip": "Ignore sessions shorter than this many minutes when computing distributions."
+    }
 }
