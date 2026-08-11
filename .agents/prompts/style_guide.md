@@ -22,9 +22,16 @@ We follow a **light‑mode** base (as per the Insight Timer UI) with occasional 
 | **Divider / Border**          | `#E5E5E5`              | Section dividers, input borders                |
 | **Primary Text**              | `#1C1C1C`              | Headings, body copy                            |
 | **Secondary Text**            | `#6E6E6E`              | Sub‑headings, helper text                      |
-| **Accent / Call‑to‑Action**   | `#EAA845` (warm amber) | Buttons, active tab indicator, export buttons  |
+| **Interactive Accent**        | `#10B981` (emerald)    | CTAs, apply buttons, checked radio/checkbox, focus rings, Select All / Deselect All |
+| **Selection / Status Accent** | `#EAA845` (warm amber) | Removable pills, selected-row highlight, count badges, active tab indicator, alerts/notes |
 | **Success / Highlight**       | `#10B981` (emerald)    | Success messages, positive data points         |
 | **Error**                     | `#EF4444` (red)        | Error states                                   |
+
+> **Accent rule (recent change):** Interactive controls use **emerald** (`#10B981`)
+> — checked radio/checkbox color, focus rings/borders, range slider accent, and the
+> Select All / Deselect All links. Amber (`#EAA845`) is reserved for **non‑interactive**
+> selection & status affordances: removable pills, selected-row highlights, count
+> badges, the active tab underline, and alert/note callouts.
 
 ### 2.2 Chart Colors (ECharts)
 
@@ -56,7 +63,7 @@ We follow a **light‑mode** base (as per the Insight Timer UI) with occasional 
   - **Tablet (640‑1024px):** Two‑column layout – sidebar (1/3) + main content (2/3).
   - **Desktop (>1024px):** Three‑column layout – left sidebar (drawer), central chart area, optional right panel for additional stats.
 - **Spacing:** Use Tailwind’s `space-y-4` / `p-4` for vertical rhythm; `gap-6` for grid gaps.
-- **Sidebar / Control Panel:** Background `#F9FAFB`, rounded corners, subtle shadow `shadow-sm`. Inputs and selects should have a light border (`#E5E7EB`) and focus ring in accent amber.
+- **Sidebar / Control Panel:** Background `#F9FAFB`, rounded corners, subtle shadow `shadow-sm`. Inputs and selects should have a light border (`#E5E7EB`) and an **emerald** focus ring (`focus:ring-emerald-500/40`).
 
 ## 5. Component Guidelines
 
@@ -69,7 +76,7 @@ We follow a **light‑mode** base (as per the Insight Timer UI) with occasional 
 ### 5.2 Tabs (Timeline / Comparison / Distribution)
 
 - Horizontal tab bar with clear active indicator:
-  - Active tab: underline `2px` solid `#EAA845`, text `#1C1C1C`.
+  - Active tab: underline `2px` solid `#EAA845` (amber — a *status* accent, kept intentionally), text `#1C1C1C`.
   - Inactive tabs: text `#6E6E6E`, hover `#1C1C1C`.
 - Tabs should be keyboard‑focusable and have appropriate `role="tablist"` semantics.
 
@@ -78,7 +85,13 @@ We follow a **light‑mode** base (as per the Insight Timer UI) with occasional 
 - Group related controls (Activities, Presets, Unit, Date range) with clear headings.
 - Use `<label for="...">` for accessibility; inputs/selects have a minimum height of `36px`.
 - Buttons: primary `bg-emerald-600` with white text, hover `bg-emerald-500`.
+- **Form controls (radios, checkboxes, selects, date/number inputs, sliders):**
+  - Checked/filled state uses emerald (`text-emerald-500` / `accent-emerald-500`).
+  - Focus ring and focus border are emerald (`focus:ring-emerald-500/40`, `focus:border-emerald-500`).
+- **Select All / Deselect All:** emerald text links (`text-emerald-600`, hover `text-emerald-500`).
+- **Removable pills** (selected Activities/Presets) and the **selected-row highlight** in listboxes remain amber (`bg-[#EAA845]/15`–`/30`, `border-[#EAA845]/40`).
 - Add subtle transition `transition-colors` for interactive elements.
+- Help icons: render a superscript `circle-question-mark` next to each input title via `Tooltip.svelte`; the trigger icon is neutral gray (`text-[#1C1C1C]`, hover `#9e9e9e`) with an emerald focus ring.
 
 ### 5.4 Chart Container
 
