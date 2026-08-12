@@ -298,6 +298,7 @@ export class PracticeDataEngine {
 			unit: this.#filters.unit,
 			lockYAxis: this.#comparisonConfig.lockYAxis,
 			xAxisAlignment: this.#comparisonConfig.xAxisAlignment,
+			granularity: this.#timelineConfig.granularity,
 		});
 	}
 
@@ -311,6 +312,7 @@ export class PracticeDataEngine {
 			unit: this.#filters.unit,
 			lockYAxis: this.#comparisonConfig.lockYAxis,
 			xAxisAlignment: this.#comparisonConfig.xAxisAlignment,
+			granularity: this.#timelineConfig.granularity,
 		});
 	}
 

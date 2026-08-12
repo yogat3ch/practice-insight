@@ -135,6 +135,77 @@ describe('compileComparisonOption — elapsed alignment', () => {
 	});
 });
 
+describe('compileComparisonOption — elapsed labels reflect granularity (7c)', () => {
+	it('uses Month N labels when granularity is month', () => {
+		const opt = compileComparisonOption({
+			seriesList: [seriesA, seriesB],
+			unit: 'minutes',
+			lockYAxis: false,
+			xAxisAlignment: 'elapsed',
+			granularity: 'month',
+		});
+
+		const xAxis = opt.xAxis as {data: string[]};
+		expect(xAxis.data).toEqual(['Month 1', 'Month 2', 'Month 3']);
+	});
+
+	it('uses Week N labels when granularity is week', () => {
+		const opt = compileComparisonOption({
+			seriesList: [seriesA, seriesB],
+			unit: 'minutes',
+			lockYAxis: false,
+			xAxisAlignment: 'elapsed',
+			granularity: 'week',
+		});
+
+		const xAxis = opt.xAxis as {data: string[]};
+		expect(xAxis.data).toEqual(['Week 1', 'Week 2', 'Week 3']);
+	});
+
+	it('uses QN labels when granularity is quarter', () => {
+		const opt = compileComparisonOption({
+			seriesList: [seriesA, seriesB],
+			unit: 'minutes',
+			lockYAxis: false,
+			xAxisAlignment: 'elapsed',
+			granularity: 'quarter',
+		});
+
+		const xAxis = opt.xAxis as {data: string[]};
+		expect(xAxis.data).toEqual(['Q1', 'Q2', 'Q3']);
+	});
+
+	it('keeps the natural label for season/year granularity', () => {
+		// Season/year have no standard relative prefix → use the longest
+		// series' natural bucket labels for the shared slots.
+		const seasonOpt = compileComparisonOption({
+			seriesList: [seriesA, seriesB],
+			unit: 'minutes',
+			lockYAxis: false,
+			xAxisAlignment: 'elapsed',
+			granularity: 'season',
+		});
+		const seasonAxis = seasonOpt.xAxis as {data: string[]};
+		// seriesB is the longest (3 buckets) → its natural labels.
+		expect(seasonAxis.data).toEqual(['Jan 2026', 'Feb 2026', 'Mar 2026']);
+	});
+});
+
+describe('compileComparisonGridOptions — elapsed granularity (7c)', () => {
+	it('uses the granularity-based relative labels in grid mode', () => {
+		const cards = compileComparisonGridOptions({
+			seriesList: [seriesA, seriesB],
+			unit: 'minutes',
+			lockYAxis: false,
+			xAxisAlignment: 'elapsed',
+			granularity: 'month',
+		});
+
+		const x0 = cards[0].option.xAxis as {data: string[]};
+		expect(x0.data).toEqual(['Month 1', 'Month 2', 'Month 3']);
+	});
+});
+
 describe('compileComparisonOption — Y-axis lock', () => {
 	it('locks the Y-axis max across all series when lockYAxis is true', () => {
 		const opt = compileComparisonOption({

@@ -6,6 +6,7 @@
  */
 
 import type {EChartsOption} from 'echarts';
+import type {Granularity} from '../../types/filters.js';
 import type {XAxisAlignment} from '../../types/engine.js';
 import type {Unit} from '../../types/filters.js';
 import type {TimeBucket} from '../../types/temporal.js';
@@ -22,6 +23,13 @@ export interface ComparisonCompilerInput {
 	readonly unit: Unit;
 	readonly lockYAxis: boolean;
 	readonly xAxisAlignment: 'calendar' | 'elapsed';
+	/**
+	 * The aggregation granularity used to bucket the series. In elapsed
+	 * alignment mode the x-axis labels are derived from this interval so they
+	 * reflect the actual time between ticks (e.g. "Week N" vs "Day N").
+	 * Optional: defaults to 'day' (the original "Day N" behavior).
+	 */
+	readonly granularity?: Granularity;
 }
 
 /** Default palette used when a comparison period has no explicit color assigned. */
@@ -66,10 +74,39 @@ function unitAxisName(unit: Unit): string {
 interface ComparisonLayout {
 	/** Locked Y-axis maximum (with headroom) or undefined when not locking. */
 	readonly yAxisMax: number | undefined;
-	/** X-axis categories (calendar labels or "Day N" slots). */
+	/** X-axis categories (calendar labels or elapsed interval slots). */
 	readonly xCategories: readonly string[];
 	/** Calendar labels aligned to elapsed-day slots for tooltips. */
 	readonly elapsedToCalendar: readonly string[];
+}
+
+/**
+ * Relative x-axis label prefix for elapsed alignment, derived from the actual
+ * aggregation interval so the label reflects the time between ticks (7c).
+ *
+ * - 'day'    → "Day N"
+ * - 'week'   → "Week N"
+ * - 'month'  → "Month N"
+ * - 'quarter' → "Q N"
+ *
+ * @param granularity - Aggregation granularity.
+ * @param index - Zero-based slot index.
+ * @returns Relative elapsed label for the slot.
+ */
+function elapsedLabel(granularity: Granularity, index: number): string {
+	const n = index + 1;
+	switch (granularity) {
+		case 'week':
+			return `Week ${n}`;
+		case 'month':
+			return `Month ${n}`;
+		case 'quarter':
+			return `Q${n}`;
+		// Day granularity keeps the original "Day N" phrasing.
+		case 'day':
+		default:
+			return `Day ${n}`;
+	}
 }
 
 /**
@@ -80,6 +117,7 @@ interface ComparisonLayout {
  * @param unit - Display unit.
  * @param lockYAxis - Whether to force identical Y-scale bounds (§5.2).
  * @param xAxisAlignment - Calendar date vs. elapsed day alignment.
+ * @param granularity - Aggregation granularity for elapsed labels (7c).
  * @returns Shared layout for chart compilation.
  */
 function computeComparisonLayout(
@@ -87,6 +125,7 @@ function computeComparisonLayout(
 	unit: Unit,
 	lockYAxis: boolean,
 	xAxisAlignment: XAxisAlignment,
+	granularity: Granularity = 'day',
 ): ComparisonLayout {
 	// Global maximum Y-value across all series for Y-axis range locking (§5.2).
 	let globalMaxY = 0;
@@ -104,14 +143,27 @@ function computeComparisonLayout(
 
 	// Build X-axis categories.
 	// - Calendar alignment: union of every series' bucket labels in chronological order.
-	// - Elapsed alignment: relative "Day N" slots up to the longest series (Day 1 … Day 365).
+	// - Elapsed alignment: relative slots (Day N / Week N / Month N / Q N) up to
+	//   the longest series, reflecting the actual aggregation interval (7c).
+	//   For season/year granularity, use the longest series' natural bucket
+	//   labels (e.g. "2025 Seasonal Year", "2025") since there is no standard
+	//   relative prefix for those intervals.
 	let xCategories: string[] = [];
 	const labelSet = new Set<string>();
 
 	if (xAxisAlignment === 'elapsed') {
 		const maxLen = Math.max(...seriesList.map(s => s.buckets.length));
 		// Phase-0 relative alignment: each series starts at its own first bucket.
-		xCategories = Array.from({length: maxLen}, (_, i) => `Day ${i + 1}`);
+		if (granularity === 'season' || granularity === 'year') {
+			// Use the longest series' natural bucket labels for the shared slots.
+			const longest =
+				seriesList.find(s => s.buckets.length === maxLen) ?? seriesList[0];
+			xCategories = longest.buckets.map(b => b.label);
+		} else {
+			xCategories = Array.from({length: maxLen}, (_, i) =>
+				elapsedLabel(granularity, i),
+			);
+		}
 		// Build a union map so calendar dates can be shown in the tooltip as well.
 		for (const s of seriesList) {
 			for (const b of s.buckets) labelSet.add(b.label);
@@ -224,7 +276,13 @@ function emptyComparisonOption(): EChartsOption {
 export function compileComparisonOption(
 	input: ComparisonCompilerInput,
 ): EChartsOption {
-	const {seriesList, unit, lockYAxis, xAxisAlignment} = input;
+	const {
+		seriesList,
+		unit,
+		lockYAxis,
+		xAxisAlignment,
+		granularity = 'day',
+	} = input;
 
 	if (seriesList.length === 0) return emptyComparisonOption();
 
@@ -233,6 +291,7 @@ export function compileComparisonOption(
 		unit,
 		lockYAxis,
 		xAxisAlignment,
+		granularity,
 	);
 
 	// Construct series array. Data is aligned to the union x-axis: null = no
@@ -335,7 +394,13 @@ export function compileComparisonOption(
 export function compileComparisonGridOptions(
 	input: ComparisonCompilerInput,
 ): {period: string; option: EChartsOption}[] {
-	const {seriesList, unit, lockYAxis, xAxisAlignment} = input;
+	const {
+		seriesList,
+		unit,
+		lockYAxis,
+		xAxisAlignment,
+		granularity = 'day',
+	} = input;
 
 	if (seriesList.length === 0) {
 		return [{period: 'Comparison', option: emptyComparisonOption()}];
@@ -346,6 +411,7 @@ export function compileComparisonGridOptions(
 		unit,
 		lockYAxis,
 		xAxisAlignment,
+		granularity,
 	);
 
 	return seriesList.map((s, seriesIndex) => {
