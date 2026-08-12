@@ -3,11 +3,13 @@
 		BreakdownMode,
 		DistributionCategory,
 		DistributionChartStyle,
+		DistributionComparisonStrategy,
 		DistributionMetric,
 		DistributionTemporalGrouping,
 	} from '$lib';
-	import { engine } from '$lib';
+	import {engine} from '$lib';
 	import Info from '@lucide/svelte/icons/info';
+	import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
 	import Tooltip from './Tooltip.svelte';
 
 	/** Category selector options per §5.3. */
@@ -48,6 +50,15 @@
 		{value: 'year', label: 'By Year'},
 	];
 
+	/** Distribution comparison strategy options (7c). */
+	const STRATEGY_OPTIONS: {
+		value: DistributionComparisonStrategy;
+		label: string;
+	}[] = [
+		{value: 'period', label: 'Period-over-Period (Relative)'},
+		{value: 'grid', label: 'Sequential Side-by-Side'},
+	];
+
 	/** Metric calculation options per §5.3. */
 	const METRIC_OPTIONS: {value: DistributionMetric; label: string}[] = [
 		{value: 'totalDuration', label: 'Total Duration'},
@@ -71,6 +82,9 @@
 	let temporalGrouping = $state<DistributionTemporalGrouping>(
 		engine.distributionConfig.temporalGrouping,
 	);
+	let distributionStrategy = $state<DistributionComparisonStrategy>(
+		engine.distributionConfig.distributionStrategy,
+	);
 	let metric = $state<DistributionMetric>(engine.distributionConfig.metric);
 	let thresholdMinutes = $state<number>(
 		engine.distributionConfig.thresholdMinutes,
@@ -81,6 +95,9 @@
 	let showDayOfWeekLabels = $state<boolean>(
 		engine.distributionConfig.showDayOfWeekLabels,
 	);
+
+	/** Whether to show the heatmap/strategy incompatibility warning (7c). */
+	let showHeatmapStrategyWarning = $state(false);
 
 	/** Style options for the currently selected category. */
 	const currentStyles = $derived(STYLE_OPTIONS[category]);
@@ -95,10 +112,28 @@
 		chartStyle = STYLE_OPTIONS[value][0].value;
 	}
 
+	/**
+	 * Selecting the heatmap style while a variable comparison strategy is
+	 * active is incompatible (the heatmap matrix already renders per-period
+	 * rows). Show an ephemeral warning and reset the strategy to the default.
+	 */
+	function selectStyle(value: DistributionChartStyle) {
+		chartStyle = value;
+		if (value === 'heatmap' && category === 'dayOfWeek') {
+			showHeatmapStrategyWarning = true;
+			distributionStrategy = 'period';
+			// Auto-dismiss after a short delay.
+			setTimeout(() => {
+				showHeatmapStrategyWarning = false;
+			}, 4000);
+		}
+	}
+
 	function applyControls(): void {
 		engine.setDistributionCategory(category);
 		engine.setDistributionStyle(chartStyle);
 		engine.setTemporalGrouping(temporalGrouping);
+		engine.setDistributionStrategy(distributionStrategy);
 		engine.setDistributionMetric(metric);
 		engine.setThresholdMinutes(thresholdMinutes);
 		engine.setBreakdownMode(breakdownMode);
@@ -159,7 +194,7 @@
 						name="distributionChartStyle"
 						value={opt.value}
 						checked={chartStyle === opt.value}
-						onchange={() => (chartStyle = opt.value)}
+						onchange={() => selectStyle(opt.value)}
 						class="w-4 h-4 text-emerald-500 focus:ring-emerald-500/40 focus:outline-none"
 					/>
 					{opt.label}
@@ -167,6 +202,52 @@
 			{/each}
 		</div>
 	</fieldset>
+
+	<!-- Heatmap / Comparison Strategy incompatibility warning (7c, ephemeral) -->
+	{#if showHeatmapStrategyWarning}
+		<p
+			class="flex items-start gap-1.5 rounded-md bg-amber-300 px-2.5 py-2 text-xs text-[#1C1C1C]"
+		>
+			<TriangleAlert
+				class="w-4 h-4 shrink-0 text-orange-400"
+				aria-hidden="true"
+			/>
+			<span>Heatmap is incompatible with variable Comparison Strategies</span>
+		</p>
+	{/if}
+
+	<!-- Distribution Comparison Strategy (only for Day-of-Week Bar Chart, 7c) -->
+	{#if category === 'dayOfWeek' && chartStyle === 'bar'}
+		<fieldset>
+			<legend
+				class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1"
+			>
+				Comparison Strategy
+				<Tooltip for="comparisonStrategy" />
+			</legend>
+			<div class="space-y-1.5">
+				{#each STRATEGY_OPTIONS as opt}
+					<label
+						class="flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer"
+					>
+						<input
+							type="radio"
+							name="distributionStrategy"
+							value={opt.value}
+							checked={distributionStrategy === opt.value}
+							onchange={() => (distributionStrategy = opt.value)}
+							class="w-4 h-4 text-emerald-500 focus:ring-emerald-500/40 focus:outline-none"
+						/>
+						{opt.label}
+					</label>
+				{/each}
+			</div>
+			<p class="mt-1 text-xs text-[#6E6E6E]">
+				How temporal-grouped periods are compared when Temporal Grouping is
+				active.
+			</p>
+		</fieldset>
+	{/if}
 
 	<!-- Show Labels toggle (only for the Day-of-Week heatmap visualMap labels) -->
 	{#if category === 'dayOfWeek' && chartStyle === 'heatmap'}
