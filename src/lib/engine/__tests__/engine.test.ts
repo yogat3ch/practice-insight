@@ -81,6 +81,31 @@ describe('PracticeDataEngine Integration', () => {
 		expect(engine.filteredSessions.length).toBe(0);
 	});
 
+	it('returns raw dataset date bounds for All Time regardless of filters', () => {
+		const engine = new PracticeDataEngine();
+		engine.loadData(makeMockWorkerResult());
+
+		// Raw bounds: Jul 20 – Jul 22, 2026.
+		expect(engine.allSessionDateRange).toEqual([
+			new Date(2026, 6, 20, 10, 0, 0),
+			new Date(2026, 6, 22, 8, 0, 0),
+		]);
+
+		// Filtering must NOT shrink the All Time bounds.
+		engine.setActivityFilter(['Yoga']);
+		engine.setDateRange(new Date(2026, 6, 21), null);
+		expect(engine.filteredSessions.length).toBe(1);
+		expect(engine.allSessionDateRange).toEqual([
+			new Date(2026, 6, 20, 10, 0, 0),
+			new Date(2026, 6, 22, 8, 0, 0),
+		]);
+	});
+
+	it('returns null All Time bounds when no data is loaded', () => {
+		const engine = new PracticeDataEngine();
+		expect(engine.allSessionDateRange).toBeNull();
+	});
+
 	it('exposes default distribution config with temporal grouping', () => {
 		const engine = new PracticeDataEngine();
 		expect(engine.distributionConfig.category).toBe('dayOfWeek');

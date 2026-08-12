@@ -74,14 +74,22 @@
 	 * Populate the global Date Range pickers from the selected Time Window
 	 * preset. Does NOT apply — the user clicks Apply Filters to commit.
 	 * Custom leaves the pickers for manual entry.
+	 *
+	 * 'All' uses the RAW dataset bounds (ignoring current filters) so it
+	 * always means "everything in the file".
 	 */
 	function selectPreset(value: TimeWindowPreset) {
 		timePreset = value;
 		if (value === 'Custom') return;
-		const [from, to] = computeTimeWindowDateRange(
-			value,
-			engine.filteredSessions,
-		);
+		let from: Date | null;
+		let to: Date | null;
+		if (value === 'All') {
+			const range = engine.allSessionDateRange;
+			from = range ? range[0] : null;
+			to = range ? range[1] : null;
+		} else {
+			[from, to] = computeTimeWindowDateRange(value, engine.filteredSessions);
+		}
 		dateFrom = from ? format(from, 'yyyy-MM-dd') : '';
 		dateTo = to ? format(to, 'yyyy-MM-dd') : '';
 	}

@@ -479,6 +479,26 @@ export class PracticeDataEngine {
 		return this.#sessions.length;
 	}
 
+	/**
+	 * Inclusive [min, max] start-date bounds of the RAW loaded dataset,
+	 * ignoring all active filters (activity, preset, date range).
+	 *
+	 * Used by the "All Time" time-window preset so it always means
+	 * "everything in the file", regardless of the currently applied filters.
+	 *
+	 * @returns Bounds as [earliest, latest] start dates, or null when empty.
+	 */
+	get allSessionDateRange(): [Date, Date] | null {
+		if (this.#sessions.length === 0) return null;
+		let min = this.#sessions[0].startedAt;
+		let max = this.#sessions[0].startedAt;
+		for (const s of this.#sessions) {
+			if (s.startedAt < min) min = s.startedAt;
+			if (s.startedAt > max) max = s.startedAt;
+		}
+		return [min, max];
+	}
+
 	// -------------------------------------------------------------------------
 	// Data Load & Reset API
 	// -------------------------------------------------------------------------
