@@ -244,4 +244,76 @@ describe('PracticeDataEngine Integration', () => {
 		engine.setDistributionStyle('heatmap');
 		expect(engine.dayOfWeekPeriodBarOptions).toEqual([]);
 	});
+
+	it('renders a grouped time-of-day histogram when histogram + period strategy is active', () => {
+		const engine = new PracticeDataEngine();
+		engine.loadData(makeMockWorkerResult());
+		engine.setDistributionCategory('timeOfDay');
+		engine.setDistributionStyle('histogram');
+		engine.setTemporalGrouping('month');
+		engine.setDistributionStrategy('period');
+
+		const opt = engine.distributionOption;
+		const series = opt.series as Array<{name: string; data: number[]}>;
+		// One series per temporal period, 24 hourly bins each.
+		expect(series.length).toBeGreaterThanOrEqual(1);
+		for (const s of series) expect(s.data.length).toBe(24);
+	});
+
+	it('keeps a single polar clock for timeOfDay even when period strategy is active', () => {
+		const engine = new PracticeDataEngine();
+		engine.loadData(makeMockWorkerResult());
+		engine.setDistributionCategory('timeOfDay');
+		engine.setDistributionStyle('polar');
+		engine.setTemporalGrouping('month');
+		engine.setDistributionStrategy('period');
+
+		const opt = engine.distributionOption;
+		expect(opt.polar).toBeDefined();
+		// Polar overlay unsupported → single series (not grouped).
+		const series = opt.series as Array<{coordinateSystem: string}>;
+		expect(series.length).toBe(1);
+	});
+
+	it('renders grouped category bars when breakdown + stackedBar + period strategy is active', () => {
+		const engine = new PracticeDataEngine();
+		engine.loadData(makeMockWorkerResult());
+		engine.setDistributionCategory('breakdown');
+		engine.setDistributionStyle('stackedBar');
+		engine.setTemporalGrouping('month');
+		engine.setDistributionStrategy('period');
+
+		const opt = engine.distributionOption;
+		const series = opt.series as Array<{name: string; data: number[]}>;
+		// One series per category (Meditation, Yoga) across temporal periods.
+		expect(series.length).toBeGreaterThanOrEqual(2);
+	});
+
+	it('returns unified distribution grid options across all categories for grid strategy', () => {
+		const engine = new PracticeDataEngine();
+		engine.loadData(makeMockWorkerResult());
+
+		// Day-of-Week bar grid.
+		engine.setDistributionCategory('dayOfWeek');
+		engine.setDistributionStyle('bar');
+		engine.setTemporalGrouping('month');
+		engine.setDistributionStrategy('grid');
+		expect(engine.distributionGridOptions.length).toBeGreaterThanOrEqual(1);
+
+		// Time-of-Day polar grid (polar is grid-only for grouped comparison).
+		engine.setDistributionCategory('timeOfDay');
+		engine.setDistributionStyle('polar');
+		const todGrid = engine.distributionGridOptions;
+		expect(todGrid.length).toBeGreaterThanOrEqual(1);
+		expect(todGrid[0].option.polar).toBeDefined();
+
+		// Breakdown stacked-bar grid.
+		engine.setDistributionCategory('breakdown');
+		engine.setDistributionStyle('stackedBar');
+		expect(engine.distributionGridOptions.length).toBeGreaterThanOrEqual(1);
+
+		// Donut (no grouping) → empty grid.
+		engine.setDistributionStyle('donut');
+		expect(engine.distributionGridOptions).toEqual([]);
+	});
 });

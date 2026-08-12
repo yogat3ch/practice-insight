@@ -61,6 +61,15 @@ export interface CategoryPeriodItem {
 	readonly items: CategoryBreakdownItem[];
 }
 
+/**
+ * A single temporal period in a grouped Time-of-Day distribution (7c). Each
+ * period contributes one series/row across the 24 hourly start-time bins.
+ */
+export interface TimeOfDayPeriodBin {
+	readonly period: string; // e.g. "Jul 2026"
+	readonly bins: TimeOfDayBin[];
+}
+
 const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const;
 
 /**
@@ -302,5 +311,39 @@ export function computeCategoryPeriodBreakdown(
 			mode,
 			thresholdMinutes,
 		),
+	}));
+}
+
+/**
+ * Groups filtered sessions by temporal period (Week/Month/Quarter/Season/Year)
+ * and computes the 24-bin Time-of-Day distribution for each period (7c).
+ *
+ * @param sessions - Filtered session entries.
+ * @param unit - Display unit.
+ * @param thresholdMinutes - Exclude sessions shorter than this value.
+ * @param grouping - Temporal grouping granularity.
+ * @returns Chronologically ordered per-period time-of-day bins.
+ */
+export function computeTimeOfDayPeriodDistribution(
+	sessions: SessionEntry[],
+	unit: Unit,
+	thresholdMinutes: number,
+	grouping: Granularity,
+): TimeOfDayPeriodBin[] {
+	const periods = new Map<string, {label: string; sessions: SessionEntry[]}>();
+
+	for (const session of sessions) {
+		const {label, key} = getPeriodForDate(session.startedAt, grouping);
+		const existing = periods.get(key);
+		if (existing) {
+			existing.sessions.push(session);
+		} else {
+			periods.set(key, {label, sessions: [session]});
+		}
+	}
+
+	return Array.from(periods.entries()).map(([, period]) => ({
+		period: period.label,
+		bins: computeTimeOfDayDistribution(period.sessions, unit, thresholdMinutes),
 	}));
 }

@@ -406,6 +406,177 @@ export function compileDayOfWeekPeriodBars(
 }
 
 /**
+ * Compiles a temporal-grouped Time-of-Day comparison as a grouped histogram
+ * (7c). Each temporal period becomes one colored `bar` series across the
+ * 24 hourly start-time bins. This is the "Period-over-Period (Relative)"
+ * strategy for the Time-of-Day histogram.
+ *
+ * @param periodBins - Per-period time-of-day bins (chronological).
+ * @param unit - Display unit.
+ * @param metric - Metric calculation mode.
+ * @returns EChartsOption grouped histogram (one series per period).
+ */
+export function compileTimeOfDayPeriodHistogram(
+	periodBins: readonly {period: string; bins: TimeOfDayBin[]}[],
+	unit: Unit,
+	metric: DistributionMetric = 'totalDuration',
+): EChartsOption {
+	const hourLabels = Array.from(
+		{length: 24},
+		(_, h) => `${h.toString().padStart(2, '0')}:00`,
+	);
+
+	const series = periodBins.map((period, index) => ({
+		name: period.period,
+		type: 'bar' as const,
+		data: period.bins.map(bin =>
+			metricValueOf(bin.totalValue, bin.sessionCount, bin.averageValue, metric),
+		),
+		itemStyle: {
+			color: DEFAULT_SERIES_PALETTE[index % DEFAULT_SERIES_PALETTE.length],
+		},
+		emphasis: {focus: 'series' as const},
+	}));
+
+	return {
+		backgroundColor: 'transparent',
+		textStyle: baseTextStyle(),
+		legend: {
+			type: 'scroll',
+			bottom: 0,
+			textStyle: {color: '#1C1C1C'},
+		},
+		tooltip: darkTooltip({
+			trigger: 'axis',
+			axisPointer: {type: 'shadow'},
+			formatter: (params: any) => {
+				if (!Array.isArray(params) || params.length === 0) return '';
+				const hour = params[0].name;
+				let html = `<div style="font-weight:600;margin-bottom:4px;">${hour}</div>`;
+				for (const p of params) {
+					const val = typeof p.value === 'number' ? p.value : 0;
+					html += `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;">`;
+					html += `<span>${p.marker} ${p.seriesName}</span>`;
+					html += `<strong style="color:#f8fafc;">${val.toFixed(1)} ${unit}</strong></div>`;
+				}
+				return html;
+			},
+		}),
+		grid: {
+			left: '3%',
+			right: '4%',
+			bottom: '12%',
+			top: '8%',
+			containLabel: true,
+		},
+		xAxis: {
+			type: 'category',
+			data: hourLabels,
+			axisLine: {lineStyle: {color: '#E5E7EB'}},
+			axisLabel: {color: '#1C1C1C', interval: 1, rotate: 45},
+		},
+		yAxis: {
+			type: 'value',
+			name: unitAxisName(unit),
+			nameTextStyle: {color: '#1C1C1C', padding: [0, 0, 0, 10]},
+			axisLine: {lineStyle: {color: '#E5E7EB'}},
+			splitLine: {lineStyle: {color: '#E5E7EB'}},
+			axisLabel: {color: '#1C1C1C'},
+		},
+		series,
+	};
+}
+
+/**
+ * Compiles a temporal-grouped Activity/Preset comparison as grouped bars
+ * (7c). Each temporal period becomes one colored `bar` series across the
+ * category names (activities or presets), so the mix can be compared
+ * period-over-period.
+ *
+ * @param periodItems - Per-period category breakdown items (chronological).
+ * @param unit - Display unit.
+ * @param metric - Metric calculation mode.
+ * @returns EChartsOption grouped bars (one series per period).
+ */
+export function compileCategoryPeriodBars(
+	periodItems: readonly {period: string; items: CategoryBreakdownItem[]}[],
+	unit: Unit,
+	metric: DistributionMetric = 'totalDuration',
+): EChartsOption {
+	// Union of category names across all periods, ordered by first appearance.
+	const allNames = Array.from(
+		new Set(periodItems.flatMap(p => p.items.map(i => i.name))),
+	);
+
+	const series = allNames.map((name, index) => ({
+		name,
+		type: 'bar' as const,
+		data: periodItems.map(period => {
+			const item = period.items.find(i => i.name === name);
+			if (!item) return 0;
+			return metricValueOf(
+				item.totalValue,
+				item.sessionCount,
+				item.averageValue,
+				metric,
+			);
+		}),
+		itemStyle: {
+			color: DEFAULT_SERIES_PALETTE[index % DEFAULT_SERIES_PALETTE.length],
+		},
+		emphasis: {focus: 'series' as const},
+	}));
+
+	return {
+		backgroundColor: 'transparent',
+		textStyle: baseTextStyle(),
+		legend: {
+			type: 'scroll',
+			bottom: 0,
+			textStyle: {color: '#1C1C1C'},
+		},
+		tooltip: darkTooltip({
+			trigger: 'axis',
+			axisPointer: {type: 'shadow'},
+			formatter: (params: any) => {
+				if (!Array.isArray(params) || params.length === 0) return '';
+				const category = params[0].name;
+				let html = `<div style="font-weight:600;margin-bottom:4px;">${category}</div>`;
+				for (const p of params) {
+					const val = typeof p.value === 'number' ? p.value : 0;
+					html += `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;">`;
+					html += `<span>${p.marker} ${p.seriesName}</span>`;
+					html += `<strong style="color:#f8fafc;">${val.toFixed(1)} ${unit}</strong></div>`;
+				}
+				return html;
+			},
+		}),
+		grid: {
+			left: '3%',
+			right: '4%',
+			bottom: '12%',
+			top: '8%',
+			containLabel: true,
+		},
+		xAxis: {
+			type: 'category',
+			data: allNames,
+			axisLine: {lineStyle: {color: '#E5E7EB'}},
+			axisLabel: {color: '#1C1C1C', interval: 0, rotate: 30},
+		},
+		yAxis: {
+			type: 'value',
+			name: unitAxisName(unit),
+			nameTextStyle: {color: '#1C1C1C', padding: [0, 0, 0, 10]},
+			axisLine: {lineStyle: {color: '#E5E7EB'}},
+			splitLine: {lineStyle: {color: '#E5E7EB'}},
+			axisLabel: {color: '#1C1C1C'},
+		},
+		series,
+	};
+}
+
+/**
  * Compiles 24-hour Time-of-Day distribution options.
  *
  * @param bins - 24-bin calculation array (00:00 to 23:00).

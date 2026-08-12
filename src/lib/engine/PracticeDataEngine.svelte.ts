@@ -52,11 +52,13 @@ import {
 } from './compilers/comparison-compiler.js';
 import {
 	compileCategoryBreakdownOption,
+	compileCategoryPeriodBars,
 	compileCategoryStackedBar,
 	compileDayOfWeekHeatmapMatrix,
 	compileDayOfWeekOption,
 	compileDayOfWeekPeriodBars,
 	compileTimeOfDayOption,
+	compileTimeOfDayPeriodHistogram,
 	emptyDistributionOption,
 } from './compilers/distribution-compiler.js';
 import {
@@ -69,11 +71,13 @@ import {
 	computeDayOfWeekDistribution,
 	computeDayOfWeekPeriodDistribution,
 	computeTimeOfDayDistribution,
+	computeTimeOfDayPeriodDistribution,
 	type CategoryBreakdownItem,
 	type CategoryPeriodItem,
 	type DayOfWeekBin,
 	type DayOfWeekPeriodBin,
 	type TimeOfDayBin,
+	type TimeOfDayPeriodBin,
 } from './distribution.js';
 import {
 	computeLinearRegression,
@@ -345,6 +349,19 @@ export class PracticeDataEngine {
 		);
 	}
 
+	/**
+	 * Per-temporal-period Time-of-Day distributions (7c). Each entry is one
+	 * period's 24-bin histogram, used by the grouped comparison.
+	 */
+	get timeOfDayPeriodBins(): TimeOfDayPeriodBin[] {
+		return computeTimeOfDayPeriodDistribution(
+			this.filteredSessions,
+			this.#filters.unit,
+			this.#distributionConfig.thresholdMinutes,
+			this.#distributionConfig.temporalGrouping,
+		);
+	}
+
 	/** Category share breakdown (Activity or Preset). */
 	get categoryBreakdownItems(): CategoryBreakdownItem[] {
 		return computeCategoryBreakdown(
@@ -425,6 +442,15 @@ export class PracticeDataEngine {
 
 		if (category === 'timeOfDay') {
 			const style = chartStyle === 'polar' ? 'polar' : 'histogram';
+			// Polar overlay is not supported by ECharts (all series share one
+			// angleAxis) — grouped comparison for timeOfDay uses the histogram;
+			// polar grid mode is served via distributionGridOptions below.
+			if (style === 'histogram' && distributionStrategy === 'period') {
+				const periods = this.timeOfDayPeriodBins;
+				if (periods.length > 0) {
+					return compileTimeOfDayPeriodHistogram(periods, unit, metric);
+				}
+			}
 			return compileTimeOfDayOption(this.timeOfDayBins, unit, style, metric);
 		}
 
@@ -432,6 +458,10 @@ export class PracticeDataEngine {
 		if (chartStyle === 'stackedBar') {
 			const periods = this.categoryPeriodItems;
 			if (periods.length > 0) {
+				// Grouped comparison overlay for the stacked-bar breakdown (7c).
+				if (distributionStrategy === 'period') {
+					return compileCategoryPeriodBars(periods, unit, metric);
+				}
 				return compileCategoryStackedBar(
 					periods,
 					unit,
@@ -461,21 +491,56 @@ export class PracticeDataEngine {
 	 * when the grid strategy is not active or there are no grouped periods.
 	 */
 	get dayOfWeekPeriodBarOptions(): {period: string; option: EChartsOption}[] {
-		const {chartStyle, metric, distributionStrategy} = this.#distributionConfig;
+		return this.distributionGridOptions;
+	}
+
+	/**
+	 * Per-period standalone chart options for the Sequential Side-by-Side
+	 * strategy across all distribution categories (7c). Each entry is one
+	 * chart card for a single temporal period:
+	 *   - dayOfWeek + bar       → per-period day-of-week bar
+	 *   - timeOfDay + histogram → per-period hourly histogram
+	 *   - timeOfDay + polar     → per-period polar clock (grid-only; ECharts
+	 *                             cannot overlay bars on a shared polar axis)
+	 *   - breakdown + stackedBar → per-period stacked-bar breakdown
+	 * Returns an empty array when the grid strategy is not active or there are
+	 * no grouped periods.
+	 */
+	get distributionGridOptions(): {period: string; option: EChartsOption}[] {
+		const {category, chartStyle, metric, distributionStrategy} =
+			this.#distributionConfig;
 		const unit = this.#filters.unit;
 
-		if (
-			this.#distributionConfig.category !== 'dayOfWeek' ||
-			chartStyle !== 'bar' ||
-			distributionStrategy !== 'grid'
-		) {
-			return [];
+		if (distributionStrategy !== 'grid') return [];
+
+		if (category === 'dayOfWeek' && chartStyle === 'bar') {
+			return this.dayOfWeekPeriodBins.map(period => ({
+				period: period.period,
+				option: compileDayOfWeekOption(period.bins, unit, 'bar', metric),
+			}));
 		}
 
-		return this.dayOfWeekPeriodBins.map(period => ({
-			period: period.period,
-			option: compileDayOfWeekOption(period.bins, unit, 'bar', metric),
-		}));
+		if (category === 'timeOfDay') {
+			const style = chartStyle === 'polar' ? 'polar' : 'histogram';
+			return this.timeOfDayPeriodBins.map(period => ({
+				period: period.period,
+				option: compileTimeOfDayOption(period.bins, unit, style, metric),
+			}));
+		}
+
+		if (category === 'breakdown' && chartStyle === 'stackedBar') {
+			return this.categoryPeriodItems.map(period => ({
+				period: period.period,
+				option: compileCategoryBreakdownOption(
+					period.items,
+					unit,
+					'stackedBar',
+					metric,
+				),
+			}));
+		}
+
+		return [];
 	}
 
 	/**

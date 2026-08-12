@@ -67,6 +67,7 @@ export {
 	computeDayOfWeekDistribution,
 	computeDayOfWeekPeriodDistribution,
 	computeTimeOfDayDistribution,
+	computeTimeOfDayPeriodDistribution,
 	metricValueOf,
 } from './engine/distribution.js';
 export type {
@@ -76,6 +77,7 @@ export type {
 	DayOfWeekBin,
 	DayOfWeekPeriodBin,
 	TimeOfDayBin,
+	TimeOfDayPeriodBin,
 } from './engine/distribution.js';
 export {
 	computeLinearRegression,
@@ -93,11 +95,13 @@ export {
 export type {ComparisonSeriesData} from './engine/compilers/comparison-compiler.js';
 export {
 	compileCategoryBreakdownOption,
+	compileCategoryPeriodBars,
 	compileCategoryStackedBar,
 	compileDayOfWeekHeatmapMatrix,
 	compileDayOfWeekOption,
 	compileDayOfWeekPeriodBars,
 	compileTimeOfDayOption,
+	compileTimeOfDayPeriodHistogram,
 	emptyDistributionOption,
 } from './engine/compilers/distribution-compiler.js';
 export {

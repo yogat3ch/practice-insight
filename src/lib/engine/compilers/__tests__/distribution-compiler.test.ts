@@ -15,11 +15,13 @@ import {
 } from '../../distribution.js';
 import {
 	compileCategoryBreakdownOption,
+	compileCategoryPeriodBars,
 	compileCategoryStackedBar,
 	compileDayOfWeekHeatmapMatrix,
 	compileDayOfWeekOption,
 	compileDayOfWeekPeriodBars,
 	compileTimeOfDayOption,
+	compileTimeOfDayPeriodHistogram,
 	emptyDistributionOption,
 	unitAxisName,
 } from '../distribution-compiler.js';
@@ -399,6 +401,158 @@ describe('compileDayOfWeekPeriodBars (7c grouped comparison)', () => {
 		expect(opt.legend).toBeDefined();
 		const tooltip = opt.tooltip as {trigger: string};
 		expect(tooltip.trigger).toBe('axis');
+	});
+});
+
+describe('compileTimeOfDayPeriodHistogram (7c grouped comparison)', () => {
+	it('emits one bar series per temporal period across 24 hourly bins', () => {
+		const periodBins = [
+			{period: 'Jul 2026', bins: makeHourBins([5, 10])},
+			{period: 'Aug 2026', bins: makeHourBins([15, 20])},
+		];
+		const opt = compileTimeOfDayPeriodHistogram(
+			periodBins,
+			'minutes',
+			'totalDuration',
+		);
+
+		const xAxis = opt.xAxis as {data: string[]};
+		expect(xAxis.data.length).toBe(24);
+
+		const series = opt.series as Array<{name: string; data: number[]}>;
+		expect(series.length).toBe(2);
+		expect(series.map(s => s.name)).toEqual(['Jul 2026', 'Aug 2026']);
+		for (const s of series) expect(s.data.length).toBe(24);
+		expect(series[0].data[0]).toBe(5);
+		expect(series[0].data[1]).toBe(10);
+		expect(series[1].data[0]).toBe(15);
+	});
+
+	it('applies the metric and legend', () => {
+		const periodBins = [{period: 'Jul 2026', bins: makeHourBins([5, 10])}];
+		const opt = compileTimeOfDayPeriodHistogram(
+			periodBins,
+			'minutes',
+			'sessionCount',
+		);
+		const series = opt.series as Array<{data: number[]}>;
+		// sessionCount: 1 per non-zero bin.
+		expect(series[0].data[0]).toBe(1);
+		expect(opt.legend).toBeDefined();
+	});
+});
+
+describe('compileCategoryPeriodBars (7c grouped comparison)', () => {
+	it('emits one bar series per category across temporal periods', () => {
+		const periodItems = [
+			{
+				period: 'Jul 2026',
+				items: [
+					{
+						name: 'Meditation',
+						sessionCount: 3,
+						totalValue: 90,
+						averageValue: 30,
+						percentage: 60,
+					},
+					{
+						name: 'Breathwork',
+						sessionCount: 1,
+						totalValue: 10,
+						averageValue: 10,
+						percentage: 40,
+					},
+				],
+			},
+			{
+				period: 'Aug 2026',
+				items: [
+					{
+						name: 'Meditation',
+						sessionCount: 2,
+						totalValue: 60,
+						averageValue: 30,
+						percentage: 60,
+					},
+					{
+						name: 'Yoga',
+						sessionCount: 2,
+						totalValue: 40,
+						averageValue: 20,
+						percentage: 40,
+					},
+				],
+			},
+		];
+		const opt = compileCategoryPeriodBars(
+			periodItems,
+			'minutes',
+			'totalDuration',
+		);
+
+		const xAxis = opt.xAxis as {data: string[]};
+		// Union of categories: Meditation, Breathwork, Yoga.
+		expect(xAxis.data).toEqual(['Meditation', 'Breathwork', 'Yoga']);
+
+		const series = opt.series as Array<{name: string; data: number[]}>;
+		expect(series.length).toBe(3);
+		// Each series spans both periods (one value per period).
+		expect(series[0].data.length).toBe(2);
+	});
+
+	it('fills missing periods with 0 for a category absent in that period', () => {
+		const periodItems = [
+			{
+				period: 'Jul 2026',
+				items: [
+					{
+						name: 'Meditation',
+						sessionCount: 3,
+						totalValue: 90,
+						averageValue: 30,
+						percentage: 60,
+					},
+					{
+						name: 'Breathwork',
+						sessionCount: 1,
+						totalValue: 10,
+						averageValue: 10,
+						percentage: 40,
+					},
+				],
+			},
+			{
+				period: 'Aug 2026',
+				items: [
+					{
+						name: 'Meditation',
+						sessionCount: 2,
+						totalValue: 60,
+						averageValue: 30,
+						percentage: 60,
+					},
+					{
+						name: 'Yoga',
+						sessionCount: 2,
+						totalValue: 40,
+						averageValue: 20,
+						percentage: 40,
+					},
+				],
+			},
+		];
+		const opt = compileCategoryPeriodBars(
+			periodItems,
+			'minutes',
+			'totalDuration',
+		);
+		const series = opt.series as Array<{name: string; data: number[]}>;
+		// Breathwork exists in Jul only → 0 in Aug.
+		const breathwork = series.find(s => s.name === 'Breathwork');
+		expect(breathwork?.data).toEqual([10, 0]);
+		// Yoga exists in Aug only → 0 in Jul.
+		const yoga = series.find(s => s.name === 'Yoga');
+		expect(yoga?.data).toEqual([0, 40]);
 	});
 });
 
