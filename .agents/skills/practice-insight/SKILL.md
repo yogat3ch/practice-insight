@@ -72,6 +72,7 @@ All parsing/analytics run client-side (privacy-first). Sample CSV auto-loads on 
 
 ## When to Make Commits (workflow guidance)
 
+### Vibe coding (working without a plan)
 Follow the user's preference; if they ask for interactive commit-by-commit (as done in Phase 5c delivery), use this pattern:
 
 1. **Chunk logically, not chronologically.** Group by feature/concern: engine+compilers first, then per-tab UI, then polish. Each commit must be **internally coherent** (the staged set compiles/tests together).
@@ -84,6 +85,13 @@ Follow the user's preference; if they ask for interactive commit-by-commit (as d
 4. **Commit messages**: conventional commits, imperative mood, summary in subject — e.g. `feat(engine): ...`, `feat(distribution): ...`, `feat(ui): ...`, `fix(controls): ...`.
 5. **Confirm before committing**: stage files, show `git status --short` + `git diff --cached --stat`, present the proposed message, and commit only after user confirms. Verify a clean `git status` after each commit.
 6. **Never modify file contents during commit staging** — stage/commit only. If a file's final version differs from what you need to commit, resolve it before staging, not during.
+
+### Pre-approved Commits
+If the user provides a plan, you may suggest how you will logically chunk it into commits in your agent-specific plan. 
+
+1. Generate suggested commits and their messages to match the order in which tasks will be implemented. 
+2. The user will review the proposed commits and will comment if necessary and ultimately approve the commits before you commence working on the plan.
+2. Approved commits and message can be applied in a single `git commit` command after the chunk to which it belongs is complete rather than waiting until the end of the plan. No interaction with the user is necessary if the commits pass `npm run test`/`npm run check`/`npm run build` and `npm run lint` is complete as specified in the `practice-insight` skill.
 
 ## Key Reference Files
 
