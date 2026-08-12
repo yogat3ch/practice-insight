@@ -57,6 +57,8 @@ export {
 	convertValue,
 	getPeriodForDate,
 	groupBucketsBySegment,
+	intervalRank,
+	isSplitCoarserThanGranularity,
 } from './engine/aggregators.js';
 export {
 	computeCategoryBreakdown,

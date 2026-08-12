@@ -8,6 +8,8 @@ import {
 	aggregateTimelineBuckets,
 	convertValue,
 	getPeriodForDate,
+	intervalRank,
+	isSplitCoarserThanGranularity,
 } from '../aggregators.js';
 
 describe('convertValue (§3.4 Rule 4)', () => {
@@ -106,5 +108,37 @@ describe('getPeriodForDate (§5.3 temporal grouping)', () => {
 	it('maps a date to its year period', () => {
 		const period = getPeriodForDate(new Date(2026, 6, 20), 'year');
 		expect(period.label).toBe('2026');
+	});
+});
+
+describe('intervalRank & isSplitCoarserThanGranularity', () => {
+	it('ranks intervals finest-to-coarsest', () => {
+		expect(intervalRank('day')).toBe(0);
+		expect(intervalRank('week')).toBe(1);
+		expect(intervalRank('month')).toBe(2);
+		expect(intervalRank('quarter')).toBe(3);
+		expect(intervalRank('season')).toBe(4);
+		expect(intervalRank('year')).toBe(5);
+		// No Split is always available and never "coarser than" a granularity.
+		expect(intervalRank('none')).toBe(-1);
+	});
+
+	it('treats No Split as always valid', () => {
+		expect(isSplitCoarserThanGranularity('none', 'day')).toBe(true);
+		expect(isSplitCoarserThanGranularity('none', 'year')).toBe(true);
+	});
+
+	it('accepts splits strictly coarser than the granularity', () => {
+		expect(isSplitCoarserThanGranularity('week', 'day')).toBe(true);
+		expect(isSplitCoarserThanGranularity('month', 'week')).toBe(true);
+		expect(isSplitCoarserThanGranularity('season', 'quarter')).toBe(true);
+		expect(isSplitCoarserThanGranularity('year', 'season')).toBe(true);
+	});
+
+	it('rejects splits equal to or finer than the granularity', () => {
+		expect(isSplitCoarserThanGranularity('week', 'week')).toBe(false);
+		expect(isSplitCoarserThanGranularity('week', 'month')).toBe(false);
+		expect(isSplitCoarserThanGranularity('month', 'year')).toBe(false);
+		expect(isSplitCoarserThanGranularity('quarter', 'season')).toBe(false);
 	});
 });

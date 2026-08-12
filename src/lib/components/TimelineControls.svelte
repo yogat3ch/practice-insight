@@ -1,7 +1,8 @@
 <script lang="ts">
 	import type {Granularity, SplitBy} from '$lib';
-	import {engine} from '$lib';
+	import {engine, isSplitCoarserThanGranularity} from '$lib';
 	import Info from '@lucide/svelte/icons/info';
+	import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
 	import Tooltip from './Tooltip.svelte';
 
 	const GRANULARITY_OPTIONS: {value: Granularity; label: string}[] = [
@@ -33,6 +34,35 @@
 	let showStdDev = $state<boolean>(engine.timelineConfig.showStdDev);
 	let showLinearTrend = $state<boolean>(engine.timelineConfig.showLinearTrend);
 
+	/**
+	 * Time Split options valid for the currently selected Aggregate By —
+	 * only intervals strictly coarser than the granularity, plus No Split.
+	 */
+	const availableSplitOptions = $derived(
+		SPLIT_OPTIONS.filter(opt =>
+			isSplitCoarserThanGranularity(opt.value, granularity),
+		),
+	);
+
+	/**
+	 * True when the current Time Split selection is finer than (or equal to)
+	 * the Aggregate By granularity — the split cannot produce valid segments.
+	 */
+	const splitTooFine = $derived(
+		splitBy !== 'none' && !isSplitCoarserThanGranularity(splitBy, granularity),
+	);
+
+	/**
+	 * Reset an invalid Time Split selection to No Split before the options
+	 * are filtered, and surface a warning explaining the reset.
+	 */
+	function selectGranularity(value: Granularity) {
+		granularity = value;
+		if (splitBy !== 'none' && !isSplitCoarserThanGranularity(splitBy, value)) {
+			splitBy = 'none';
+		}
+	}
+
 	function applyControls() {
 		engine.setGranularity(granularity);
 		engine.setTimeSplit(splitBy);
@@ -61,7 +91,11 @@
 		</label>
 		<select
 			id="granularitySelect"
-			bind:value={granularity}
+			value={granularity}
+			onchange={e =>
+				selectGranularity(
+					(e.currentTarget as HTMLSelectElement).value as Granularity,
+				)}
 			class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1.5 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 focus:outline-none"
 		>
 			{#each GRANULARITY_OPTIONS as opt}
@@ -95,10 +129,24 @@
 			bind:value={splitBy}
 			class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1.5 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 focus:outline-none"
 		>
-			{#each SPLIT_OPTIONS as opt}
+			{#each availableSplitOptions as opt}
 				<option value={opt.value}>{opt.label}</option>
 			{/each}
 		</select>
+		{#if splitTooFine}
+			<p
+				class="mt-1.5 flex items-start gap-1.5 rounded-md bg-amber-300 px-2.5 py-2 text-xs text-orange-400"
+			>
+				<TriangleAlert
+					class="w-4 h-4 shrink-0 text-orange-400"
+					aria-hidden="true"
+				/>
+				<span
+					>Time Split reset to No Split because selection was smaller than
+					Aggregate By</span
+				>
+			</p>
+		{/if}
 		{#if splitBy !== 'none'}
 			<label
 				class="mt-1.5 flex items-center gap-2 text-sm text-[#1C1C1C] cursor-pointer"

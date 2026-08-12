@@ -53,6 +53,53 @@ export function convertValue(seconds: number, unit: Unit): number {
 }
 
 /**
+ * Ordinal rank for temporal intervals, ordered from finest to coarsest:
+ * day(0) < week(1) < month(2) < quarter(3) < season(4) < year(5).
+ *
+ * Used to validate "Time Split must be coarser than Aggregate By" and to
+ * filter valid Time Split options. `'none'` (No Split) is intentionally
+ * excluded — callers treat it as always-available.
+ *
+ * @param interval - Granularity or split interval.
+ * @returns Ordinal rank (0 = finest, 5 = coarsest). -1 for 'none'.
+ */
+export function intervalRank(interval: Granularity | SplitBy): number {
+	switch (interval) {
+		case 'day':
+			return 0;
+		case 'week':
+			return 1;
+		case 'month':
+			return 2;
+		case 'quarter':
+			return 3;
+		case 'season':
+			return 4;
+		case 'year':
+			return 5;
+		case 'none':
+			return -1;
+	}
+}
+
+/**
+ * Returns true when a Time Split interval is strictly coarser than an
+ * Aggregate By granularity — i.e. the split produces fewer, wider segments.
+ * 'none' is always valid (returns true).
+ *
+ * @param splitBy - Candidate Time Split interval.
+ * @param granularity - Selected Aggregate By granularity.
+ * @returns Whether the split is coarser than (or equal to no) the granularity.
+ */
+export function isSplitCoarserThanGranularity(
+	splitBy: SplitBy,
+	granularity: Granularity,
+): boolean {
+	if (splitBy === 'none') return true;
+	return intervalRank(splitBy) > intervalRank(granularity);
+}
+
+/**
  * Returns the temporal interval metadata (label, calendar bounds, stable key)
  * that contains `date` for a given granularity. Public wrapper around the
  * internal interval helper so distribution calculators can bucket sessions
