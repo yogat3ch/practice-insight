@@ -23,6 +23,7 @@ import {
 	type ComparisonPeriod,
 	type DistributionCategory,
 	type DistributionChartStyle,
+	type DistributionComparisonStrategy,
 	type DistributionConfig,
 	type DistributionMetric,
 	type DistributionTemporalGrouping,
@@ -54,6 +55,7 @@ import {
 	compileCategoryStackedBar,
 	compileDayOfWeekHeatmapMatrix,
 	compileDayOfWeekOption,
+	compileDayOfWeekPeriodBars,
 	compileTimeOfDayOption,
 	emptyDistributionOption,
 } from './compilers/distribution-compiler.js';
@@ -384,6 +386,7 @@ export class PracticeDataEngine {
 			chartStyle,
 			metric,
 			temporalGrouping,
+			distributionStrategy,
 			showDayOfWeekLabels,
 		} = this.#distributionConfig;
 		const unit = this.#filters.unit;
@@ -409,6 +412,13 @@ export class PracticeDataEngine {
 					metric,
 					showDayOfWeekLabels,
 				);
+			}
+			// Bar style: when temporal grouping yields multiple periods, render
+			// the grouped comparison (overlay) unless the user chose the grid
+			// strategy (which is served via dayOfWeekPeriodBarOptions below).
+			const periods = this.dayOfWeekPeriodBins;
+			if (periods.length > 0 && distributionStrategy === 'period') {
+				return compileDayOfWeekPeriodBars(periods, unit, metric);
 			}
 			return compileDayOfWeekOption(this.dayOfWeekBins, unit, 'bar', metric);
 		}
@@ -442,6 +452,30 @@ export class PracticeDataEngine {
 			'donut',
 			metric,
 		);
+	}
+
+	/**
+	 * Per-period Day-of-Week bar options for the Sequential Side-by-Side
+	 * strategy (7c). Each entry is one standalone bar chart card for a single
+	 * temporal period, sharing the same Mon–Sun x-axis. Returns an empty array
+	 * when the grid strategy is not active or there are no grouped periods.
+	 */
+	get dayOfWeekPeriodBarOptions(): {period: string; option: EChartsOption}[] {
+		const {chartStyle, metric, distributionStrategy} = this.#distributionConfig;
+		const unit = this.#filters.unit;
+
+		if (
+			this.#distributionConfig.category !== 'dayOfWeek' ||
+			chartStyle !== 'bar' ||
+			distributionStrategy !== 'grid'
+		) {
+			return [];
+		}
+
+		return this.dayOfWeekPeriodBins.map(period => ({
+			period: period.period,
+			option: compileDayOfWeekOption(period.bins, unit, 'bar', metric),
+		}));
 	}
 
 	/**
@@ -697,6 +731,21 @@ export class PracticeDataEngine {
 	 */
 	setTemporalGrouping(temporalGrouping: DistributionTemporalGrouping): void {
 		this.#distributionConfig = {...this.#distributionConfig, temporalGrouping};
+	}
+
+	/**
+	 * Sets how temporal-grouped distributions are compared (7c): overlaid
+	 * period-over-period bars, or a sequential side-by-side card grid.
+	 *
+	 * @param distributionStrategy - 'period' | 'grid'.
+	 */
+	setDistributionStrategy(
+		distributionStrategy: DistributionComparisonStrategy,
+	): void {
+		this.#distributionConfig = {
+			...this.#distributionConfig,
+			distributionStrategy,
+		};
 	}
 
 	/**

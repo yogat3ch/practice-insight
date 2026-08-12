@@ -98,6 +98,13 @@ export type DistributionTemporalGrouping =
 /** Category group mode for the Activity & Preset Breakdown charts. */
 export type BreakdownMode = 'activity' | 'preset';
 
+/**
+ * Comparison strategy for temporal-grouped distributions (7c). Determines
+ * whether grouped periods render as an overlaid multi-series chart or as
+ * separate per-period cards.
+ */
+export type DistributionComparisonStrategy = 'period' | 'grid';
+
 /** Configuration state for Tab 3: Distribution & Breakdown Mode. */
 export interface DistributionConfig {
 	readonly category: DistributionCategory;
@@ -111,6 +118,12 @@ export interface DistributionConfig {
 	 * (Day-of-Week bar, Time-of-Day polar/histogram, donut).
 	 */
 	readonly temporalGrouping: DistributionTemporalGrouping;
+	/**
+	 * How temporal-grouped distributions are compared when grouping affects a
+	 * chart (e.g. Day-of-Week bar). Ignored when grouping has no effect
+	 * (single-period dayOfWeek bar fallback / timeOfDay / breakdown donut).
+	 */
+	readonly distributionStrategy: DistributionComparisonStrategy;
 	/** Whether the Activity & Preset breakdown groups by activity or preset. */
 	readonly breakdownMode: BreakdownMode;
 	/**
@@ -127,6 +140,7 @@ export const DEFAULT_DISTRIBUTION_CONFIG: DistributionConfig = {
 	metric: 'totalDuration',
 	thresholdMinutes: 0,
 	temporalGrouping: 'month',
+	distributionStrategy: 'period',
 	breakdownMode: 'activity',
 	showDayOfWeekLabels: true,
 };

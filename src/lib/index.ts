@@ -26,6 +26,7 @@ export type {
 	ComparisonStrategy,
 	DistributionCategory,
 	DistributionChartStyle,
+	DistributionComparisonStrategy,
 	DistributionConfig,
 	DistributionMetric,
 	DistributionTemporalGrouping,
@@ -95,6 +96,7 @@ export {
 	compileCategoryStackedBar,
 	compileDayOfWeekHeatmapMatrix,
 	compileDayOfWeekOption,
+	compileDayOfWeekPeriodBars,
 	compileTimeOfDayOption,
 	emptyDistributionOption,
 } from './engine/compilers/distribution-compiler.js';

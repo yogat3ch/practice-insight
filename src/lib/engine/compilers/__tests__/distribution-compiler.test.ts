@@ -18,6 +18,7 @@ import {
 	compileCategoryStackedBar,
 	compileDayOfWeekHeatmapMatrix,
 	compileDayOfWeekOption,
+	compileDayOfWeekPeriodBars,
 	compileTimeOfDayOption,
 	emptyDistributionOption,
 	unitAxisName,
@@ -298,6 +299,106 @@ describe('compileDayOfWeekHeatmapMatrix (§5.3 temporal grouping)', () => {
 			label: {show: boolean};
 		}>;
 		expect(hiddenSeries[0].label.show).toBe(false);
+	});
+});
+
+describe('compileDayOfWeekPeriodBars (7c grouped comparison)', () => {
+	it('emits one bar series per temporal period with 7 day values', () => {
+		const periodBins = [
+			{period: 'Jul 2026', bins: makeDayBins([10, 20, 30, 0, 0, 0, 0])},
+			{period: 'Aug 2026', bins: makeDayBins([40, 50, 60, 0, 0, 0, 0])},
+			{period: 'Sep 2026', bins: makeDayBins([70, 80, 90, 0, 0, 0, 0])},
+		];
+		const opt = compileDayOfWeekPeriodBars(
+			periodBins,
+			'minutes',
+			'totalDuration',
+		);
+
+		const xAxis = opt.xAxis as {data: string[]};
+		expect(xAxis.data).toEqual([
+			'Mon',
+			'Tue',
+			'Wed',
+			'Thu',
+			'Fri',
+			'Sat',
+			'Sun',
+		]);
+
+		const series = opt.series as Array<{
+			name: string;
+			data: number[];
+		}>;
+		expect(series.length).toBe(3);
+		expect(series.map(s => s.name)).toEqual([
+			'Jul 2026',
+			'Aug 2026',
+			'Sep 2026',
+		]);
+		// Each series has exactly 7 day values.
+		for (const s of series) expect(s.data.length).toBe(7);
+		// First period's Monday/Tuesday/Wednesday values.
+		expect(series[0].data).toEqual([10, 20, 30, 0, 0, 0, 0]);
+		expect(series[1].data[0]).toBe(40);
+		expect(series[2].data[2]).toBe(90);
+	});
+
+	it('applies the metric via metricValueOf', () => {
+		const periodBins = [
+			{period: 'Jul 2026', bins: makeDayBins([10, 20, 0, 0, 0, 0, 0])},
+		];
+		// averageDuration: 10/2 = 5, 20/2 = 10.
+		const avg = compileDayOfWeekPeriodBars(
+			periodBins,
+			'minutes',
+			'averageDuration',
+		);
+		const avgSeries = avg.series as Array<{data: number[]}>;
+		expect(avgSeries[0].data).toEqual([5, 10, 0, 0, 0, 0, 0]);
+
+		// sessionCount: 2 sessions per non-zero bin.
+		const count = compileDayOfWeekPeriodBars(
+			periodBins,
+			'minutes',
+			'sessionCount',
+		);
+		const countSeries = count.series as Array<{data: number[]}>;
+		expect(countSeries[0].data).toEqual([2, 2, 0, 0, 0, 0, 0]);
+	});
+
+	it('assigns colors from the shared DEFAULT_SERIES_PALETTE (cycles after 8)', () => {
+		const periodBins = Array.from({length: 9}, (_, i) => ({
+			period: `P${i + 1}`,
+			bins: makeDayBins([10]),
+		}));
+		const opt = compileDayOfWeekPeriodBars(
+			periodBins,
+			'minutes',
+			'totalDuration',
+		);
+		const series = opt.series as Array<{
+			itemStyle: {color: string};
+		}>;
+		// Series 0..7 use palette[0..7]; series 8 wraps back to palette[0].
+		expect(series[0].itemStyle.color).toBe('#10b981');
+		expect(series[7].itemStyle.color).toBe('#6366f1');
+		expect(series[8].itemStyle.color).toBe('#10b981');
+	});
+
+	it('shows a legend and axis-trigger tooltip for period identification', () => {
+		const periodBins = [
+			{period: 'Jul 2026', bins: makeDayBins([10])},
+			{period: 'Aug 2026', bins: makeDayBins([20])},
+		];
+		const opt = compileDayOfWeekPeriodBars(
+			periodBins,
+			'minutes',
+			'totalDuration',
+		);
+		expect(opt.legend).toBeDefined();
+		const tooltip = opt.tooltip as {trigger: string};
+		expect(tooltip.trigger).toBe('axis');
 	});
 });
 

@@ -24,6 +24,7 @@ import {
 	type DayOfWeekBin,
 	type TimeOfDayBin,
 } from '../distribution.js';
+import {DEFAULT_SERIES_PALETTE} from './comparison-compiler.js';
 
 /** Distinct stacked-bar palette for the Activity/Preset breakdown segments. */
 const STACKED_PALETTE: readonly string[] = [
@@ -318,6 +319,89 @@ export function compileDayOfWeekHeatmapMatrix(
 				},
 			},
 		],
+	};
+}
+
+/**
+ * Compiles a temporal-grouped Day-of-Week comparison as grouped bars (7c).
+ *
+ * Each temporal period (week/month/quarter/season/year) becomes one colored
+ * `bar` series across the Mon–Sun day-of-week x-axis, so the day-of-week
+ * profile can be compared period-over-period. This is the "Period-over-Period
+ * (Relative)" strategy for the Day-of-Week Bar Chart; the period is conveyed
+ * via the legend + tooltip (no dual X-axis).
+ *
+ * @param periodBins - Per-period day-of-week bins (chronological).
+ * @param unit - Display unit.
+ * @param metric - Metric calculation mode.
+ * @returns EChartsOption grouped-bar chart (one series per period).
+ */
+export function compileDayOfWeekPeriodBars(
+	periodBins: readonly {period: string; bins: DayOfWeekBin[]}[],
+	unit: Unit,
+	metric: DistributionMetric = 'totalDuration',
+): EChartsOption {
+	const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+	const series = periodBins.map((period, index) => ({
+		name: period.period,
+		type: 'bar' as const,
+		// One value per day-of-week column for this period.
+		data: period.bins.map(bin =>
+			metricValueOf(bin.totalValue, bin.sessionCount, bin.averageValue, metric),
+		),
+		itemStyle: {
+			color: DEFAULT_SERIES_PALETTE[index % DEFAULT_SERIES_PALETTE.length],
+		},
+		emphasis: {focus: 'series' as const},
+	}));
+
+	return {
+		backgroundColor: 'transparent',
+		textStyle: baseTextStyle(),
+		legend: {
+			type: 'scroll',
+			bottom: 0,
+			textStyle: {color: '#1C1C1C'},
+		},
+		tooltip: darkTooltip({
+			trigger: 'axis',
+			axisPointer: {type: 'shadow'},
+			formatter: (params: any) => {
+				if (!Array.isArray(params) || params.length === 0) return '';
+				const dayName = params[0].name;
+				let html = `<div style="font-weight:600;margin-bottom:4px;">${dayName}</div>`;
+				for (const p of params) {
+					const val = typeof p.value === 'number' ? p.value : 0;
+					html += `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;">`;
+					html += `<span>${p.marker} ${p.seriesName}</span>`;
+					html += `<strong style="color:#f8fafc;">${val.toFixed(1)} ${unit}</strong></div>`;
+				}
+				return html;
+			},
+		}),
+		grid: {
+			left: '3%',
+			right: '4%',
+			bottom: '12%',
+			top: '8%',
+			containLabel: true,
+		},
+		xAxis: {
+			type: 'category',
+			data: dayNames,
+			axisLine: {lineStyle: {color: '#E5E7EB'}},
+			axisLabel: {color: '#1C1C1C'},
+		},
+		yAxis: {
+			type: 'value',
+			name: unitAxisName(unit),
+			nameTextStyle: {color: '#1C1C1C', padding: [0, 0, 0, 10]},
+			axisLine: {lineStyle: {color: '#E5E7EB'}},
+			splitLine: {lineStyle: {color: '#E5E7EB'}},
+			axisLabel: {color: '#1C1C1C'},
+		},
+		series,
 	};
 }
 

@@ -113,6 +113,7 @@ describe('PracticeDataEngine Integration', () => {
 		expect(engine.distributionConfig.metric).toBe('totalDuration');
 		expect(engine.distributionConfig.thresholdMinutes).toBe(0);
 		expect(engine.distributionConfig.temporalGrouping).toBe('month');
+		expect(engine.distributionConfig.distributionStrategy).toBe('period');
 		expect(engine.distributionConfig.breakdownMode).toBe('activity');
 		expect(engine.distributionConfig.showDayOfWeekLabels).toBe(true);
 	});
@@ -123,6 +124,7 @@ describe('PracticeDataEngine Integration', () => {
 		engine.setDistributionStyle('polar');
 		engine.setDistributionMetric('sessionCount');
 		engine.setTemporalGrouping('season');
+		engine.setDistributionStrategy('grid');
 		engine.setBreakdownMode('preset');
 		engine.setThresholdMinutes(5);
 		engine.setShowDayOfWeekLabels(false);
@@ -131,6 +133,7 @@ describe('PracticeDataEngine Integration', () => {
 		expect(engine.distributionConfig.chartStyle).toBe('polar');
 		expect(engine.distributionConfig.metric).toBe('sessionCount');
 		expect(engine.distributionConfig.temporalGrouping).toBe('season');
+		expect(engine.distributionConfig.distributionStrategy).toBe('grid');
 		expect(engine.distributionConfig.breakdownMode).toBe('preset');
 		expect(engine.distributionConfig.thresholdMinutes).toBe(5);
 		expect(engine.distributionConfig.showDayOfWeekLabels).toBe(false);
@@ -187,5 +190,58 @@ describe('PracticeDataEngine Integration', () => {
 		// Repeats after the 8-color palette is exhausted.
 		expect(engine.suggestComparisonColor(8)).toBe('#10b981');
 		expect(engine.suggestComparisonColor(9)).toBe('#f59e0b');
+	});
+
+	it('renders grouped day-of-week comparison bars when bar + period strategy is active', () => {
+		const engine = new PracticeDataEngine();
+		engine.loadData(makeMockWorkerResult());
+		engine.setDistributionCategory('dayOfWeek');
+		engine.setDistributionStyle('bar');
+		engine.setTemporalGrouping('month');
+		engine.setDistributionStrategy('period');
+
+		const opt = engine.distributionOption;
+		const series = opt.series as Array<{name: string; data: number[]}>;
+		// One series per temporal period (the mock spans a single month → 1 period).
+		expect(series.length).toBeGreaterThanOrEqual(1);
+		for (const s of series) expect(s.data.length).toBe(7);
+	});
+
+	it('falls back to a single day-of-week bar when grouping yields no periods', () => {
+		const engine = new PracticeDataEngine();
+		engine.loadData(makeMockWorkerResult());
+		engine.setDistributionCategory('dayOfWeek');
+		engine.setDistributionStyle('bar');
+		engine.setTemporalGrouping('month');
+		engine.setDistributionStrategy('grid');
+
+		// Grid strategy with zero grouped periods → single fallback bar series.
+		const opt = engine.distributionOption;
+		const series = opt.series as Array<{name: string; data: number[]}>;
+		expect(series.length).toBe(1);
+	});
+
+	it('returns per-period grid options only for dayOfWeek bar + grid strategy', () => {
+		const engine = new PracticeDataEngine();
+		engine.loadData(makeMockWorkerResult());
+
+		// Default period strategy → no grid cards.
+		engine.setDistributionCategory('dayOfWeek');
+		engine.setDistributionStyle('bar');
+		engine.setTemporalGrouping('month');
+		expect(engine.dayOfWeekPeriodBarOptions).toEqual([]);
+
+		// Grid strategy → one card per temporal period.
+		engine.setDistributionStrategy('grid');
+		const cards = engine.dayOfWeekPeriodBarOptions;
+		expect(cards.length).toBeGreaterThanOrEqual(1);
+		for (const card of cards) {
+			expect(typeof card.period).toBe('string');
+			expect(card.option).toBeDefined();
+		}
+
+		// Non-bar styles → empty (grid only applies to bar charts).
+		engine.setDistributionStyle('heatmap');
+		expect(engine.dayOfWeekPeriodBarOptions).toEqual([]);
 	});
 });
