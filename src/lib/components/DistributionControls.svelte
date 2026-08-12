@@ -214,9 +214,9 @@
 	<!-- Seasonal Time Rule Note (shown when By Season is selected) -->
 	{#if temporalGrouping === 'season'}
 		<p
-			class="flex items-start gap-1.5 rounded-md bg-amber-100 px-2.5 py-2 text-xs text-[#B45309]"
+			class="flex items-start gap-1.5 rounded-md bg-blue-300 px-2.5 py-2 text-xs text-[#0C4A6E]"
 		>
-			<Info class="w-4 h-4 shrink-0 text-[#B45309]" aria-hidden="true" />
+			<Info class="w-4 h-4 shrink-0 text-[#0C4A6E]" aria-hidden="true" />
 			<span
 				>Seasonal years run Dec 22 – Dec 21. Sessions attributed to Start Time.</span
 			>
