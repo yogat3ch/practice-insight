@@ -196,7 +196,16 @@ export function compileDayOfWeekOption(
 				name: 'Intensity',
 				type: 'heatmap',
 				data: heatmapData,
-				label: {show: true, color: '#1C1C1C'},
+				// The cell labels ARE the series labels (not the visualMap labels).
+				// Round to one decimal and drive visibility from the toggle.
+				label: {
+					show: showHeatmapLabels,
+					color: '#1C1C1C',
+					formatter: (params: any) => {
+						const value = params?.value?.[2];
+						return typeof value === 'number' ? value.toFixed(1) : '';
+					},
+				},
 			},
 		],
 	};
@@ -296,7 +305,17 @@ export function compileDayOfWeekHeatmapMatrix(
 				name: 'Intensity',
 				type: 'heatmap',
 				data: heatmapData,
-				label: {show: true, color: '#1C1C1C', fontSize: 10},
+				// The cell labels ARE the series labels (not the visualMap labels).
+				// Round to one decimal and drive visibility from the toggle.
+				label: {
+					show: showLabels,
+					color: '#1C1C1C',
+					fontSize: 10,
+					formatter: (params: any) => {
+						const value = params?.value?.[2];
+						return typeof value === 'number' ? value.toFixed(1) : '';
+					},
+				},
 			},
 		],
 	};

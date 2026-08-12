@@ -178,6 +178,38 @@ describe('compileDayOfWeekOption — heatmap', () => {
 		const vm = opt.visualMap as {show: boolean};
 		expect(vm.show).toBe(false);
 	});
+
+	it('rounds heatmap series labels to one decimal and toggles via series.label.show', () => {
+		// showLabels=true → labels visible, formatter rounds to 1 decimal.
+		const shown = compileDayOfWeekOption(
+			makeDayBins([10.456, 20]),
+			'minutes',
+			'heatmap',
+			'totalDuration',
+			true,
+		);
+		const shownSeries = shown.series as Array<{
+			label: {show: boolean; formatter: (p: any) => string};
+		}>;
+		expect(shownSeries[0].label.show).toBe(true);
+		// Formatter rounds a heatmap [x, y, value] cell to 1 decimal.
+		expect(shownSeries[0].label.formatter({value: [0, 0, 10.456]})).toBe(
+			'10.5',
+		);
+
+		// showLabels=false → series cell labels hidden (the "Show value labels" toggle).
+		const hidden = compileDayOfWeekOption(
+			makeDayBins([10, 20]),
+			'minutes',
+			'heatmap',
+			'totalDuration',
+			false,
+		);
+		const hiddenSeries = hidden.series as Array<{
+			label: {show: boolean};
+		}>;
+		expect(hiddenSeries[0].label.show).toBe(false);
+	});
 });
 
 describe('compileDayOfWeekHeatmapMatrix (§5.3 temporal grouping)', () => {
@@ -244,6 +276,15 @@ describe('compileDayOfWeekHeatmapMatrix (§5.3 temporal grouping)', () => {
 		expect(shownVm.show).toBe(true);
 		expect(shownVm.precision).toBe(1);
 
+		// Series cell labels follow the same toggle and round to 1 decimal.
+		const shownSeries = shown.series as Array<{
+			label: {show: boolean; formatter: (p: any) => string};
+		}>;
+		expect(shownSeries[0].label.show).toBe(true);
+		expect(shownSeries[0].label.formatter({value: [0, 0, 12.345]})).toBe(
+			'12.3',
+		);
+
 		const hidden = compileDayOfWeekHeatmapMatrix(
 			periodBins,
 			'minutes',
@@ -253,6 +294,10 @@ describe('compileDayOfWeekHeatmapMatrix (§5.3 temporal grouping)', () => {
 		);
 		const hiddenVm = hidden.visualMap as {show: boolean};
 		expect(hiddenVm.show).toBe(false);
+		const hiddenSeries = hidden.series as Array<{
+			label: {show: boolean};
+		}>;
+		expect(hiddenSeries[0].label.show).toBe(false);
 	});
 });
 
