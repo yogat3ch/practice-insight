@@ -95,6 +95,25 @@ describe('compileComparisonOption — calendar alignment', () => {
 		// Series B has nulls for 2025 slots.
 		expect(series[1].data).toEqual([null, null, 15, 30, 45]);
 	});
+
+	it('auto-skips and hides overlapping x-axis labels for dense dates', () => {
+		const opt = compileComparisonOption({
+			seriesList: [seriesA, seriesB],
+			unit: 'minutes',
+			lockYAxis: false,
+			xAxisAlignment: 'calendar',
+		});
+
+		const xAxis = opt.xAxis as {
+			axisLabel: {
+				interval: string | number;
+				hideOverlap?: boolean;
+				rotate?: number;
+			};
+		};
+		expect(xAxis.axisLabel.interval).toBe('auto');
+		expect(xAxis.axisLabel.hideOverlap).toBe(true);
+	});
 });
 
 describe('compileComparisonOption — elapsed alignment', () => {
@@ -189,6 +208,13 @@ describe('compileComparisonGridOptions — side-by-side strategy', () => {
 		// Both cards share the global max with 10% headroom (max 60 → 66).
 		expect(y0.max).toBe(66);
 		expect(y1.max).toBe(66);
+
+		// Each card's x-axis auto-skips/hides overlapping labels.
+		const x0 = cards[0].option.xAxis as {
+			axisLabel: {interval: string | number; hideOverlap?: boolean};
+		};
+		expect(x0.axisLabel.interval).toBe('auto');
+		expect(x0.axisLabel.hideOverlap).toBe(true);
 	});
 
 	it('returns a single empty-state card when no periods exist', () => {

@@ -286,7 +286,10 @@ export function compileComparisonOption(
 			axisLine: {lineStyle: {color: '#E5E7EB'}},
 			axisLabel: {
 				color: '#1C1C1C',
-				interval: xCategories.length > 24 ? 1 : 0,
+				// Auto-skip + hide overlapping labels when many dates are present
+				// (comparison unions all periods' labels, so this can get dense).
+				interval: 'auto',
+				hideOverlap: true,
 				rotate: xCategories.length > 30 ? 45 : 0,
 			},
 		},
@@ -385,7 +388,10 @@ export function compileComparisonGridOptions(
 					axisLine: {lineStyle: {color: '#E5E7EB'}},
 					axisLabel: {
 						color: '#1C1C1C',
-						interval: xCategories.length > 24 ? 1 : 0,
+						// Auto-skip + hide overlapping labels when many dates are present
+						// (comparison unions all periods' labels, so this can get dense).
+						interval: 'auto',
+						hideOverlap: true,
 						rotate: xCategories.length > 30 ? 45 : 0,
 					},
 				},
