@@ -99,8 +99,18 @@
 	/** Whether to show the heatmap/strategy incompatibility warning (7c). */
 	let showHeatmapStrategyWarning = $state(false);
 
+	/** Whether to show the polar/overlay incompatibility warning (7c). */
+	let showPolarStrategyWarning = $state(false);
+
 	/** Style options for the currently selected category. */
 	const currentStyles = $derived(STYLE_OPTIONS[category]);
+
+	/** Whether the Distribution Comparison Strategy selector is relevant. */
+	const showStrategySelector = $derived(
+		(category === 'dayOfWeek' && chartStyle === 'bar') ||
+			category === 'timeOfDay' ||
+			(category === 'breakdown' && chartStyle === 'stackedBar'),
+	);
 
 	/**
 	 * When the category changes, the selected chart style may no longer be
@@ -116,15 +126,25 @@
 	 * Selecting the heatmap style while a variable comparison strategy is
 	 * active is incompatible (the heatmap matrix already renders per-period
 	 * rows). Show an ephemeral warning and reset the strategy to the default.
+	 *
+	 * Selecting the polar clock while the period-over-period overlay strategy
+	 * is active is also incompatible (ECharts cannot overlay bars on a shared
+	 * polar axis) — fall back to the grid strategy and notify.
 	 */
 	function selectStyle(value: DistributionChartStyle) {
 		chartStyle = value;
 		if (value === 'heatmap' && category === 'dayOfWeek') {
 			showHeatmapStrategyWarning = true;
 			distributionStrategy = 'period';
-			// Auto-dismiss after a short delay.
 			setTimeout(() => {
 				showHeatmapStrategyWarning = false;
+			}, 4000);
+		}
+		if (value === 'polar' && category === 'timeOfDay') {
+			showPolarStrategyWarning = true;
+			distributionStrategy = 'grid';
+			setTimeout(() => {
+				showPolarStrategyWarning = false;
 			}, 4000);
 		}
 	}
@@ -216,8 +236,23 @@
 		</p>
 	{/if}
 
-	<!-- Distribution Comparison Strategy (only for Day-of-Week Bar Chart, 7c) -->
-	{#if category === 'dayOfWeek' && chartStyle === 'bar'}
+	<!-- Polar / Comparison Strategy incompatibility warning (7c, ephemeral) -->
+	{#if showPolarStrategyWarning}
+		<p
+			class="flex items-start gap-1.5 rounded-md bg-amber-300 px-2.5 py-2 text-xs text-[#1C1C1C]"
+		>
+			<TriangleAlert
+				class="w-4 h-4 shrink-0 text-orange-400"
+				aria-hidden="true"
+			/>
+			<span
+				>Polar charts can't overlay periods; switched to Sequential Side-by-Side</span
+			>
+		</p>
+	{/if}
+
+	<!-- Distribution Comparison Strategy (7c) -->
+	{#if showStrategySelector}
 		<fieldset>
 			<legend
 				class="flex items-center gap-1.5 text-sm font-medium text-[#1C1C1C] mb-1"

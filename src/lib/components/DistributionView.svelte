@@ -9,12 +9,10 @@
 	const option: EChartsOption = $derived.by(() => engine.distributionOption);
 	const hasData = $derived(engine.hasData);
 
-	// Sequential Side-by-Side grid: per-period day-of-week bar cards (7c).
-	const gridCards = $derived.by(() => engine.dayOfWeekPeriodBarOptions);
+	// Sequential Side-by-Side grid: per-period chart cards (7c).
+	const gridCards = $derived.by(() => engine.distributionGridOptions);
 	const isGridMode = $derived(
-		engine.distributionConfig.category === 'dayOfWeek' &&
-			engine.distributionConfig.chartStyle === 'bar' &&
-			engine.distributionConfig.distributionStrategy === 'grid' &&
+		engine.distributionConfig.distributionStrategy === 'grid' &&
 			gridCards.length > 0,
 	);
 </script>
