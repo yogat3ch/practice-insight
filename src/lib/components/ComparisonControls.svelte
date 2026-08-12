@@ -4,8 +4,9 @@
 		ComparisonStrategy,
 		XAxisAlignment,
 	} from '$lib';
-	import { engine } from '$lib';
-	import { format } from 'date-fns';
+	import {engine} from '$lib';
+	import Info from '@lucide/svelte/icons/info';
+	import {format} from 'date-fns';
 	import Tooltip from './Tooltip.svelte';
 
 	/** Comparison strategy options per §5.2. */
@@ -20,11 +21,28 @@
 		{value: 'elapsed', label: 'Elapsed Days'},
 	];
 
+	/** Human-readable labels for the Timeline aggregation granularity (7c). */
+	const GRANULARITY_LABELS: Record<string, string> = {
+		day: 'Day',
+		week: 'Week',
+		month: 'Month',
+		quarter: 'Quarter',
+		season: 'Season',
+		year: 'Year',
+	};
+
 	// Local control state, initialized from the engine's current config.
 	let strategy = $state<ComparisonStrategy>(engine.comparisonConfig.strategy);
 	let lockYAxis = $state<boolean>(engine.comparisonConfig.lockYAxis);
 	let xAxisAlignment = $state<XAxisAlignment>(
 		engine.comparisonConfig.xAxisAlignment,
+	);
+
+	// Aggregate By (Timeline granularity) is inherited by Comparison — surfaced
+	// as a read-only display so the hidden coupling is visible (7c Part 2.2).
+	const aggregateBy = $derived(engine.timelineConfig.granularity);
+	const aggregateByLabel = $derived(
+		GRANULARITY_LABELS[aggregateBy] ?? aggregateBy,
 	);
 
 	// New-period constructor inputs.
@@ -151,6 +169,24 @@
 			Elapsed Days aligns periods from their first data point (Day 1).
 		</p>
 	</fieldset>
+
+	<!-- Aggregate By (inherited from Timeline Controls, 7c Part 2.2) -->
+	<div>
+		<span class="block text-sm font-medium text-[#1C1C1C] mb-1"
+			>Aggregate By</span
+		>
+		<div
+			class="w-full min-h-9 flex items-center px-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded text-sm text-[#1C1C1C]"
+		>
+			{aggregateByLabel}
+		</div>
+		<p
+			class="mt-1 flex items-start gap-1.5 rounded-md bg-blue-300 px-2.5 py-2 text-xs text-[#0C4A6E]"
+		>
+			<Info class="w-4 h-4 shrink-0 text-[#0C4A6E]" aria-hidden="true" />
+			<span>Modify Aggregate By via Timeline Controls</span>
+		</p>
+	</div>
 
 	<!-- Series Constructor -->
 	<div>
