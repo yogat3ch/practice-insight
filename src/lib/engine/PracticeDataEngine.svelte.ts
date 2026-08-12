@@ -46,6 +46,7 @@ import {
 import {
 	compileComparisonGridOptions,
 	compileComparisonOption,
+	DEFAULT_SERIES_PALETTE,
 	type ComparisonSeriesData,
 } from './compilers/comparison-compiler.js';
 import {
@@ -621,6 +622,18 @@ export class PracticeDataEngine {
 			color: color ?? '',
 		};
 		this.addComparisonPeriod(period);
+	}
+
+	/**
+	 * Suggests the next comparison-period color from the shared series
+	 * palette, cycling through it (repeats after the palette is exhausted).
+	 *
+	 * @param index - Zero-based position of the next period (e.g. current
+	 *                periods.length). Color cycles modulo the palette size.
+	 * @returns Hex color string from DEFAULT_SERIES_PALETTE.
+	 */
+	suggestComparisonColor(index: number): string {
+		return DEFAULT_SERIES_PALETTE[index % DEFAULT_SERIES_PALETTE.length];
 	}
 
 	removeComparisonPeriod(id: string): void {

@@ -30,7 +30,8 @@
 	// New-period constructor inputs.
 	let newFrom = $state('');
 	let newTo = $state('');
-	let newColor = $state('#10b981');
+	// Auto-populate the next suggested color from the shared palette (cycles).
+	let newColor = $state(engine.suggestComparisonColor(0));
 
 	/** Reactive list of active comparison periods from the engine. */
 	const periods = $derived(engine.comparisonConfig.periods);
@@ -49,10 +50,11 @@
 			new Date(newTo),
 			newColor,
 		);
-		// Clear the constructor for the next entry.
+		// Clear the constructor for the next entry and advance the suggested
+		// color to the next palette slot.
 		newFrom = '';
 		newTo = '';
-		newColor = '#10b981';
+		newColor = engine.suggestComparisonColor(periods.length);
 	}
 
 	function removePeriod(id: string): void {

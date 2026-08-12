@@ -25,7 +25,7 @@ export interface ComparisonCompilerInput {
 }
 
 /** Default palette used when a comparison period has no explicit color assigned. */
-const DEFAULT_SERIES_PALETTE: readonly string[] = [
+export const DEFAULT_SERIES_PALETTE: readonly string[] = [
 	'#10b981', // Emerald 500
 	'#f59e0b', // Amber 500
 	'#3b82f6', // Blue 500

@@ -176,4 +176,16 @@ describe('PracticeDataEngine Integration', () => {
 			'Morning Sit',
 		]);
 	});
+
+	it('suggests comparison colors cycling through the shared palette', () => {
+		const engine = new PracticeDataEngine();
+		// First period → palette[0] (emerald).
+		expect(engine.suggestComparisonColor(0)).toBe('#10b981');
+		// Subsequent periods advance through the palette.
+		expect(engine.suggestComparisonColor(1)).toBe('#f59e0b');
+		expect(engine.suggestComparisonColor(7)).toBe('#6366f1');
+		// Repeats after the 8-color palette is exhausted.
+		expect(engine.suggestComparisonColor(8)).toBe('#10b981');
+		expect(engine.suggestComparisonColor(9)).toBe('#f59e0b');
+	});
 });
