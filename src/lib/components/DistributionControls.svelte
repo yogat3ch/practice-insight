@@ -6,7 +6,7 @@
 		DistributionMetric,
 		DistributionTemporalGrouping,
 	} from '$lib';
-	import {engine} from '$lib';
+	import { engine } from '$lib';
 	import Info from '@lucide/svelte/icons/info';
 	import Tooltip from './Tooltip.svelte';
 

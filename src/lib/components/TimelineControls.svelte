@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type {Granularity, SplitBy} from '$lib';
-	import {engine, isSplitCoarserThanGranularity} from '$lib';
+	import type { Granularity, SplitBy } from '$lib';
+	import { engine, isSplitCoarserThanGranularity } from '$lib';
 	import Info from '@lucide/svelte/icons/info';
 	import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
 	import Tooltip from './Tooltip.svelte';

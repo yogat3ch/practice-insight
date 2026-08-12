@@ -1,7 +1,7 @@
 <script lang="ts">
-	import {computeTimeWindowDateRange, engine} from '$lib';
-	import type {TimeWindowPreset} from '$lib';
-	import {format} from 'date-fns';
+	import type { TimeWindowPreset } from '$lib';
+	import { computeTimeWindowDateRange, engine } from '$lib';
+	import { format } from 'date-fns';
 	import Accordion from './Accordion.svelte';
 	import CSVIngestionCard from './CSVIngestionCard.svelte';
 	import ComparisonControls from './ComparisonControls.svelte';
