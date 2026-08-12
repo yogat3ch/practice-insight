@@ -6,9 +6,8 @@
  */
 
 import type {EChartsOption} from 'echarts';
-import type {Granularity} from '../../types/filters.js';
 import type {XAxisAlignment} from '../../types/engine.js';
-import type {Unit} from '../../types/filters.js';
+import type {Granularity, Unit} from '../../types/filters.js';
 import type {TimeBucket} from '../../types/temporal.js';
 
 export interface ComparisonSeriesData {
@@ -194,7 +193,13 @@ function alignSeriesData(
 	xCategories: readonly string[],
 ): (number | null)[] {
 	if (xAxisAlignment === 'elapsed') {
-		return series.buckets.map(b => bucketValue(b, unit));
+		// Elapsed mode is phase-0 aligned: each series starts at its own first
+		// bucket. The shared x-axis is sized to the LONGEST series, so shorter
+		// series must be padded with trailing nulls to match the axis length.
+		// Without this padding ECharts misaligns / drops the shorter series.
+		return Array.from({length: xCategories.length}, (_, i) =>
+			i < series.buckets.length ? bucketValue(series.buckets[i], unit) : null,
+		);
 	}
 	const indexByLabel = new Map(xCategories.map((label, i) => [label, i]));
 	return xCategories.map(label => {

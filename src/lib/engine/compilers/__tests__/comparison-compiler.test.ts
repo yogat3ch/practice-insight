@@ -129,9 +129,51 @@ describe('compileComparisonOption — elapsed alignment', () => {
 		expect(xAxis.data).toEqual(['Day 1', 'Day 2', 'Day 3']);
 
 		const series = opt.series as Array<{data: (number | null)[]}>;
-		// Each series aligns from its own first bucket.
-		expect(series[0].data).toEqual([30, 60]);
+		// Each series aligns from its own first bucket; the shorter series is
+		// padded with trailing nulls to match the axis length (regression fix).
+		expect(series[0].data).toEqual([30, 60, null]);
 		expect(series[1].data).toEqual([15, 30, 45]);
+	});
+});
+
+describe('compileComparisonOption — elapsed padding regression (7c)', () => {
+	it('pads a shorter series with trailing nulls so both series render', () => {
+		// seriesA has 2 buckets, seriesB has 3 → axis is length 3 (longest).
+		const opt = compileComparisonOption({
+			seriesList: [seriesA, seriesB],
+			unit: 'minutes',
+			lockYAxis: false,
+			xAxisAlignment: 'elapsed',
+			granularity: 'month',
+		});
+
+		const xAxis = opt.xAxis as {data: string[]};
+		expect(xAxis.data).toEqual(['Month 1', 'Month 2', 'Month 3']);
+
+		const series = opt.series as Array<{data: (number | null)[]}>;
+		// Both series must have the SAME length as the axis (3).
+		expect(series[0].data.length).toBe(3);
+		expect(series[1].data.length).toBe(3);
+		// The shorter series keeps its values then pads with null.
+		expect(series[0].data).toEqual([30, 60, null]);
+		// The longest series fills the whole axis.
+		expect(series[1].data).toEqual([15, 30, 45]);
+	});
+
+	it('pads a shorter series with nulls in grid mode too', () => {
+		const cards = compileComparisonGridOptions({
+			seriesList: [seriesA, seriesB],
+			unit: 'minutes',
+			lockYAxis: false,
+			xAxisAlignment: 'elapsed',
+			granularity: 'month',
+		});
+
+		const x0 = cards[0].option.xAxis as {data: string[]};
+		expect(x0.data).toEqual(['Month 1', 'Month 2', 'Month 3']);
+
+		const s0 = cards[0].option.series as Array<{data: (number | null)[]}>;
+		expect(s0[0].data).toEqual([30, 60, null]);
 	});
 });
 
