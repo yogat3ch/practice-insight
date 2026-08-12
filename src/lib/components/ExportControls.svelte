@@ -1,6 +1,6 @@
 <script lang="ts">
-	import Download from '@lucide/svelte/icons/download';
 	import {exportPNG, exportSVG} from '$lib/echarts/echartAction';
+	import Download from '@lucide/svelte/icons/download';
 
 	interface Props {
 		/** Chart DOM element to export (PNG/SVG). */

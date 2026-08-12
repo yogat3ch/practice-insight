@@ -347,7 +347,9 @@
 				id="timeWindowSelect"
 				value={timePreset}
 				onchange={e =>
-					selectPreset((e.currentTarget as HTMLSelectElement).value as TimeWindowPreset)}
+					selectPreset(
+						(e.currentTarget as HTMLSelectElement).value as TimeWindowPreset,
+					)}
 				class="w-full min-h-9 bg-white border border-[#E5E7EB] rounded text-[#1C1C1C] p-1.5 text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/40 focus:outline-none"
 			>
 				{#each TIME_WINDOW_OPTIONS as opt}

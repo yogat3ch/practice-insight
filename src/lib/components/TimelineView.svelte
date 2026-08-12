@@ -1,9 +1,9 @@
 <script lang="ts">
 	import {engine} from '$lib';
 	import {echartAction} from '$lib/echarts/echartAction';
+	import type {EChartsOption} from 'echarts';
 	import ExportControls from './ExportControls.svelte';
 	import TimelineChartCard from './TimelineChartCard.svelte';
-	import type {EChartsOption} from 'echarts';
 
 	// Reactive segmented options derived from the engine.
 	const timelineSegments = $derived.by(() => engine.timelineOptionsBySegment);

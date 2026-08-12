@@ -12,10 +12,7 @@
  *   - thresholdMinutes: filtered upstream in the calculators
  */
 
-import type {
-	EChartsOption,
-	VisualMapComponentOption,
-} from 'echarts';
+import type {EChartsOption, VisualMapComponentOption} from 'echarts';
 import type {
 	DistributionMetric,
 	DistributionTemporalGrouping,

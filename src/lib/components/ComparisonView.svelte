@@ -1,9 +1,9 @@
 <script lang="ts">
 	import {engine} from '$lib';
 	import {echartAction} from '$lib/echarts/echartAction';
+	import type {EChartsOption} from 'echarts';
 	import ComparisonChartCard from './ComparisonChartCard.svelte';
 	import ExportControls from './ExportControls.svelte';
-	import type {EChartsOption} from 'echarts';
 
 	// Strategy drives rendering: overlay (default) vs. side-by-side grid.
 	const strategy = $derived(engine.comparisonConfig.strategy);

@@ -4,8 +4,8 @@
 		ComparisonStrategy,
 		XAxisAlignment,
 	} from '$lib';
-	import { engine } from '$lib';
-	import { format } from 'date-fns';
+	import {engine} from '$lib';
+	import {format} from 'date-fns';
 	import Tooltip from './Tooltip.svelte';
 
 	/** Comparison strategy options per §5.2. */

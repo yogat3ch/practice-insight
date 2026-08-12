@@ -1,8 +1,8 @@
 <script lang="ts">
 	import {engine} from '$lib';
 	import {echartAction} from '$lib/echarts/echartAction';
-	import ExportControls from './ExportControls.svelte';
 	import type {EChartsOption} from 'echarts';
+	import ExportControls from './ExportControls.svelte';
 
 	let chartDiv = $state<HTMLDivElement>();
 	const option: EChartsOption = $derived.by(() => engine.distributionOption);

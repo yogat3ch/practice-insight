@@ -1,7 +1,7 @@
 <script lang="ts">
 	import {echartAction} from '$lib/echarts/echartAction';
-	import ExportControls from './ExportControls.svelte';
 	import type {EChartsOption} from 'echarts';
+	import ExportControls from './ExportControls.svelte';
 
 	interface Props {
 		option: EChartsOption;
