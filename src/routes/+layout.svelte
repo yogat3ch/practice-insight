@@ -88,7 +88,7 @@
 	<div class="flex flex-1 overflow-hidden">
 		<!-- Sidebar (hidden on mobile when closed) -->
 		<aside
-			class="hidden lg:flex flex-col bg-[#F9FAFB] border-r border-[#E5E5E5] overflow-hidden shrink-0 transition-[width] duration-200"
+			class="max-lg:hidden lg:flex flex-col bg-[#F9FAFB] border-r border-[#E5E5E5] overflow-hidden shrink-0 transition-[width] duration-200"
 			class:!flex={drawerOpen}
 			style:width={sidebarCollapsed
 				? COLLAPSED_SIDEBAR_WIDTH + 'px'
@@ -139,7 +139,7 @@
 		<!-- Resize handle: horizontal resize cursor on hover (only when expanded) -->
 		{#if !sidebarCollapsed}
 			<div
-				class="hidden lg:block w-1.5 shrink-0 cursor-col-resize bg-transparent hover:bg-[#EAA845]/60 transition-colors"
+				class="max-lg:hidden lg:block w-1.5 shrink-0 cursor-col-resize bg-transparent hover:bg-[#EAA845]/60 transition-colors"
 				role="separator"
 				aria-orientation="vertical"
 				aria-label="Resize sidebar"
