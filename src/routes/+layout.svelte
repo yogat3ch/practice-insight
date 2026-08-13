@@ -1,15 +1,15 @@
 <script lang="ts">
-	import '../app.css';
-	import {onMount} from 'svelte';
-	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
-	import ChevronRight from '@lucide/svelte/icons/chevron-right';
+	import {engine, fetchAndParseSampleCSV} from '$lib';
+	import ComparisonView from '$lib/components/ComparisonView.svelte';
 	import ControlPanel from '$lib/components/ControlPanel.svelte';
+	import DistributionView from '$lib/components/DistributionView.svelte';
 	import TabBar from '$lib/components/TabBar.svelte';
 	import TimelineView from '$lib/components/TimelineView.svelte';
-	import ComparisonView from '$lib/components/ComparisonView.svelte';
-	import DistributionView from '$lib/components/DistributionView.svelte';
 	import UsageView from '$lib/components/UsageView.svelte';
-	import {engine, fetchAndParseSampleCSV} from '$lib';
+	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
+	import ChevronRight from '@lucide/svelte/icons/chevron-right';
+	import {onMount} from 'svelte';
+	import '../app.css';
 
 	// Drawer open state (mobile)
 	let drawerOpen = $state(false);
