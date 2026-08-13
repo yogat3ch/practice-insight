@@ -1,9 +1,13 @@
 <script lang="ts">
-	import {onMount} from 'svelte';
 	import {usageDocuments} from '$lib/usage/usage-content';
+	import {onMount} from 'svelte';
 
-	// Selected document (defaults to the first).
-	let activeDocId = $state(usageDocuments[0]?.id ?? '');
+	// Selected document (defaults to the Usage Guide).
+	let activeDocId = $state(
+		usageDocuments.find(doc => doc.id === 'usage')?.id ??
+			usageDocuments[0]?.id ??
+			'',
+	);
 	// Dropdown open state.
 	let docsOpen = $state(false);
 
