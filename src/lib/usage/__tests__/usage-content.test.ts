@@ -1,24 +1,31 @@
-import {readFileSync} from 'node:fs';
+import {readFileSync, readdirSync} from 'node:fs';
 import {resolve} from 'node:path';
-import {describe, expect, it} from 'vitest';
 import prettier from 'prettier';
 import sanitizeHtml from 'sanitize-html';
+import {describe, expect, it} from 'vitest';
 import {
 	buildUsageContent,
 	renderUsageHtml,
 	splitSections,
 } from '../../../../scripts/generate-usage.mjs';
-import {usageSections} from '../usage-content';
+import {usageDocuments, usageSections} from '../usage-content';
 
 // Test file is at src/lib/usage/__tests__/ — 5 levels up is the repo root.
 const ROOT = resolve(__dirname, '../../../..');
 
-function docsMarkdown(): string {
-	return readFileSync(resolve(ROOT, 'docs/usage.md'), 'utf8');
+function docsMarkdown(docId: string): string {
+	const startMarker = `<!-- app-${docId}:start -->`;
+	const dir = resolve(ROOT, 'docs');
+	const file = readdirSync(dir).find(f => {
+		if (!f.endsWith('.md')) return false;
+		return readFileSync(resolve(dir, f), 'utf8').includes(startMarker);
+	});
+	if (!file) throw new Error(`No docs/ file found for doc "${docId}".`);
+	return readFileSync(resolve(dir, file), 'utf8');
 }
 
 async function freshGeneratedContent(): Promise<string> {
-	const raw = buildUsageContent(docsMarkdown());
+	const raw = buildUsageContent();
 	// The generator writes prettier-formatted output (resolving the repo
 	// config); mirror that here so the drift guard compares like-for-like.
 	const prettierConfig = await prettier.resolveConfig(
@@ -28,7 +35,7 @@ async function freshGeneratedContent(): Promise<string> {
 }
 
 describe('usage-content', () => {
-	it('is in sync with a fresh generation of docs/usage.md (drift guard)', async () => {
+	it('is in sync with a fresh generation of docs/*.md (drift guard)', async () => {
 		const generated = await freshGeneratedContent();
 		const committed = readFileSync(
 			resolve(ROOT, 'src/lib/usage/usage-content.ts'),
@@ -37,68 +44,83 @@ describe('usage-content', () => {
 		expect(generated).toBe(committed);
 	});
 
-	it('exports non-empty sections with titles and html', () => {
-		expect(usageSections.length).toBeGreaterThan(0);
-		for (const section of usageSections) {
-			expect(section.title.trim().length).toBeGreaterThan(0);
-			expect(section.html.trim().length).toBeGreaterThan(0);
+	it('exports multiple documents with non-empty sections', () => {
+		expect(usageDocuments.length).toBeGreaterThan(0);
+		for (const doc of usageDocuments) {
+			expect(doc.id.trim().length).toBeGreaterThan(0);
+			expect(doc.title.trim().length).toBeGreaterThan(0);
+			expect(doc.sections.length).toBeGreaterThan(0);
+			for (const section of doc.sections) {
+				expect(section.title.trim().length).toBeGreaterThan(0);
+				expect(section.html.trim().length).toBeGreaterThan(0);
+			}
 		}
+		// Flat list should combine all doc sections in order.
+		expect(usageSections.length).toBe(
+			usageDocuments.reduce((sum, doc) => sum + doc.sections.length, 0),
+		);
 	});
 
 	it('produced HTML is well-formed and sanitized', () => {
-		const sections = splitSections(renderUsageHtml(docsMarkdown()));
-		for (const section of sections) {
-			// Re-sanitizing the committed HTML must be a no-op (already clean).
-			const roundTrip = sanitizeHtml(section.html, {
-				allowedTags: [
-					'h1',
-					'h2',
-					'h3',
-					'p',
-					'a',
-					'ul',
-					'ol',
-					'li',
-					'strong',
-					'em',
-					'code',
-					'pre',
-					'blockquote',
-					'table',
-					'thead',
-					'tbody',
-					'tr',
-					'th',
-					'td',
-					'br',
-					'hr',
-				],
-				allowedAttributes: {
-					a: ['href', 'title'],
-					th: ['align'],
-					td: ['align'],
-				},
-			});
-			expect(roundTrip).toBe(section.html);
+		for (const doc of usageDocuments) {
+			const sections = splitSections(
+				renderUsageHtml(docsMarkdown(doc.id), doc.id),
+			);
+			for (const section of sections) {
+				// Re-sanitizing the committed HTML must be a no-op (already clean).
+				const roundTrip = sanitizeHtml(section.html, {
+					allowedTags: [
+						'h1',
+						'h2',
+						'h3',
+						'p',
+						'a',
+						'ul',
+						'ol',
+						'li',
+						'strong',
+						'em',
+						'code',
+						'pre',
+						'blockquote',
+						'table',
+						'thead',
+						'tbody',
+						'tr',
+						'th',
+						'td',
+						'br',
+						'hr',
+						'img',
+					],
+					allowedAttributes: {
+						a: ['href', 'title'],
+						th: ['align'],
+						td: ['align'],
+						img: ['src', 'alt', 'title', 'width', 'height'],
+					},
+				});
+				expect(roundTrip).toBe(section.html);
 
-			// No script, iframe, event handlers, or javascript: links leak through.
-			expect(section.html).not.toMatch(/<script/i);
-			expect(section.html).not.toMatch(/<iframe/i);
-			expect(section.html).not.toMatch(/on\w+=/i);
-			expect(section.html).not.toMatch(/javascript:/i);
+				// No script, iframe, event handlers, or javascript: links leak through.
+				expect(section.html).not.toMatch(/<script/i);
+				expect(section.html).not.toMatch(/<iframe/i);
+				expect(section.html).not.toMatch(/on\w+=/i);
+				expect(section.html).not.toMatch(/javascript:/i);
+			}
 		}
 	});
 
-	it('contains the expected canonical sections', () => {
-		const titles = usageSections.map(section => section.title);
-		expect(titles).toEqual([
-			'Getting started',
-			'Load your data',
-			'Timeline',
-			'Comparison',
-			'Distribution',
-			'Privacy',
-			'FAQ / Troubleshooting',
-		]);
+	it('rewrites static/ image srcs to root-relative for in-app use', () => {
+		const md =
+			'# Test\n\n<!-- app-test:start -->\n\n## Section\n\n![Export menu](static/it-export-1.png)\n\n<!-- app-test:end -->\n';
+		const html = renderUsageHtml(md, 'test');
+		expect(html).toContain('src="/it-export-1.png"');
+		expect(html).not.toContain('src="static/');
+	});
+
+	it('contains the expected canonical documents', () => {
+		const ids = usageDocuments.map(doc => doc.id);
+		expect(ids).toEqual(['it-export', 'usage']);
 	});
 });

@@ -1,9 +1,75 @@
 <script lang="ts">
-	import {usageSections} from '$lib/usage/usage-content';
+	import {usageDocuments} from '$lib/usage/usage-content';
+
+	// Selected document (defaults to the first).
+	let activeDocId = $state(usageDocuments[0]?.id ?? '');
+	// Dropdown open state.
+	let docsOpen = $state(false);
+
+	const activeDoc = $derived(
+		usageDocuments.find(doc => doc.id === activeDocId) ?? usageDocuments[0],
+	);
+
+	function selectDoc(id: string) {
+		activeDocId = id;
+		docsOpen = false;
+	}
 </script>
 
 <div class="flex flex-col h-full p-2 space-y-3 overflow-y-auto">
-	<div class="flex justify-end">
+	<div class="flex items-center justify-between gap-2">
+		<!-- Document navigation dropdown -->
+		<div class="relative">
+			<button
+				type="button"
+				onclick={() => (docsOpen = !docsOpen)}
+				aria-haspopup="listbox"
+				aria-expanded={docsOpen}
+				class="flex items-center gap-2 rounded-md border border-[#E5E7EB] bg-white px-3 py-1.5 text-sm font-medium text-[#1C1C1C] transition-colors hover:bg-[#F9FAFB] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EAA845]"
+			>
+				<span>{activeDoc?.title}</span>
+				<svg
+					class="w-4 h-4 text-[#6E6E6E] transition-transform {docsOpen
+						? 'rotate-180'
+						: ''}"
+					fill="none"
+					stroke="currentColor"
+					viewBox="0 0 24 24"
+					aria-hidden="true"
+					><path
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M19 9l-7 7-7-7"
+					/></svg
+				>
+			</button>
+
+			{#if docsOpen}
+				<ul
+					role="listbox"
+					class="absolute left-0 top-full mt-1 z-10 w-64 max-w-[80vw] overflow-hidden rounded-md border border-[#E5E7EB] bg-white shadow-md"
+				>
+					{#each usageDocuments as doc}
+						<li>
+							<button
+								type="button"
+								role="option"
+								aria-selected={doc.id === activeDocId}
+								onclick={() => selectDoc(doc.id)}
+								class="block w-full px-3 py-2 text-left text-sm transition-colors hover:bg-[#F9FAFB] focus:outline-none focus-visible:bg-[#F9FAFB] {doc.id ===
+								activeDocId
+									? 'bg-[#F9FAFB] text-[#1C1C1C] font-medium'
+									: 'text-[#6E6E6E]'}"
+							>
+								{doc.title}
+							</button>
+						</li>
+					{/each}
+				</ul>
+			{/if}
+		</div>
+
 		<a
 			href="/sample.csv"
 			download
@@ -13,18 +79,20 @@
 		</a>
 	</div>
 
-	<div class="border border-[#E5E7EB] rounded bg-white">
-		{#each usageSections as section}
-			<section class="border-b border-[#E5E7EB] last:border-b-0 px-5 py-4">
-				<h2 class="text-lg font-bold text-[#1C1C1C] mb-2">
-					{section.title}
-				</h2>
-				<div class="text-[15px] text-[#1C1C1C] space-y-3 usage-content">
-					{@html section.html}
-				</div>
-			</section>
-		{/each}
-	</div>
+	{#if activeDoc}
+		<div class="border border-[#E5E7EB] rounded bg-white">
+			{#each activeDoc.sections as section}
+				<section class="border-b border-[#E5E7EB] last:border-b-0 px-5 py-4">
+					<h2 class="text-lg font-bold text-[#1C1C1C] mb-2">
+						{section.title}
+					</h2>
+					<div class="text-[15px] text-[#1C1C1C] space-y-3 usage-content">
+						{@html section.html}
+					</div>
+				</section>
+			{/each}
+		</div>
+	{/if}
 </div>
 
 <style>
@@ -112,5 +180,13 @@
 		border: none;
 		border-top: 1px solid #e5e7eb;
 		margin: 0.75rem 0;
+	}
+	.usage-content :global(img) {
+		max-width: 100%;
+		height: auto;
+		border: 1px solid #e5e7eb;
+		border-radius: 0.375rem;
+		margin: 0.5rem 0;
+		display: block;
 	}
 </style>
