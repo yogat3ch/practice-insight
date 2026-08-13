@@ -113,10 +113,22 @@ describe('usage-content', () => {
 
 	it('rewrites static/ image srcs to root-relative for in-app use', () => {
 		const md =
-			'# Test\n\n<!-- app-test:start -->\n\n## Section\n\n![Export menu](static/it-export-1.png)\n\n<!-- app-test:end -->\n';
+			'# Test\n\n<!-- app-test:start -->\n\n## Section\n\n![Export menu](static/it_export/three_lines.png)\n\n<!-- app-test:end -->\n';
 		const html = renderUsageHtml(md, 'test');
-		expect(html).toContain('src="/it-export-1.png"');
+		expect(html).toContain('src="/it_export/three_lines.png"');
 		expect(html).not.toContain('src="static/');
+	});
+
+	it('rewrites relative .md links to in-app doc hashes', () => {
+		const md =
+			'# Test\n\n<!-- app-test:start -->\n\n## Section\n\nSee the [Usage Guide](usage.md), the [Export guide](it_export.md), and the [issues page](https://github.com/yogat3ch/practice-insight/issues).\n\n<!-- app-test:end -->\n';
+		const html = renderUsageHtml(md, 'test');
+		expect(html).toContain('href="#/usage"');
+		expect(html).toContain('href="#/it-export"');
+		// External/absolute links are left untouched.
+		expect(html).toContain(
+			'href="https://github.com/yogat3ch/practice-insight/issues"',
+		);
 	});
 
 	it('contains the expected canonical documents', () => {

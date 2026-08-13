@@ -6,9 +6,16 @@ How to export your meditation history from the Insight Timer app as a CSV for us
 
 ## Export from the app
 
-1. Open the Insight Timer app and go to your profile.
-2. Tap the menu and choose **Export Data**.
-3. Select the CSV format and save the file to your device.
+1. From the mobile app home screen, click the three lines in the top left.
+   ![Three Lines Top Left](static/it_export/three_lines.png)
+2. Click the cog/gear icon at the bottom labeled Settings.
+   ![Settings Cog](static/it_export/settings.png)
+3. Open the 'Features and Preferences' section.
+   ![Features and Preferences](static/it_export/features_preferences.png)
+4. Click Sessions.
+   ![Sessions](static/it_export/sessions.png)
+5. Click the last option: Export log.
+   ![Export Log](static/it_export/export_log.png)
 
 > **Tip:** The exported file uses the columns `Started At`, `Duration`, `Preset`, `Activity` — exactly what Practice Insight expects.
 

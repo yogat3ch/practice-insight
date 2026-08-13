@@ -78,6 +78,7 @@ const SANITIZE_OPTIONS = {
 
 // Rewrite `static/...` image srcs to `/...` (in-app base) — GitHub keeps the
 // literal `static/...` path, the app serves static assets at the root.
+// Works for nested paths too: `static/it_export/three_lines.png` → `/it_export/three_lines.png`.
 /**
  * @param {string} src
  * @returns {string}
@@ -86,13 +87,35 @@ function rewriteStaticSrc(src) {
 	return src.startsWith('static/') ? '/' + src.slice('static/'.length) : src;
 }
 
-// Configure marked once: rewrite static image paths via a custom renderer.
+// Rewrite relative `.md` links to `#/<doc-id>` so the Usage tab can switch
+// documents in place. GitHub keeps the literal relative link and navigates
+// between files normally.
+/**
+ * @param {string} href
+ * @returns {string}
+ */
+function rewriteDocLink(href) {
+	// e.g. "it_export.md" or "usage.md" → "#/it-export" / "#/usage"
+	// Doc ids use hyphens (from the delimiter `app-<id>:start`), so normalize
+	// underscores in the filename to hyphens to match the generated doc id.
+	const match = href.match(/^([a-z0-9_-]+)\.md$/i);
+	if (match) return `#/${match[1].toLowerCase().replace(/_/g, '-')}`;
+	return href;
+}
+
+// Configure marked once: rewrite static image paths and .md links via a custom
+// renderer.
 marked.use({
 	renderer: {
 		image({href, title, text}) {
 			const src = rewriteStaticSrc(href ?? '');
 			const titleAttr = title ? ` title="${title}"` : '';
 			return `<img src="${src}" alt="${text}"${titleAttr} />`;
+		},
+		link({href, title, text}) {
+			const out = rewriteDocLink(href ?? '');
+			const titleAttr = title ? ` title="${title}"` : '';
+			return `<a href="${out}"${titleAttr}>${text}</a>`;
 		},
 	},
 });

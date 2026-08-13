@@ -18,7 +18,7 @@ When you open the app, a sample dataset (the author's own practice data) auto-lo
 
 ## Load your data
 
-1. **Get your export** — in Insight Timer, export your practice history as a CSV file.
+1. **Get your export** — in Insight Timer, [export your practice history as a CSV file](it_export.md).
 2. **Upload it** — drag-and-drop the CSV onto the app (or click to browse). Parsing happens in a background worker, so the UI stays responsive even for large files.
 3. **Check the count** — a badge shows how many sessions were parsed. Rows that couldn't be parsed are skipped and counted for you (e.g. "1,428 parsed, 2 invalid skipped").
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import {onMount} from 'svelte';
 	import {usageDocuments} from '$lib/usage/usage-content';
 
 	// Selected document (defaults to the first).
@@ -14,6 +15,26 @@
 		activeDocId = id;
 		docsOpen = false;
 	}
+
+	// Intercept in-app cross-doc links (`#/<doc-id>`) so they switch the
+	// active document instead of navigating away. A document-level listener
+	// keeps the rendered HTML container non-interactive (a11y clean).
+	onMount(() => {
+		function handleDocLinkClick(event: MouseEvent) {
+			const target = event.target as Element | null;
+			const anchor = target?.closest?.('a');
+			if (!anchor) return;
+			const match = anchor.getAttribute('href')?.match(/^#\/([a-z0-9-]+)$/);
+			if (!match) return;
+			const targetId = match[1];
+			if (usageDocuments.some(doc => doc.id === targetId)) {
+				event.preventDefault();
+				selectDoc(targetId);
+			}
+		}
+		document.addEventListener('click', handleDocLinkClick);
+		return () => document.removeEventListener('click', handleDocLinkClick);
+	});
 </script>
 
 <div class="flex flex-col h-full p-2 space-y-3 overflow-y-auto">
