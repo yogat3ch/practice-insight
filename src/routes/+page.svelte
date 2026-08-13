@@ -3,7 +3,7 @@
 	Distribution) plus this page's content below them. Keep this minimal so the
 	charts remain the primary focus.
 -->
-<div class="flex flex-col items-center gap-1 p-4 pb-3 text-center">
+<div class="flex flex-col items-center gap-1 p-1 pb-3 text-center">
 	<p class="text-sm text-[#6E6E6E]">
 		Practice Insight — meditation analytics for Insight Timer CSV exports.
 	</p>
