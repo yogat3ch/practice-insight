@@ -1,0 +1,29 @@
+name: Feature Request
+description: Suggest an idea or improvement for Practice Insight
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for sharing your idea! Please describe the problem you're trying to solve and how you'd like the app to help.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What are you trying to do that the app doesn't currently support?
+      placeholder: "I'd like to see a rolling 30-day streak of my practice sessions."
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: How do you imagine the feature working?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: Any workarounds or alternative approaches you've considered?
