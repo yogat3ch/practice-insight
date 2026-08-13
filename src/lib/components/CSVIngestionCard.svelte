@@ -1,6 +1,6 @@
 <script lang="ts">
-	import {engine, parseCSV} from '$lib';
 	import type {WorkerResult} from '$lib';
+	import {engine, parseCSV} from '$lib';
 
 	/** Dragging state drives the drop-target highlight. */
 	let isDragging = $state(false);
