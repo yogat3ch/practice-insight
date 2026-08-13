@@ -8,6 +8,7 @@
 	import TimelineView from '$lib/components/TimelineView.svelte';
 	import ComparisonView from '$lib/components/ComparisonView.svelte';
 	import DistributionView from '$lib/components/DistributionView.svelte';
+	import UsageView from '$lib/components/UsageView.svelte';
 	import {engine, fetchAndParseSampleCSV} from '$lib';
 
 	// Drawer open state (mobile)
@@ -165,6 +166,8 @@
 				<TimelineView />
 			{:else if activeTab === 'comparison'}
 				<ComparisonView />
+			{:else if activeTab === 'usage'}
+				<UsageView />
 			{:else}
 				<DistributionView />
 			{/if}

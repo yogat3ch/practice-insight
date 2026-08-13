@@ -5,6 +5,7 @@
 		{id: 'timeline', label: 'Timeline'},
 		{id: 'comparison', label: 'Comparison'},
 		{id: 'distribution', label: 'Distribution'},
+		{id: 'usage', label: 'Usage'},
 	];
 
 	function selectTab(id: TabId) {

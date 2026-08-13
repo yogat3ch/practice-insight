@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { TimeWindowPreset } from '$lib';
-	import { computeTimeWindowDateRange, engine } from '$lib';
-	import { format } from 'date-fns';
+	import type {TimeWindowPreset} from '$lib';
+	import {computeTimeWindowDateRange, engine} from '$lib';
+	import {format} from 'date-fns';
 	import Accordion from './Accordion.svelte';
 	import CSVIngestionCard from './CSVIngestionCard.svelte';
 	import ComparisonControls from './ComparisonControls.svelte';
@@ -410,19 +410,21 @@
 		</button>
 	</Accordion>
 
-	<!-- Tab-Specific Controls (§4.1) -->
-	<Accordion
-		id="tabControlsSection"
-		title={tabControlsTitle}
-		defaultOpen={true}
-	>
-		<p class="mb-3 text-xs text-[#6E6E6E]">{tabControlsHint}</p>
-		{#if activeTab === 'timeline'}
-			<TimelineControls />
-		{:else if activeTab === 'comparison'}
-			<ComparisonControls />
-		{:else if activeTab === 'distribution'}
-			<DistributionControls />
-		{/if}
-	</Accordion>
+	<!-- Tab-Specific Controls (§4.1) — hidden on the Usage tab (no controls). -->
+	{#if activeTab !== 'usage'}
+		<Accordion
+			id="tabControlsSection"
+			title={tabControlsTitle}
+			defaultOpen={true}
+		>
+			<p class="mb-3 text-xs text-[#6E6E6E]">{tabControlsHint}</p>
+			{#if activeTab === 'timeline'}
+				<TimelineControls />
+			{:else if activeTab === 'comparison'}
+				<ComparisonControls />
+			{:else if activeTab === 'distribution'}
+				<DistributionControls />
+			{/if}
+		</Accordion>
+	{/if}
 </div>

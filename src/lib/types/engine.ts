@@ -5,7 +5,7 @@
 import type {Granularity} from './filters.js';
 
 /** Active top-level visualization tab. */
-export type TabId = 'timeline' | 'comparison' | 'distribution';
+export type TabId = 'timeline' | 'comparison' | 'distribution' | 'usage';
 
 /** Time window presets for Timeline mode. */
 export type TimeWindowPreset = '3M' | '6M' | '1Y' | 'YTD' | 'All' | 'Custom';
