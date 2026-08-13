@@ -14,10 +14,10 @@
  * The generated file is committed so the app builds without running this
  * script; a `prebuild` hook regenerates it to keep it in sync.
  */
-import {readdirSync, readFileSync, writeFileSync, mkdirSync} from 'node:fs';
+import {marked} from 'marked';
+import {mkdirSync, readdirSync, readFileSync, writeFileSync} from 'node:fs';
 import {dirname, join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {marked} from 'marked';
 import prettier from 'prettier';
 import sanitizeHtml from 'sanitize-html';
 
