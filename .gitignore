@@ -6,6 +6,9 @@ node_modules/
 build/
 dist/
 
+# Internal agent files (plans, spec, walkthroughs, skills) — not for the public repo
+.agents/
+
 # Environment variables
 .env
 .env.*
