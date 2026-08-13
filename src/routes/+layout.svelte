@@ -96,9 +96,15 @@
 			>
 				{#if !sidebarCollapsed}
 					<span
-						class="text-lg font-bold tracking-tight text-[#1C1C1C] whitespace-nowrap"
-						>Practice Insight</span
+						class="inline-flex items-center gap-2 text-lg font-bold tracking-tight text-[#1C1C1C] whitespace-nowrap"
 					>
+						<img
+							src="/favicon.webp"
+							alt=""
+							class="h-6 w-6 rounded object-contain"
+						/>
+						Practice Insight
+					</span>
 				{/if}
 				<button
 					type="button"
