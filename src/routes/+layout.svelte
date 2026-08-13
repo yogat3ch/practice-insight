@@ -10,7 +10,11 @@
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import {onMount} from 'svelte';
 	import '../app.css';
+	// Vercel Analytics Integration
+	import {dev} from '$app/environment';
+	import {injectAnalytics} from '@vercel/analytics/sveltekit';
 
+	injectAnalytics({mode: dev ? 'development' : 'production'});
 	// Drawer open state (mobile)
 	let drawerOpen = $state(false);
 
