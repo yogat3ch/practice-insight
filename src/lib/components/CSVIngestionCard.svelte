@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {engine, parseCSV, fetchAndParseSampleCSV} from '$lib';
+	import {engine, parseCSV} from '$lib';
 	import type {WorkerResult} from '$lib';
 
 	/** Dragging state drives the drop-target highlight. */
@@ -38,20 +38,6 @@
 		} catch (err) {
 			errorMessage =
 				err instanceof Error ? err.message : 'Failed to parse CSV file.';
-		} finally {
-			isLoading = false;
-		}
-	}
-
-	async function loadSample(): Promise<void> {
-		errorMessage = '';
-		isLoading = true;
-		try {
-			const result: WorkerResult = await fetchAndParseSampleCSV();
-			applyResult(result);
-		} catch (err) {
-			errorMessage =
-				err instanceof Error ? err.message : 'Failed to load sample CSV.';
 		} finally {
 			isLoading = false;
 		}
@@ -182,13 +168,4 @@
 			{errorMessage}
 		</p>
 	{/if}
-
-	<button
-		type="button"
-		onclick={loadSample}
-		disabled={isLoading}
-		class="mt-2 w-full px-3 py-1.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-md text-sm font-medium text-[#1C1C1C] hover:bg-[#F3F4F6] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#EAA845] disabled:opacity-50 disabled:cursor-not-allowed"
-	>
-		Load Sample CSV
-	</button>
 </section>
