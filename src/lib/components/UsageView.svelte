@@ -1,11 +1,14 @@
 <script lang="ts">
 	import {usageDocuments} from '$lib/usage/usage-content';
+	import {consumeUsageDoc} from '$lib/usage/usage-nav.svelte';
 	import {onMount} from 'svelte';
 
-	// Selected document (defaults to the Usage Guide).
+	// Selected document. Consume any externally-requested doc (e.g. from the
+	// CSV card's help link); default to the Usage Guide.
 	let activeDocId = $state(
-		usageDocuments.find(doc => doc.id === 'usage')?.id ??
-			usageDocuments[0]?.id ??
+		consumeUsageDoc() ||
+			usageDocuments.find(doc => doc.id === 'usage')?.id ||
+			usageDocuments[0]?.id ||
 			'',
 	);
 	// Dropdown open state.

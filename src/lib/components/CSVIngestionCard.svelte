@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type {WorkerResult} from '$lib';
 	import {engine, parseCSV} from '$lib';
+	import {openUsageDoc} from '$lib/usage/usage-nav.svelte';
 
 	/** Dragging state drives the drop-target highlight. */
 	let isDragging = $state(false);
@@ -53,15 +54,30 @@
 	function formatCount(value: number): string {
 		return value.toLocaleString('en-US');
 	}
+
+	// Open the Insight Timer export guide in the Usage tab.
+	function openExportGuide() {
+		openUsageDoc('it-export');
+	}
 </script>
 
 <section
-	aria-labelledby="csvCardTitle"
+	aria-labelledby="csvCardHelp"
 	class="border border-[#E5E5E5] bg-white rounded-md p-3"
 >
-	<h3 id="csvCardTitle" class="text-sm font-semibold text-[#1C1C1C] mb-2">
-		CSV Data
-	</h3>
+	<p id="csvCardHelp" class="mb-2 text-xs text-[#6E6E6E]">
+		How do I download my
+		<a
+			href="#/it-export"
+			onclick={(event: MouseEvent) => {
+				event.preventDefault();
+				openExportGuide();
+			}}
+			class="underline text-[#10B981] hover:text-[#059669] transition-colors"
+		>
+			Insight Timer CSV Data
+		</a>?
+	</p>
 
 	<div
 		role="button"
